@@ -39,6 +39,7 @@ import Register from "./pages/auth/Register";
 import React, { useEffect } from "react";
 import supabase from "./utils/supabase";
 import Profile from "./pages/Profile";
+import Services from "./pages/Services";
 
 setupIonicReact();
 
@@ -69,6 +70,7 @@ const App: React.FC = () => {
               component={RedefinePassword}
             />
             <Route exact path="/app/profile" component={Profile} />
+            <Route exact path="/app/services" component={Services} />
             <Route exact path="/app/home">
               <Home />
             </Route>
