@@ -2,13 +2,12 @@ import {
   IonAvatar,
   IonContent,
   IonIcon,
-  IonItem,
   IonLabel,
   IonList,
   IonPage,
   IonText,
 } from "@ionic/react";
-import { calendar, chatboxEllipses, cut, time } from "ionicons/icons";
+import { bag, calendar, chatbubbles, cut, time } from "ionicons/icons";
 import React from "react";
 
 import { Link } from "react-router-dom";
@@ -51,26 +50,41 @@ const Home = () => {
                 </Link>
               </div>
             </div>
-            <div className="grid grid-cols-[30%_1fr]  gap-4 py-5">
+            <div className="grid grid-cols-[30%_1fr] gap-4 py-3">
               <div className="flex flex-col justify-center items-center h-32 bg-amber-800 shadow rounded-xl">
                 <IonIcon className="mb-5 w-8 h-8 text-white" src={calendar} />
 
-                <IonText className="text-white">Agendar</IonText>
+                <IonText className="text-white">Agenda</IonText>
               </div>
               <div className="flex flex-col justify-center items-center h-32 bg-white shadow rounded-xl">
                 <IonIcon
                   className="mb-5 w-8 h-8 text-gray-500"
-                  src={chatboxEllipses}
+                  src={chatbubbles}
                 />
 
-                <IonText className="text-gray-400">Chat</IonText>
+                <IonText className="text-gray-400">Chats</IonText>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4 py-3">
+              <Link
+                to="/app/services/"
+                className="flex flex-col justify-center items-center h-32 col-span-2 bg-amber-800 shadow rounded-xl"
+              >
+                <IonIcon className="mb-5 w-8 h-8 text-white" src={cut} />
+
+                <IonText className="text-white">Serviços</IonText>
+              </Link>
+              <div className="flex flex-col justify-center items-center h-32 bg-white shadow rounded-xl">
+                <IonIcon className="mb-5 w-8 h-8 text-gray-500" src={bag} />
+
+                <IonText className="text-gray-400">Produtos</IonText>
               </div>
             </div>
 
             <div className="h-auto bg-white shadow rounded-xl py-5">
               <div className="flex justify-start mx-5">
                 <IonIcon className="mb-5 w-6 h-6 text-gray-500" src={time} />
-                <IonText className="text-gray-500">Agendamentos</IonText>
+                <IonText className="text-gray-500">Agendamentos Hoje</IonText>
               </div>
               <div className="flex justify-center">
                 <div className="h-[1px] w-4/5 bg-gray-500" />
