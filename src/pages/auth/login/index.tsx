@@ -18,9 +18,6 @@ import {
 import { close, eye, eyeOff } from "ionicons/icons";
 import { Link } from "react-router-dom";
 import supabase from "../../../utils/supabase";
-import { Router } from "workbox-routing";
-import { AnyARecord } from "dns";
-import { log } from "console";
 import React from "react";
 
 const Login = () => {
