@@ -40,6 +40,7 @@ import React, { useEffect } from "react";
 import supabase from "./utils/supabase";
 import Profile from "./pages/Profile";
 import Services from "./pages/Services";
+import { EditService } from "./pages/EditService";
 
 setupIonicReact();
 
@@ -71,6 +72,11 @@ const App: React.FC = () => {
             />
             <Route exact path="/app/profile" component={Profile} />
             <Route exact path="/app/services" component={Services} />
+            <Route
+              exact
+              path="/app/edit-service/:ServiceId"
+              component={EditService}
+            />
             <Route exact path="/app/home">
               <Home />
             </Route>
