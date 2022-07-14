@@ -1,0 +1,337 @@
+import { ErrorMessage } from "@hookform/error-message";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+
+import {
+  IonBackButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonModal,
+  IonPage,
+  IonSelect,
+  IonSelectOption,
+  IonText,
+  IonTitle,
+  IonToolbar,
+  useIonToast,
+} from "@ionic/react";
+import { bag, cut } from "ionicons/icons";
+
+import React from "react";
+import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
+
+import supabase from "../../utils/supabase";
+
+const Products = () => {
+  const [showToast] = useIonToast();
+
+  const [currentUser, setcurrentUser] = React.useState<any>();
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const [products, setProducts] = React.useState<Array<any>>([]);
+
+  const schema = Yup.object().shape({
+    name: Yup.string()
+      .min(3, "nome do produto deve ter no minimo 3 caracteres")
+      .required("O nome é obrigatório"),
+    category: Yup.string().required("A categoria é obrigatória"),
+    code: Yup.string().min(
+      3,
+      "O código do produto deveter no minimo 3 caracteres"
+    ),
+    price: Yup.number().required("Informe quanto custa o serviço"),
+  });
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+    resolver: yupResolver(schema),
+  });
+
+  const handleNewProduct = async (data: any) => {
+    try {
+      const { data: newServiceData, error } = await supabase
+        .from("products")
+        .insert([
+          {
+            name: data?.name,
+            category: data?.category,
+            code: data?.code,
+            price: data?.price,
+          },
+        ]);
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        }).then(() => {
+          setIsOpen(!isOpen);
+        });
+      }
+
+      if (newServiceData) {
+        await showToast({
+          position: "top",
+          message: "Produto cadastrado com sucesso",
+          duration: 3000,
+        }).then(() => {
+          setIsOpen(!isOpen);
+          getProducts();
+        });
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+    } finally {
+    }
+  };
+
+  const getProducts = async () => {
+    console.log("entrou");
+
+    try {
+      let { data: products, error } = await supabase
+        .from("products")
+        .select("*");
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+      }
+
+      if (products) {
+        await setProducts(products);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    const user = supabase.auth.user();
+    setcurrentUser(user);
+  }, []);
+
+  React.useEffect(() => {
+    getProducts();
+  }, []);
+
+  return (
+    <IonPage>
+      {currentUser && (
+        <>
+          <IonContent>
+            <div className="h-screen bg-gray-100">
+              <div className="flex items-center bg-white p-5 border-b">
+                <IonButtons slot="start">
+                  <IonBackButton defaultHref="/app/home" />
+                </IonButtons>
+                <IonTitle className="font-bold">Produtos</IonTitle>
+              </div>
+              <div className="py-10 px-5">
+                <div
+                  onClick={() => setIsOpen(!isOpen)}
+                  className="flex flex-col justify-center items-center h-32 col-span-2 bg-amber-800 shadow rounded-xl"
+                >
+                  <IonIcon className="mb-5 w-8 h-8 text-white" src={bag} />
+
+                  <IonText className="text-white">
+                    Cadastrar novo produto
+                  </IonText>
+                </div>
+
+                {/* SERVICES */}
+
+                <div className="h-96 overflow-auto rounded-xl my-3">
+                  <table className="w-full text-sm text-left text-gray-500 rounded-xl overflow-hidden">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-200">
+                      <tr>
+                        <th scope="col" className="py-3 px-6">
+                          Nome do Serviço
+                        </th>
+                        <th scope="col" className="py-3 px-6">
+                          Categoria
+                        </th>
+                        <th scope="col" className="py-3 px-6">
+                          Preço
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {products.map((product, index) => (
+                        <tr key={index} className="bg-white border-b">
+                          <th
+                            scope="row"
+                            className="py-4 px-6 font-medium text-gray-900"
+                          >
+                            <Link to={`/app/edit-product/${product?.id}`}>
+                              {product?.name}
+                            </Link>
+                          </th>
+                          <td className="py-4 px-6 uppercase">
+                            {product?.category}
+                          </td>
+                          <td className="py-4 px-6">R${product?.price}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Modal */}
+
+                <IonModal
+                  isOpen={isOpen}
+                  initialBreakpoint={0.75}
+                  breakpoints={[0, 0.25, 0.5, 0.75]}
+                >
+                  <div className="flex justify-around p-3 bg-amber-800">
+                    <IonTitle className="text-white">
+                      Cadastrar novo produto
+                    </IonTitle>
+                    <div className="p-2">
+                      <button
+                        onClick={() => setIsOpen(!isOpen)}
+                        className="ml-2 text-white"
+                      >
+                        FECHAR
+                      </button>
+                    </div>
+                  </div>
+
+                  <form
+                    onSubmit={handleSubmit(handleNewProduct)}
+                    className="ion-padding"
+                  >
+                    <IonLabel className="text-gray-600" position="stacked">
+                      Nome
+                    </IonLabel>
+                    <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
+                      <IonInput
+                        type="text"
+                        className="placeholder: text-gray-600"
+                        placeholder="Shampoo"
+                        {...register("name")}
+                      />
+                    </div>
+                    <ErrorMessage
+                      errors={errors}
+                      name="name"
+                      as={<div style={{ color: "red" }} />}
+                    />
+                    <div className="py-5">
+                      <IonLabel className="text-gray-600" position="stacked">
+                        Categoria
+                      </IonLabel>
+
+                      <IonSelect
+                        className="bg-gray-200 rounded-xl placeholder: text-gray-700 mt-3"
+                        placeholder="Selecione a categoria"
+                        {...register("category")}
+                      >
+                        <IonSelectOption value="shampoos">
+                          Shampoos
+                        </IonSelectOption>
+                        <IonSelectOption value="condicionadores">
+                          Condicionadores
+                        </IonSelectOption>
+                        <IonSelectOption value="cremes">Cremes</IonSelectOption>
+                        <IonSelectOption value="bebidas">
+                          Bebidas
+                        </IonSelectOption>
+                      </IonSelect>
+                      <ErrorMessage
+                        errors={errors}
+                        name="category"
+                        as={<div style={{ color: "red" }} />}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <IonLabel className="text-gray-600" position="stacked">
+                          Código do produto
+                        </IonLabel>
+                        <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
+                          <IonInput
+                            type={"text"}
+                            className="placeholder: text-gray-600"
+                            placeholder="20AB"
+                            {...register("code")}
+                          />
+                        </div>
+                        <ErrorMessage
+                          errors={errors}
+                          name="code"
+                          as={<div style={{ color: "red" }} />}
+                        />
+                      </div>
+                      <div>
+                        <IonLabel className="text-gray-600" position="stacked">
+                          Preço
+                        </IonLabel>
+
+                        <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
+                          <IonLabel className="text-gray-400">R$</IonLabel>
+                          <IonInput
+                            type={"number"}
+                            className="placeholder: text-gray-600"
+                            placeholder="15,50"
+                            {...register("price")}
+                          />
+                        </div>
+                        <ErrorMessage
+                          errors={errors}
+                          name="price"
+                          as={<div style={{ color: "red" }} />}
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      className="p-4 w-full rounded-xl bg-amber-800 text-white my-5"
+                    >
+                      SALVAR
+                    </button>
+                  </form>
+                </IonModal>
+              </div>
+            </div>
+          </IonContent>
+        </>
+      )}
+      {currentUser === undefined && (
+        <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
+          <p className="text-black">você precisa estar logado</p>
+          <Link to="/signup" className="text-cyan-500">
+            Clique aqui
+          </Link>
+        </div>
+      )}
+    </IonPage>
+  );
+};
+
+export default Products;

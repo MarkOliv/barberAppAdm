@@ -71,14 +71,17 @@ const Home = () => {
                 className="flex flex-col justify-center items-center h-32 col-span-2 bg-amber-800 shadow rounded-xl"
               >
                 <IonIcon className="mb-5 w-8 h-8 text-white" src={cut} />
-
                 <IonText className="text-white">Serviços</IonText>
               </Link>
-              <div className="flex flex-col justify-center items-center h-32 bg-white shadow rounded-xl">
+
+              <Link
+                to="/app/products"
+                className="flex flex-col justify-center items-center h-32 bg-white shadow rounded-xl"
+              >
                 <IonIcon className="mb-5 w-8 h-8 text-gray-500" src={bag} />
 
                 <IonText className="text-gray-400">Produtos</IonText>
-              </div>
+              </Link>
             </div>
 
             <div className="h-auto bg-white shadow rounded-xl py-5">
