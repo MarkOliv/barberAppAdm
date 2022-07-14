@@ -43,6 +43,7 @@ import Services from "./pages/Services";
 import { EditService } from "./pages/EditService";
 import Products from "./pages/Products";
 import { EditProduct } from "./pages/EditProduct";
+import Calendar from "./pages/Calendar";
 
 setupIonicReact();
 
@@ -62,6 +63,15 @@ const App: React.FC = () => {
             <Route exact path="/">
               <Redirect to={currentUser ? "/app/home" : "/signup"} />
             </Route>
+            <Route exact path="/app/profile" component={Profile} />
+
+            <Route exact path="/app/home">
+              <Home />
+            </Route>
+
+            <Route exact path="/app/calendar" component={Calendar} />
+
+            {/* auth */}
 
             <Route exact path="/login" component={Login} />
             <Route exact path="/register" component={Register} />
@@ -72,7 +82,9 @@ const App: React.FC = () => {
               path="/redefine-password"
               component={RedefinePassword}
             />
-            <Route exact path="/app/profile" component={Profile} />
+
+            {/* services */}
+
             <Route exact path="/app/services" component={Services} />
             <Route
               exact
@@ -80,16 +92,14 @@ const App: React.FC = () => {
               component={EditService}
             />
 
+            {/* products */}
+
             <Route exact path="/app/products" component={Products} />
             <Route
               exact
               path="/app/edit-product/:ProductId"
               component={EditProduct}
             />
-
-            <Route exact path="/app/home">
-              <Home />
-            </Route>
           </IonRouterOutlet>
 
           <IonTabBar className="hidden" slot="bottom">

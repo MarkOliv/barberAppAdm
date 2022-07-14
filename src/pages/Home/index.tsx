@@ -43,7 +43,7 @@ const Home = () => {
                 <Link to="/app/profile">
                   <IonAvatar className="flex items-center w-[70px] h-[70px] mr-5">
                     <img
-                      src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y"
+                      src="https://blog.unyleya.edu.br/wp-content/uploads/2017/12/saiba-como-a-educacao-ajuda-voce-a-ser-uma-pessoa-melhor.jpeg"
                       alt="profile"
                     />
                   </IonAvatar>
@@ -51,11 +51,14 @@ const Home = () => {
               </div>
             </div>
             <div className="grid grid-cols-[30%_1fr] gap-4 py-3">
-              <div className="flex flex-col justify-center items-center h-32 bg-amber-800 shadow rounded-xl">
+              <Link
+                to="/app/calendar"
+                className="flex flex-col justify-center items-center h-32 bg-amber-800 shadow rounded-xl"
+              >
                 <IonIcon className="mb-5 w-8 h-8 text-white" src={calendar} />
 
-                <IonText className="text-white">Agenda</IonText>
-              </div>
+                <IonText className="text-white">Calendário</IonText>
+              </Link>
               <div className="flex flex-col justify-center items-center h-32 bg-white shadow rounded-xl">
                 <IonIcon
                   className="mb-5 w-8 h-8 text-gray-500"
