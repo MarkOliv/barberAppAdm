@@ -41,6 +41,8 @@ import supabase from "./utils/supabase";
 import Profile from "./pages/Profile";
 import Services from "./pages/Services";
 import { EditService } from "./pages/EditService";
+import Products from "./pages/Products";
+import { EditProduct } from "./pages/EditProduct";
 
 setupIonicReact();
 
@@ -77,6 +79,14 @@ const App: React.FC = () => {
               path="/app/edit-service/:ServiceId"
               component={EditService}
             />
+
+            <Route exact path="/app/products" component={Products} />
+            <Route
+              exact
+              path="/app/edit-product/:ProductId"
+              component={EditProduct}
+            />
+
             <Route exact path="/app/home">
               <Home />
             </Route>
