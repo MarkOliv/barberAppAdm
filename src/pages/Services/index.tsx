@@ -101,8 +101,6 @@ const Services = () => {
   };
 
   const getServices = async () => {
-    console.log("entrou");
-
     try {
       let { data: services, error } = await supabase
         .from("services")
