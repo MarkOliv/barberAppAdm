@@ -6,28 +6,68 @@ import {
   IonList,
   IonPage,
   IonText,
+  useIonToast,
 } from "@ionic/react";
-import { bag, calendar, chatbubbles, cut, time } from "ionicons/icons";
+import {
+  bag,
+  calendar,
+  chatbubbles,
+  checkmarkCircle,
+  cut,
+  time,
+} from "ionicons/icons";
 import React from "react";
 
 import { Link } from "react-router-dom";
+import { useAuth } from "../../contexts";
 import supabase from "../../utils/supabase";
 
 const Home = () => {
-  // limit is 11
-  const Agendamentos = [1, 2, 3, 4, 5, 6];
+  const [showToast] = useIonToast();
+  const [schedulesToShow, setSchedulesToShow] = React.useState<Array<any>>([]);
 
-  const [currentUser, setcurrentUser] = React.useState<any>();
+  const { sessionUser } = useAuth();
+
+  const getSchedulesToShow = async () => {
+    let date = new Date();
+    let currentDate = new Intl.DateTimeFormat("en-US").format(date);
+
+    try {
+      let { data, error } = await supabase
+        .from("schedules")
+        .select("*")
+
+        .eq("date", currentDate);
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+
+      if (data) {
+        setSchedulesToShow(data);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
+  };
 
   React.useEffect(() => {
-    const user = supabase.auth.user();
-
-    setcurrentUser(user);
+    getSchedulesToShow();
   }, []);
 
   return (
     <IonPage>
-      {currentUser && (
+      {sessionUser && (
         <IonContent fullscreen>
           <div className=" h-screen py-10 px-5 bg-gray-100">
             <div className="flex justify-between">
@@ -36,7 +76,7 @@ const Home = () => {
                   Bem vindo{"(a)"}
                 </IonText>
                 <IonText className="text-black-200 text-2xl font-bold uppercase">
-                  {currentUser?.user_metadata?.full_name}
+                  {sessionUser?.user_metadata?.full_name}
                 </IonText>
               </div>
               <div className="flex items-center">
@@ -90,20 +130,33 @@ const Home = () => {
             <div className="h-auto bg-white shadow rounded-xl py-5">
               <div className="flex justify-start mx-5">
                 <IonIcon className="mb-5 w-6 h-6 text-gray-500" src={time} />
-                <IonText className="text-gray-500">Agendamentos Hoje</IonText>
+                <IonText className="ml-2 text-gray-500">
+                  Agendamentos hoje
+                </IonText>
               </div>
               <div className="flex justify-center">
                 <div className="h-[1px] w-4/5 bg-gray-500" />
               </div>
               <IonList className="w-full h-full p-5 rounded-xl">
-                {Agendamentos.map((agendamento, index) => (
+                {schedulesToShow.map((agendamento, index) => (
                   <div key={index} className="grid grid-cols-3 w-full py-2">
                     <div className="flex justify-start items-center">
-                      <IonIcon className="w-6 h-6 text-gray-500" src={cut} />
+                      <IonIcon
+                        className={`w-7 h-7 ${
+                          agendamento.status === "pending"
+                            ? "text-orange-600"
+                            : "text-green-500"
+                        }`}
+                        src={checkmarkCircle}
+                      />
                     </div>
-                    <IonLabel className="text-gray-500">Segunda-feira</IonLabel>
+                    <IonLabel className="text-gray-500">
+                      {agendamento.name}
+                    </IonLabel>
                     <div className="flex justify-end items-center">
-                      <IonLabel className="mr-3 text-gray-500">8:00</IonLabel>
+                      <IonLabel className="mr-3 text-gray-500">
+                        {agendamento.times[0]}
+                      </IonLabel>
                     </div>
                   </div>
                 ))}
@@ -112,7 +165,7 @@ const Home = () => {
           </div>
         </IonContent>
       )}
-      {currentUser == undefined && (
+      {sessionUser === null && (
         <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
           <p className="text-black">você precisa estar logado</p>
           <Link to="/signup" className="text-cyan-500">
