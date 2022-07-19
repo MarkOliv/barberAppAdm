@@ -44,6 +44,7 @@ import { EditService } from "./pages/EditService";
 import Products from "./pages/Products";
 import { EditProduct } from "./pages/EditProduct";
 import Calendar from "./pages/Calendar";
+import { EditSchedule } from "./pages/EditSchedule";
 
 setupIonicReact();
 
@@ -70,6 +71,11 @@ const App: React.FC = () => {
             </Route>
 
             <Route exact path="/app/calendar" component={Calendar} />
+            <Route
+              exact
+              path="/app/edit-schedule/:scheduleId"
+              component={EditSchedule}
+            />
 
             {/* auth */}
 
