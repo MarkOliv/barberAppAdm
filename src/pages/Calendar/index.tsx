@@ -5,6 +5,7 @@ import {
   IonIcon,
   IonInput,
   IonLabel,
+  IonList,
   IonModal,
   IonPage,
   IonSelect,
@@ -13,7 +14,7 @@ import {
   IonTitle,
   useIonToast,
 } from "@ionic/react";
-import { calendar, time } from "ionicons/icons";
+import { calendar, checkmarkCircle, cut, time } from "ionicons/icons";
 import React from "react";
 
 import { Link } from "react-router-dom";
@@ -30,11 +31,12 @@ const Calendar = () => {
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [currentUser, setcurrentUser] = React.useState<any>();
-  const [consultDate, setConsultDate] = React.useState<any>();
   const [hours, setHours] = React.useState<Array<string>>([]);
   const [services, setServices] = React.useState<Array<any>>([]);
   const [schedules, setSchedules] = React.useState<Array<any>>([]);
-  // const [newDate, setnewDate] = React.useState<any>();
+  // Handling states to show the consult
+  const [consultDate, setConsultDate] = React.useState<any>();
+  const [schedulesToShow, setSchedulesToShow] = React.useState<Array<any>>([]);
 
   const schema = Yup.object().shape({
     name: Yup.string()
@@ -58,6 +60,36 @@ const Calendar = () => {
     mode: "onChange",
     resolver: yupResolver(schema),
   });
+
+  const getSchedulesToShow = async (date: any) => {
+    try {
+      let { data, error } = await supabase
+        .from("schedules")
+        .select("*")
+
+        .eq("date", date);
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+
+      if (data) {
+        setSchedulesToShow(data);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
+  };
 
   const getServices = async () => {
     try {
@@ -328,6 +360,7 @@ const Calendar = () => {
                     type="date"
                     onIonChange={({ detail }) => {
                       setConsultDate(detail.value);
+                      getSchedulesToShow(detail.value);
                     }}
                   />
                 </div>
@@ -344,19 +377,34 @@ const Calendar = () => {
               <div className="flex justify-center">
                 <div className="h-[1px] w-4/5 bg-gray-500" />
               </div>
-              {/* <IonList className="w-full h-full p-5 rounded-xl">
-                {schedules.map((agendamento, index) => (
-                  <div key={index} className="grid grid-cols-3 w-full py-2">
+              <IonList className="w-full h-full p-5 rounded-xl">
+                {schedulesToShow.map((agendamento, index) => (
+                  <Link
+                    to={`/app/edit-schedule/${agendamento.id}`}
+                    key={index}
+                    className="grid grid-cols-3 w-full py-2"
+                  >
                     <div className="flex justify-start items-center">
-                      <IonIcon className="w-6 h-6 text-gray-500" src={cut} />
+                      <IonIcon
+                        className={`w-7 h-7 ${
+                          agendamento.status === "pending"
+                            ? "text-orange-600"
+                            : "text-green-500"
+                        }`}
+                        src={checkmarkCircle}
+                      />
                     </div>
-                    <IonLabel className="text-gray-500">Segunda-feira</IonLabel>
+                    <IonLabel className="text-gray-500">
+                      {agendamento.name}
+                    </IonLabel>
                     <div className="flex justify-end items-center">
-                      <IonLabel className="mr-3 text-gray-500">8:00</IonLabel>
+                      <IonLabel className="mr-3 text-gray-500">
+                        {agendamento.times[0]}
+                      </IonLabel>
                     </div>
-                  </div>
+                  </Link>
                 ))}
-              </IonList> */}
+              </IonList>
             </div>
           </div>
           <IonModal
