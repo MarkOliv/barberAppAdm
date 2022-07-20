@@ -120,7 +120,7 @@ export const EditSchedule = () => {
           </IonButtons>
           <IonIcon
             className={`w-7 h-7 ${
-              status ? "text-green-500" : "text-orange-500"
+              status ? "text-green-700" : "text-orange-700"
             }`}
             src={checkmarkCircle}
           />
@@ -164,7 +164,9 @@ export const EditSchedule = () => {
             onClick={handleChangeStatus}
             type="submit"
             className={`p-4 w-full rounded-xl ${
-              status ? "bg-green-500" : "bg-orange-500"
+              status
+                ? "bg-gradient-to-l from-green-800 to-green-700"
+                : "bg-gradient-to-l from-orange-800 to-orange-600"
             } text-white my-3`}
           >
             Mudar Status

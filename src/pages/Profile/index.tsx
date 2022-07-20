@@ -53,7 +53,7 @@ const Profile = () => {
   return (
     <IonPage>
       <IonContent fullscreen>
-        <div className="flex flex-wrap justify-center bg-amber-800 rounded-b-3xl p-5">
+        <div className="flex flex-wrap justify-center rounded-b-3xl p-5 bg-gradient-to-l from-green-800 to-green-600">
           <div className="flex items-center w-full mb-5">
             <Link to={"/app/home"}>
               <IonIcon

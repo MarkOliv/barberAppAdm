@@ -17,6 +17,8 @@ import {
   IonTitle,
   useIonToast,
 } from "@ionic/react";
+
+import hairProds from "../../assets/hair-prods.png";
 import { bag, cut } from "ionicons/icons";
 
 import React from "react";
@@ -149,11 +151,11 @@ const Products = () => {
               <div className="py-10 px-5">
                 <div
                   onClick={() => setIsOpen(!isOpen)}
-                  className="flex flex-col justify-center items-center h-32 col-span-2 bg-amber-800 shadow rounded-xl"
+                  className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-xl bg-gradient-to-l from-green-800 to-green-600"
                 >
-                  <IonIcon className="mb-5 w-8 h-8 text-white" src={bag} />
-
-                  <IonText className="text-white">
+                  {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={bag} /> */}
+                  <img className="w-14 h-14" src={hairProds} alt="" />
+                  <IonText className="text-white my-1">
                     Cadastrar novo produto
                   </IonText>
                 </div>
@@ -203,7 +205,7 @@ const Products = () => {
                   initialBreakpoint={0.75}
                   breakpoints={[0, 0.25, 0.5, 0.75]}
                 >
-                  <div className="flex justify-around p-3 bg-amber-800">
+                  <div className="flex justify-around p-3 bg-gradient-to-l from-green-800 to-green-600">
                     <IonTitle className="text-white">
                       Cadastrar novo produto
                     </IonTitle>
@@ -307,7 +309,7 @@ const Products = () => {
                     </div>
                     <button
                       type="submit"
-                      className="p-4 w-full rounded-xl bg-amber-800 text-white my-5"
+                      className="p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
                     >
                       SALVAR
                     </button>

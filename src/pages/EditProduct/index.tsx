@@ -217,7 +217,7 @@ export const EditProduct = () => {
           </div>
           <button
             type="submit"
-            className="p-4 w-full rounded-xl bg-amber-800 text-white my-5"
+            className="p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
           >
             SALVAR
           </button>
