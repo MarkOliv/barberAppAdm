@@ -45,16 +45,12 @@ import Products from "./pages/Products";
 import { EditProduct } from "./pages/EditProduct";
 import Calendar from "./pages/Calendar";
 import { EditSchedule } from "./pages/EditSchedule";
+import { useAuth } from "./contexts";
 
 setupIonicReact();
 
 const App: React.FC = () => {
-  const [currentUser, setcurrentUser] = React.useState<any>();
-
-  useEffect(() => {
-    const user = supabase.auth.user();
-    setcurrentUser(user);
-  }, []);
+  const { sessionUser } = useAuth();
 
   return (
     <IonApp>
@@ -62,7 +58,7 @@ const App: React.FC = () => {
         <IonTabs>
           <IonRouterOutlet>
             <Route exact path="/">
-              <Redirect to={currentUser ? "/app/home" : "/signup"} />
+              <Redirect to={sessionUser ? "/app/home" : "/signup"} />
             </Route>
             <Route exact path="/app/profile" component={Profile} />
 

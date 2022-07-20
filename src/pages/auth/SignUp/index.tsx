@@ -1,8 +1,19 @@
-import { IonContent, IonPage } from "@ionic/react";
+import { IonContent, IonPage, useIonRouter } from "@ionic/react";
+import React from "react";
 import { Link } from "react-router-dom";
 import hairFashionLogo from "../../../assets/hairFashion2.png";
+import { useAuth } from "../../../contexts";
 
 const SignUP = () => {
+  const { sessionUser } = useAuth();
+  const router = useIonRouter();
+
+  React.useEffect(() => {
+    if (sessionUser) {
+      router.push("/app/home");
+    }
+  }, []);
+
   return (
     <IonPage>
       <IonContent fullscreen>
