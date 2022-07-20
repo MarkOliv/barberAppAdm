@@ -46,6 +46,7 @@ import { EditProduct } from "./pages/EditProduct";
 import Calendar from "./pages/Calendar";
 import { EditSchedule } from "./pages/EditSchedule";
 import { useAuth } from "./contexts";
+import BarberRegister from "./pages/auth/barber_register";
 
 setupIonicReact();
 
@@ -77,6 +78,7 @@ const App: React.FC = () => {
 
             <Route exact path="/login" component={Login} />
             <Route exact path="/register" component={Register} />
+            <Route exact path="/register-barber" component={BarberRegister} />
             <Route exact path="/signup" component={SignUp} />
             <Route exact path="/forgot-password" component={ForgotPassword} />
             <Route
