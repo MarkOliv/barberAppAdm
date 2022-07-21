@@ -23,12 +23,12 @@ const SignUP = () => {
           </div>
 
           <Link to="register">
-            <button className="p-5 w-full rounded-xl bg-cyan-500 text-white my-3">
+            <button className="p-5 w-full rounded-xl bg-gradient-to-l from-green-800 to-green-700 text-white my-3">
               Cadastre-se
             </button>
           </Link>
           <Link to="/login">
-            <button className="p-5 w-full rounded-xl bg-cyan-500 text-white my-3">
+            <button className="p-5 w-full rounded-xl bg-gradient-to-l from-green-800 to-green-700 text-white my-3">
               Já possui uma conta ? Faça Login
             </button>
           </Link>

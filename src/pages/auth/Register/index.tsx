@@ -174,7 +174,7 @@ const Register = () => {
                 onClick={() => {
                   setShowPassword(!showPassword);
                 }}
-                className="ml-2 text-cyan-500 w-6 h-6"
+                className="ml-2 text-green-700 w-6 h-6"
                 src={showPassword ? eyeOff : eye}
               />
             </div>
@@ -197,7 +197,7 @@ const Register = () => {
                 onClick={() => {
                   setShowConfirmPassword(!showConfirmPassword);
                 }}
-                className="ml-2 text-cyan-500 w-6 h-6"
+                className="ml-2 text-green-700 w-6 h-6"
                 src={showConfirmPassword ? eyeOff : eye}
               />
             </div>
@@ -209,7 +209,7 @@ const Register = () => {
 
             <button
               type="submit"
-              className="p-4 w-full rounded-xl bg-cyan-500 text-white my-3"
+              className="p-4 w-full rounded-xl text-white my-3 bg-gradient-to-l from-green-800 to-green-700"
             >
               Cadastrar
             </button>
