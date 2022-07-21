@@ -112,7 +112,7 @@ const RedefinePassword = () => {
                 placeholder="**********"
                 {...register("password")}
               />
-              <IonIcon className="w-6 h-6 text-cyan-500 " src={eye} />
+              <IonIcon className="w-6 h-6 text-green-700 " src={eye} />
             </div>
             <ErrorMessage
               errors={errors}
@@ -130,7 +130,7 @@ const RedefinePassword = () => {
                 placeholder="**********"
                 {...register("confirmPassword")}
               />
-              <IonIcon className="w-6 h-6 text-cyan-500 " src={eye} />
+              <IonIcon className="w-6 h-6 text-green-700 " src={eye} />
             </div>
             <ErrorMessage
               errors={errors}
@@ -140,7 +140,7 @@ const RedefinePassword = () => {
 
             <button
               type="submit"
-              className="p-3 w-full rounded-xl bg-cyan-500 text-white my-3"
+              className="p-3 w-full rounded-xl text-white my-3 bg-gradient-to-l from-green-800 to-green-700"
             >
               Próximo
             </button>

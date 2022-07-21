@@ -12,6 +12,8 @@ import {
   IonItem,
   IonLabel,
   IonPage,
+  IonSelect,
+  IonSelectOption,
   IonText,
   useIonLoading,
   useIonToast,
@@ -21,9 +23,16 @@ import { close, eye, eyeOff } from "ionicons/icons";
 
 import * as Yup from "yup";
 import supabase from "../../../utils/supabase";
-import { log } from "console";
 
-const Register = () => {
+type specialtiesType = {
+  name: string;
+};
+
+const BarberRegister = () => {
+  const [specialties, setSpecialties] = React.useState<Array<specialtiesType>>(
+    []
+  );
+
   const [showLoading, hideLoading] = useIonLoading();
   const [showToast] = useIonToast();
 
@@ -55,6 +64,33 @@ const Register = () => {
     mode: "onChange",
     resolver: yupResolver(schema),
   });
+
+  const getServices = async () => {
+    try {
+      let { data: specialties, error } = await supabase
+        .from("specialties")
+        .select("*");
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+      }
+
+      if (specialties) {
+        await setSpecialties(specialties);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
+  };
 
   const handleRegister = async (data: any) => {
     await showLoading();
@@ -97,6 +133,10 @@ const Register = () => {
     }
   };
 
+  React.useEffect(() => {
+    getServices();
+  }, []);
+
   return (
     <IonPage>
       <IonContent fullscreen>
@@ -127,16 +167,20 @@ const Register = () => {
             />
 
             <IonLabel className="text-gray-600" position="stacked">
-              Endereço
+              Especialidade
             </IonLabel>
-            <div className="flex items-center bg-gray-200 rounded-xl p-3 my-3">
-              <IonInput
-                autocomplete={"address-line1"}
-                type="text"
-                placeholder="Avenida exemplo nº99"
-                {...register("address")}
-              />
-            </div>
+            <IonSelect
+              multiple={true}
+              className="bg-gray-200 rounded-xl placeholder: text-gray-700 my-3"
+              placeholder="Selecione suas especialidades..."
+              {...register("time")}
+            >
+              {specialties.map((specialtie, index) => (
+                <IonSelectOption key={index} value={specialties[index].name}>
+                  {specialties[index].name}
+                </IonSelectOption>
+              ))}
+            </IonSelect>
             <ErrorMessage
               errors={errors}
               name="address"
@@ -220,4 +264,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default BarberRegister;
