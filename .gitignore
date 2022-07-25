@@ -27,3 +27,4 @@ yarn-error.log*
 # Optional eslint cache
 .eslintcache
 src/env/index.ts
+.env
