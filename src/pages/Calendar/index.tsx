@@ -33,6 +33,9 @@ const Calendar = () => {
   const [currentUser, setcurrentUser] = React.useState<any>();
   const [hours, setHours] = React.useState<Array<string>>([]);
   const [services, setServices] = React.useState<Array<any>>([]);
+  const [barbers, setBarbers] = React.useState<Array<any>>([]);
+  const [selectedBarber, setSelectedBarber] = React.useState<any>();
+
   // Handling states to show the consult
   const [consultDate, setConsultDate] = React.useState<any>();
   const [schedulesToShow, setSchedulesToShow] = React.useState<Array<any>>([]);
@@ -46,7 +49,8 @@ const Calendar = () => {
       false,
       "insira um numero de telefone válido"
     ),
-    service: Yup.array().required("A categoria é obrigatória"),
+    barber: Yup.string().required("O Barbeiro é obrigatório"),
+    service: Yup.array().required("Selecione pelo menos um serviço"),
     date: Yup.string().required("A data é obrigatória"),
     time: Yup.string().required("Informe qual horário"),
   });
@@ -105,7 +109,32 @@ const Calendar = () => {
       }
 
       if (services) {
-        await setServices(services);
+        setServices(services);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
+  };
+
+  const getBarbers = async () => {
+    try {
+      let { data: barbers, error } = await supabase.from("barbers").select("*");
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+      }
+
+      if (barbers) {
+        setBarbers(barbers);
       }
     } catch (error) {
       await showToast({
@@ -153,7 +182,8 @@ const Calendar = () => {
     phone: number,
     services: Array<any>,
     date: string,
-    times: Array<any>
+    times: Array<any>,
+    barber_id: any
   ) => {
     try {
       const { data: newSchedule, error } = await supabase
@@ -165,6 +195,7 @@ const Calendar = () => {
             services: services,
             date: date,
             times: times,
+            barber_id: barber_id,
           },
         ]);
 
@@ -275,7 +306,8 @@ const Calendar = () => {
         data.phone,
         servicesNames,
         data.date,
-        allTimeServices
+        allTimeServices,
+        data.barber
       );
     } else {
       showToast({
@@ -292,7 +324,8 @@ const Calendar = () => {
         .from("schedules")
         .select("*")
 
-        .eq("date", newDate);
+        .eq("date", newDate)
+        .eq("barber_id", selectedBarber);
 
       if (error) {
         await showToast({
@@ -331,7 +364,9 @@ const Calendar = () => {
 
   React.useEffect(() => {
     getServices();
-  }, [getServices]);
+    getBarbers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <IonPage>
@@ -410,8 +445,8 @@ const Calendar = () => {
           </div>
           <IonModal
             isOpen={isOpen}
-            initialBreakpoint={0.75}
-            breakpoints={[0, 0.75, 0.9, 1]}
+            initialBreakpoint={0.85}
+            breakpoints={[0, 0.75, 0.85, 0.9, 1]}
           >
             <div className="flex justify-around p-3 bg-gradient-to-l from-green-800 to-green-600">
               <IonTitle className="text-white">Fazer Agendamento</IonTitle>
@@ -455,6 +490,29 @@ const Calendar = () => {
               <ErrorMessage
                 errors={errors}
                 name="phone"
+                as={<div style={{ color: "red" }} />}
+              />
+              <IonLabel className="text-gray-600" position="stacked">
+                Barbeiro
+              </IonLabel>
+              <IonSelect
+                className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3"
+                placeholder="Selecione o Barbeiro"
+                onIonChange={({ detail }) => {
+                  setSelectedBarber(detail.value);
+                }}
+                {...register("barber")}
+              >
+                {barbers &&
+                  barbers.map((barber, index) => (
+                    <IonSelectOption key={index} value={barber?.id}>
+                      {barber?.full_name}
+                    </IonSelectOption>
+                  ))}
+              </IonSelect>
+              <ErrorMessage
+                errors={errors}
+                name="barber"
                 as={<div style={{ color: "red" }} />}
               />
               <IonLabel className="text-gray-600" position="stacked">
