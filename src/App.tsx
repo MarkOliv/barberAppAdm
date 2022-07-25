@@ -36,8 +36,6 @@ import "./theme/variables.css";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import RedefinePassword from "./pages/auth/RedefinePassword";
 import Register from "./pages/auth/Register";
-import React, { useEffect } from "react";
-import supabase from "./utils/supabase";
 import Profile from "./pages/Profile";
 import Services from "./pages/Services";
 import { EditService } from "./pages/EditService";
@@ -46,7 +44,8 @@ import { EditProduct } from "./pages/EditProduct";
 import Calendar from "./pages/Calendar";
 import { EditSchedule } from "./pages/EditSchedule";
 import { useAuth } from "./contexts";
-import BarberRegister from "./pages/auth/barber_register";
+import BarberRegister from "./pages/auth/BarberRegister";
+import Barbers from "./pages/Barbers";
 
 setupIonicReact();
 
@@ -73,12 +72,14 @@ const App: React.FC = () => {
               path="/app/edit-schedule/:scheduleId"
               component={EditSchedule}
             />
+            {/* barber */}
 
+            <Route exact path="/register-barber" component={BarberRegister} />
+            <Route exact path="/app/barbers" component={Barbers} />
             {/* auth */}
 
             <Route exact path="/login" component={Login} />
             <Route exact path="/register" component={Register} />
-            <Route exact path="/register-barber" component={BarberRegister} />
             <Route exact path="/signup" component={SignUp} />
             <Route exact path="/forgot-password" component={ForgotPassword} />
             <Route

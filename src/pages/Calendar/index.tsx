@@ -14,14 +14,7 @@ import {
   IonTitle,
   useIonToast,
 } from "@ionic/react";
-import {
-  alarm,
-  alarmOutline,
-  calendar,
-  checkmarkCircle,
-  cut,
-  time,
-} from "ionicons/icons";
+import { alarm, checkmarkCircle, time } from "ionicons/icons";
 import React from "react";
 
 import { Link } from "react-router-dom";
@@ -40,7 +33,6 @@ const Calendar = () => {
   const [currentUser, setcurrentUser] = React.useState<any>();
   const [hours, setHours] = React.useState<Array<string>>([]);
   const [services, setServices] = React.useState<Array<any>>([]);
-  const [schedules, setSchedules] = React.useState<Array<any>>([]);
   // Handling states to show the consult
   const [consultDate, setConsultDate] = React.useState<any>();
   const [schedulesToShow, setSchedulesToShow] = React.useState<Array<any>>([]);
@@ -147,6 +139,7 @@ const Calendar = () => {
     }
 
     // removing already times scheduleds
+    // eslint-disable-next-line array-callback-return
     schedulesTimes.map((time: string) => {
       let currentTime = time.substring(0, 5); //valor original = 00:00:00 estou deixando como 00:00
       let i = hours.findIndex((v) => v === currentTime);
@@ -313,6 +306,7 @@ const Calendar = () => {
       let schedulesTimes: Array<any> = [];
       if (data) {
         data.map((schedule) => {
+          // eslint-disable-next-line array-callback-return
           schedule?.times.map((time: any) => {
             schedulesTimes.push(time);
           });
@@ -337,7 +331,7 @@ const Calendar = () => {
 
   React.useEffect(() => {
     getServices();
-  }, []);
+  }, [getServices]);
 
   return (
     <IonPage>
@@ -537,7 +531,7 @@ const Calendar = () => {
           </IonModal>
         </IonContent>
       )}
-      {currentUser == undefined && (
+      {currentUser === undefined && (
         <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
           <p className="text-black">você precisa estar logado</p>
           <Link to="/signup" className="text-cyan-500">

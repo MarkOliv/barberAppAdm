@@ -1,8 +1,5 @@
 // @flow
 import * as React from "react";
-import { ErrorMessage } from "@hookform/error-message";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as Yup from "yup";
 
 import {
   IonBackButton,
@@ -10,16 +7,10 @@ import {
   IonContent,
   IonIcon,
   IonInput,
-  IonLabel,
   IonPage,
-  IonSelect,
-  IonSelectOption,
   IonTitle,
-  useIonRouter,
   useIonToast,
 } from "@ionic/react";
-
-import { useForm } from "react-hook-form";
 
 import supabase from "../../utils/supabase";
 import { useParams } from "react-router";
@@ -109,7 +100,7 @@ export const EditSchedule = () => {
 
   React.useEffect(() => {
     getSchedules();
-  }, []);
+  }, [getSchedules]);
 
   return (
     <IonPage>

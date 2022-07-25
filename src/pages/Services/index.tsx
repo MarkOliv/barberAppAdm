@@ -6,22 +6,17 @@ import {
   IonBackButton,
   IonButtons,
   IonContent,
-  IonHeader,
-  IonIcon,
   IonInput,
-  IonItem,
   IonLabel,
-  IonList,
   IonModal,
   IonPage,
   IonSelect,
   IonSelectOption,
   IonText,
   IonTitle,
-  IonToolbar,
   useIonToast,
 } from "@ionic/react";
-import { cut } from "ionicons/icons";
+
 import serviceSvg from "../../assets/razor-barber.png";
 
 import React from "react";
@@ -135,6 +130,7 @@ const Services = () => {
 
   React.useEffect(() => {
     getServices();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

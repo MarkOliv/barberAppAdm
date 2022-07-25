@@ -6,7 +6,6 @@ import {
   IonBackButton,
   IonButtons,
   IonContent,
-  IonIcon,
   IonInput,
   IonLabel,
   IonModal,
@@ -19,7 +18,6 @@ import {
 } from "@ionic/react";
 
 import hairProds from "../../assets/hair-prods.png";
-import { bag, cut } from "ionicons/icons";
 
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -134,6 +132,7 @@ const Products = () => {
 
   React.useEffect(() => {
     getProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

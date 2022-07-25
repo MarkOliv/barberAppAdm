@@ -8,6 +8,7 @@ import {
   IonList,
   IonPage,
   IonText,
+  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 import {
@@ -15,12 +16,13 @@ import {
   calendar,
   chatbubbles,
   checkmarkCircle,
-  cut,
+  people,
+  peopleCircle,
+  personAdd,
   time,
 } from "ionicons/icons";
 
 import servicesIcon from "../../assets/barberServicesCut.png";
-import barberBg from "../../assets/barber-bg.png";
 
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts";
@@ -32,6 +34,7 @@ const Home = () => {
   const [currentName, setcurrentName] = React.useState(null);
 
   const { sessionUser } = useAuth();
+  const router = useIonRouter();
 
   const getSchedulesToShow = async () => {
     let date = new Date();
@@ -66,14 +69,43 @@ const Home = () => {
     }
   };
 
+  const validateBarberUser = async () => {
+    const barber = sessionUser?.user_metadata?.barber;
+
+    if (barber === undefined) {
+      let { error } = await supabase.auth.signOut();
+      if (error) {
+        await showToast({
+          position: "top",
+          message: "erro ao validar usuario",
+          duration: 3000,
+        });
+      } else {
+        await showToast({
+          position: "top",
+          message: "Você não está logado como profissional",
+          duration: 3000,
+        });
+        router.push("/login");
+      }
+    }
+  };
+
   React.useEffect(() => {
     getSchedulesToShow();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
     const nameStr = sessionUser?.user_metadata?.full_name;
     const nameArray = nameStr.split(" ");
     setcurrentName(nameArray[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    validateBarberUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -101,10 +133,10 @@ const Home = () => {
                 </Link>
               </div>
             </div>
-            <div className="grid grid-cols-[30%_1fr] gap-4 py-3">
+            <div className="grid grid-cols-4 gap-4 py-3">
               <Link
                 to="/app/calendar"
-                className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
+                className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
               >
                 <IonIcon className="mb-5 w-8 h-8 text-white" src={calendar} />
 
@@ -118,17 +150,16 @@ const Home = () => {
 
                 <IonText className="text-gray-400 ">Chats</IonText>
               </div>
+              <Link
+                to={"/app/barbers"}
+                className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-r from-white to-white-200"
+              >
+                <IonIcon className="mb-5 w-8 h-8 text-gray-500" src={people} />
+
+                <IonText className="text-gray-400 ">barbeiros</IonText>
+              </Link>
             </div>
             <div className="grid grid-cols-3 gap-4 py-3">
-              <Link
-                to="/app/services/"
-                className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
-              >
-                {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={cut} /> */}
-                <img className="w-10 h-10" src={servicesIcon} alt="" />
-                <IonText className="text-white my-1">Serviços</IonText>
-              </Link>
-
               <Link
                 to="/app/products"
                 className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-r from-white to-white-200"
@@ -136,6 +167,14 @@ const Home = () => {
                 <IonIcon className="mb-5 w-8 h-8 text-gray-500" src={bag} />
 
                 <IonText className="text-gray-400">Produtos</IonText>
+              </Link>
+              <Link
+                to="/app/services/"
+                className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
+              >
+                {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={cut} /> */}
+                <img className="w-10 h-10" src={servicesIcon} alt="" />
+                <IonText className="text-white my-1">Serviços</IonText>
               </Link>
             </div>
 
@@ -179,7 +218,9 @@ const Home = () => {
       )}
       {sessionUser === null && (
         <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
-          <p className="text-black">você precisa estar logado</p>
+          <p className="text-black">
+            você precisa estar logado como profissional
+          </p>
           <Link to="/signup" className="text-cyan-500">
             Clique aqui
           </Link>

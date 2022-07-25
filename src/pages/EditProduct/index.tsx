@@ -14,7 +14,6 @@ import {
   IonSelect,
   IonSelectOption,
   IonTitle,
-  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 
@@ -28,6 +27,7 @@ export const EditProduct = () => {
 
   const id: any = useParams();
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [productId, setProductId] = React.useState(id?.ProductId);
   const [currentProduct, setCurrentProduct] = React.useState<any>();
 

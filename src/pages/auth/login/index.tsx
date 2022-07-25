@@ -19,11 +19,13 @@ import { close, eye, eyeOff } from "ionicons/icons";
 import { Link } from "react-router-dom";
 import supabase from "../../../utils/supabase";
 import React from "react";
+import { useAuth } from "../../../contexts";
 
 const Login = () => {
   const [showLoading, hideLoading] = useIonLoading();
   const [showToast] = useIonToast();
   const router = useIonRouter();
+  const { sessionUser } = useAuth();
 
   const [showPassword, setshowPassword] = React.useState<boolean>(false);
 
@@ -72,6 +74,13 @@ const Login = () => {
       await hideLoading();
     }
   };
+
+  React.useEffect(() => {
+    if (sessionUser) {
+      router.push("/app/home");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <IonPage>

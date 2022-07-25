@@ -9,12 +9,10 @@ import {
   IonContent,
   IonIcon,
   IonInput,
-  IonItem,
   IonLabel,
   IonPage,
   IonSelect,
   IonSelectOption,
-  IonText,
   useIonLoading,
   useIonToast,
 } from "@ionic/react";
@@ -44,7 +42,7 @@ const BarberRegister = () => {
 
   const schema = Yup.object().shape({
     fullName: Yup.string().required("Nome é obrigatório"),
-    address: Yup.string().required("Endereço é obrigatório"),
+    specialties: Yup.array().required("A categoria é obrigatória"),
     email: Yup.string()
       .email("Insira um e-mail válido")
       .required("E-mail é obrigatório"),
@@ -65,7 +63,7 @@ const BarberRegister = () => {
     resolver: yupResolver(schema),
   });
 
-  const getServices = async () => {
+  const getSpecialties = async () => {
     try {
       let { data: specialties, error } = await supabase
         .from("specialties")
@@ -104,8 +102,9 @@ const BarberRegister = () => {
         },
         {
           data: {
-            full_name: "marcos",
-            address: "avenida x numero x",
+            full_name: data.fullName,
+            specialties: data.specialties,
+            barber: true,
           },
         }
       );
@@ -115,9 +114,51 @@ const BarberRegister = () => {
           message: error.message,
           duration: 2000,
         });
+        console.log(error);
       }
 
       if (user) {
+        await showToast({
+          message:
+            "Verifique seu e-email para logar e concluir o cadastro como barbeiro",
+          duration: 2000,
+        });
+        handleCreateNewBarber(user.id, data.fullName, data.specialties);
+      }
+    } catch (e) {
+      await showToast({
+        message: "Erro interno, por favor tente novamente mais tarde",
+        duration: 2000,
+      });
+    } finally {
+      await hideLoading();
+    }
+  };
+
+  const handleCreateNewBarber = async (
+    user_id: any,
+    full_name: any,
+    specialties: Array<any>
+  ) => {
+    await showLoading();
+    // console.log(user_id, full_name, specialties);
+
+    try {
+      const { data, error } = await supabase
+        .from("barbers")
+        .insert([
+          { id: user_id, full_name: full_name, specialties: specialties },
+        ]);
+
+      if (error) {
+        await showToast({
+          message: error.message,
+          duration: 2000,
+        });
+        console.log(error);
+      }
+
+      if (data) {
         await showToast({
           message: "Verifique seu e-email para logar",
           duration: 2000,
@@ -134,7 +175,8 @@ const BarberRegister = () => {
   };
 
   React.useEffect(() => {
-    getServices();
+    getSpecialties();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -142,10 +184,11 @@ const BarberRegister = () => {
       <IonContent fullscreen>
         <div className="flex flex-col justify-center ion-padding h-screen bg-gray-100">
           <div className="absolute top-3 right-3">
-            <Link to="/signup">
-              <div className="flex justify-center items-center rounded-full bg-gray-200 w-8 h-8">
-                <IonIcon className="w-6 h-6" src={close} />
-              </div>
+            <Link
+              to="/app/home"
+              className="flex justify-center items-center rounded-full bg-gray-200 w-8 h-8"
+            >
+              <IonIcon className="w-6 h-6" src={close} />
             </Link>
           </div>
           <form onSubmit={handleSubmit(handleRegister)}>
@@ -173,7 +216,7 @@ const BarberRegister = () => {
               multiple={true}
               className="bg-gray-200 rounded-xl placeholder: text-gray-700 my-3"
               placeholder="Selecione suas especialidades..."
-              {...register("time")}
+              {...register("specialties")}
             >
               {specialties.map((specialtie, index) => (
                 <IonSelectOption key={index} value={specialties[index].name}>
