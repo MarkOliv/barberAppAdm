@@ -17,8 +17,6 @@ import {
   chatbubbles,
   checkmarkCircle,
   people,
-  peopleCircle,
-  personAdd,
   time,
 } from "ionicons/icons";
 
@@ -45,7 +43,8 @@ const Home = () => {
         .from("schedules")
         .select("*")
 
-        .eq("date", currentDate);
+        .eq("date", currentDate)
+        .eq("barber_id", sessionUser?.id);
 
       if (error) {
         await showToast({
