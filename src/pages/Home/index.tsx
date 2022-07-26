@@ -94,23 +94,44 @@ const Home = () => {
 
   const getProfile = async () => {
     try {
-      let { data, error } = await supabase
-        .from("barbers")
-        .select("*")
+      if (sessionUser?.user_metadata?.barber) {
+        let { data, error } = await supabase
+          .from("barbers")
+          .select("*")
 
-        .eq("id", sessionUser?.id);
+          .eq("id", sessionUser?.id);
 
-      if (error) {
-        await showToast({
-          position: "top",
-          message: error.message,
-          duration: 3000,
-        });
-        console.log(error);
-      }
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
 
-      if (data) {
-        setCurrentProfile(data);
+        if (data) {
+          setCurrentProfile(data);
+        }
+      } else {
+        let { data, error } = await supabase
+          .from("clients")
+          .select("*")
+
+          .eq("id", sessionUser?.id);
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
+
+        if (data) {
+          setCurrentProfile(data);
+        }
       }
     } catch (error) {
       await showToast({

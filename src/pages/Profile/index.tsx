@@ -1,3 +1,4 @@
+import React from "react";
 import {
   IonContent,
   IonIcon,
@@ -16,7 +17,6 @@ import {
   phonePortrait,
   settingsSharp,
 } from "ionicons/icons";
-import React from "react";
 
 import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 
@@ -26,25 +26,26 @@ import { useAuth } from "../../contexts";
 import supabase from "../../utils/supabase";
 
 const Profile = () => {
-  const [currentProfile, setCurrentProfile] = React.useState<any>([]);
   const [showToast] = useIonToast();
 
   const [typeModal, setTypeModal] = React.useState<string>("");
   const [modalData, setModalData] = React.useState<any>();
+  const [currentProfilePage, setCurrentProfilePage] = React.useState<any>([]);
+  const [profileImage, setProfileImage] = React.useState<string>();
 
   //user
   const id: any = useParams();
   const { sessionUser } = useAuth();
-  const [CurrentUserProfile, setCurrentUserProfile] = React.useState<boolean>();
-  const [profileImage, setProfileImage] = React.useState<string>("");
+
+  const [isUserCurrentProfilePage, setIsUserCurrentProfilePage] =
+    React.useState<boolean>();
 
   const handleRemoveCurrentAvatar = async () => {
-    setProfileImage("");
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { data, error } = await supabase.storage
         .from("avatar-images")
-        .remove([`public/${currentProfile[0]?.avatar_url}`]);
+        .remove([`public/${currentProfilePage[0]?.avatar_url}`]);
 
       if (error) {
         await showToast({
@@ -111,15 +112,6 @@ const Profile = () => {
         });
         console.log(error);
       }
-
-      if (error) {
-        await showToast({
-          position: "top",
-          message: `${error}`,
-          duration: 3000,
-        });
-        console.log(error);
-      }
     } catch (error) {
       await showToast({
         position: "top",
@@ -132,7 +124,7 @@ const Profile = () => {
 
   const handleSaveAvatarFileName = async (filename: string) => {
     try {
-      if (currentProfile[0].barber) {
+      if (currentProfilePage[0].barber) {
         const { data, error } = await supabase
           .from("barbers")
           .update([
@@ -140,7 +132,7 @@ const Profile = () => {
               avatar_url: filename,
             },
           ])
-          .eq("id", currentProfile[0].id);
+          .eq("id", sessionUser?.id);
 
         if (data) {
           await showToast({
@@ -167,7 +159,7 @@ const Profile = () => {
               avatar_url: filename,
             },
           ])
-          .eq("id", currentProfile[0].id);
+          .eq("id", sessionUser?.id);
 
         if (data) {
           await showToast({
@@ -187,28 +179,56 @@ const Profile = () => {
           console.log(error);
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
   };
 
   const getProfile = async () => {
     try {
-      let { data, error } = await supabase
-        .from("barbers")
-        .select("*")
+      if (sessionUser?.user_metadata?.barber) {
+        let { data, error } = await supabase
+          .from("barbers")
+          .select("*")
 
-        .eq("id", id.id);
+          .eq("id", id.id);
 
-      if (error) {
-        await showToast({
-          position: "top",
-          message: error.message,
-          duration: 3000,
-        });
-        console.log(error);
-      }
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
 
-      if (data) {
-        setCurrentProfile(data);
+        if (data) {
+          setCurrentProfilePage(data);
+        }
+      } else {
+        let { data, error } = await supabase
+          .from("clients")
+          .select("*")
+
+          .eq("id", id.id);
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
+
+        if (data) {
+          setCurrentProfilePage(data);
+        }
       }
     } catch (error) {
       await showToast({
@@ -217,7 +237,6 @@ const Profile = () => {
         duration: 3000,
       });
       console.log(error);
-    } finally {
     }
   };
 
@@ -242,21 +261,21 @@ const Profile = () => {
 
   const editEmail = () => {
     setTypeModal("email");
-    setModalData(currentProfile[0]?.email);
+    setModalData(currentProfilePage[0]?.email);
   };
 
   const editUsername = () => {
     setTypeModal("username");
-    setModalData(currentProfile[0]?.full_name);
+    setModalData(currentProfilePage[0]?.full_name);
   };
 
   const editPhone = () => {
     setTypeModal("phone");
-    setModalData(currentProfile?.phone);
+    setModalData(currentProfilePage?.phone);
   };
   const editAddress = () => {
     setTypeModal("address");
-    setModalData(currentProfile[0]?.address);
+    setModalData(currentProfilePage[0]?.address);
   };
 
   React.useEffect(() => {
@@ -265,23 +284,23 @@ const Profile = () => {
   }, []);
 
   React.useEffect(() => {
-    getAvatarUrl(currentProfile[0]?.avatar_url);
+    getAvatarUrl(currentProfilePage[0]?.avatar_url);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentProfile]);
+  }, [currentProfilePage]);
 
   React.useEffect(() => {
     if (id.id === sessionUser?.id) {
-      setCurrentUserProfile(true);
+      setIsUserCurrentProfilePage(true);
     } else {
-      setCurrentUserProfile(false);
+      setIsUserCurrentProfilePage(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentProfilePage]);
 
   return (
     <IonPage>
       <IonContent fullscreen>
-        <div className="flex flex-wrap justify-center rounded-b-3xl p-5 bg-gradient-to-l from-green-800 to-green-600">
+        <div className="flex flex-wrap justify-center rounded-b-3xl shadow p-5 bg-gradient-to-l from-green-800 to-green-600">
           <div className="flex items-center w-full mb-5">
             <Link to={"/app/home"}>
               <IonIcon
@@ -305,14 +324,18 @@ const Profile = () => {
             className="flex justify-center w-full"
           >
             <img
-              className="w-40 h-40 rounded-full"
-              src={profileImage}
+              className="w-40 h-40 rounded-full shadow"
+              src={
+                profileImage
+                  ? profileImage
+                  : "https://spng.pinpng.com/pngs/s/302-3025490_empty-profile-picture-profile-anonymous-hd-png-download.png"
+              }
               alt="profile"
             />
           </div>
           <div className="w-full">
             <IonTitle className="text-center text-white font-semibold my-5">
-              {currentProfile[0]?.full_name}
+              {currentProfilePage[0]?.full_name}
             </IonTitle>
           </div>
         </div>
@@ -327,7 +350,7 @@ const Profile = () => {
             <IonIcon src={person} />
             <IonLabel className="ml-5">
               <h2>Nome</h2>
-              <p>{currentProfile[0]?.full_name}</p>
+              <p>{currentProfilePage[0]?.full_name}</p>
             </IonLabel>
           </IonItem>
           <IonItem
@@ -339,7 +362,7 @@ const Profile = () => {
             <IonIcon src={mail} />
             <IonLabel className="ml-5">
               <h2>Email</h2>
-              <p>{currentProfile[0]?.email}</p>
+              <p>{currentProfilePage[0]?.email}</p>
             </IonLabel>
           </IonItem>
           <IonItem
@@ -350,30 +373,30 @@ const Profile = () => {
           >
             <IonIcon src={phonePortrait} />
             <IonLabel className="ml-5">
-              <h2>Phone</h2>
+              <h2>Telefone</h2>
               <p>
-                {currentProfile[0]?.phone
-                  ? currentProfile[0]?.phone
+                {currentProfilePage[0]?.phone
+                  ? currentProfilePage[0]?.phone
                   : "cadastrar novo telefone"}
               </p>
             </IonLabel>
           </IonItem>
-          {currentProfile[0]?.client && (
+          {currentProfilePage[0]?.client && (
             <IonItem
               className="mt-5"
               id="open-modal4"
-              key={"Twitter"}
+              key={"Address"}
               onClick={editAddress}
             >
               <IonIcon src={home} />
               <IonLabel className="ml-5">
                 <h2>Endereço</h2>
-                <p>{currentProfile[0]?.address}</p>
+                <p>{currentProfilePage[0]?.address}</p>
               </IonLabel>
             </IonItem>
           )}
         </div>
-        {CurrentUserProfile && (
+        {isUserCurrentProfilePage && (
           <>
             <IonModal
               trigger="open-modal"
