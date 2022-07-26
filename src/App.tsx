@@ -60,7 +60,7 @@ const App: React.FC = () => {
             <Route exact path="/">
               <Redirect to={sessionUser ? "/app/home" : "/signup"} />
             </Route>
-            <Route exact path="/app/profile" component={Profile} />
+            <Route exact path="/app/profile/:id" component={Profile} />
 
             <Route exact path="/app/home">
               <Home />
