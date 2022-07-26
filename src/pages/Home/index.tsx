@@ -30,6 +30,8 @@ const Home = () => {
   const [showToast] = useIonToast();
   const [schedulesToShow, setSchedulesToShow] = React.useState<Array<any>>([]);
   const [currentName, setcurrentName] = React.useState(null);
+  const [profileImage, setProfileImage] = React.useState<string>("");
+  const [currentProfile, setCurrentProfile] = React.useState<any>([]);
 
   const { sessionUser } = useAuth();
   const router = useIonRouter();
@@ -90,10 +92,67 @@ const Home = () => {
     }
   };
 
+  const getProfile = async () => {
+    try {
+      let { data, error } = await supabase
+        .from("barbers")
+        .select("*")
+
+        .eq("id", sessionUser?.id);
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+
+      if (data) {
+        setCurrentProfile(data);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    } finally {
+    }
+  };
+
+  const getAvatarUrl = async () => {
+    const { publicURL, error } = supabase.storage
+      .from("avatar-images")
+      .getPublicUrl(`public/${currentProfile[0].avatar_url}`);
+
+    if (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
+    if (publicURL) {
+      // console.log(publicURL);
+      setProfileImage(publicURL);
+    }
+  };
+
   React.useEffect(() => {
     getSchedulesToShow();
+    getProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    getAvatarUrl();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentProfile]);
 
   React.useEffect(() => {
     const nameStr = sessionUser?.user_metadata?.full_name;
@@ -122,14 +181,20 @@ const Home = () => {
                 </IonText>
               </div>
               <div className="flex items-center">
-                <Link to="/app/profile">
-                  <IonAvatar className="flex items-center w-[70px] h-[70px]">
-                    <img
-                      src="https://blog.unyleya.edu.br/wp-content/uploads/2017/12/saiba-como-a-educacao-ajuda-voce-a-ser-uma-pessoa-melhor.jpeg"
-                      alt="profile"
-                    />
-                  </IonAvatar>
-                </Link>
+                <IonAvatar
+                  onClick={() => {
+                    document.location.replace(
+                      `/app/profile/${sessionUser?.id}`
+                    );
+                  }}
+                  className="flex items-center w-[70px] h-[70px]"
+                >
+                  <img
+                    className="w-[70px] h-[70px]"
+                    src={profileImage}
+                    alt="profile"
+                  />
+                </IonAvatar>
               </div>
             </div>
             <div className="grid grid-cols-4 gap-4 py-3">
