@@ -86,16 +86,20 @@ const Barbers = () => {
                     key={index}
                     lines="none"
                     className="rounded-3xl mx-5 my-2 shadow"
+                    onClick={() => {
+                      document.location.replace(`/app/profile/${barber?.id}`);
+                    }}
                   >
                     <IonThumbnail slot="start">
                       <img
                         alt="profilePicture"
-                        className="rounded-full"
-                        src="https://rd1.com.br/wp-content/uploads/2020/08/20200804-xfrota.jpg.pagespeed.ic_.xs6rpv_ydb.jpg"
+                        className="rounded-full w-14 h-14"
+                        src={`https://eikbnmphzjoeopujpnnt.supabase.co/storage/v1/object/public/avatar-images/public/${barber?.avatar_url}`}
                       />
                     </IonThumbnail>
                     <IonLabel>
                       <h2>{barber?.full_name}</h2>
+                      {barber?.id === sessionUser?.id && <p>(eu)</p>}
                     </IonLabel>
                   </IonItem>
                 ))}

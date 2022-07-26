@@ -102,6 +102,7 @@ const BarberRegister = () => {
         },
         {
           data: {
+            email: data.email,
             full_name: data.fullName,
             specialties: data.specialties,
             barber: true,
@@ -123,7 +124,12 @@ const BarberRegister = () => {
             "Verifique seu e-email para logar e concluir o cadastro como barbeiro",
           duration: 2000,
         });
-        handleCreateNewBarber(user.id, data.fullName, data.specialties);
+        handleCreateNewBarber(
+          user.id,
+          data.fullName,
+          data.specialties,
+          data.email
+        );
       }
     } catch (e) {
       await showToast({
@@ -138,17 +144,21 @@ const BarberRegister = () => {
   const handleCreateNewBarber = async (
     user_id: any,
     full_name: any,
-    specialties: Array<any>
+    specialties: Array<any>,
+    email: string
   ) => {
     await showLoading();
     // console.log(user_id, full_name, specialties);
 
     try {
-      const { data, error } = await supabase
-        .from("barbers")
-        .insert([
-          { id: user_id, full_name: full_name, specialties: specialties },
-        ]);
+      const { data, error } = await supabase.from("barbers").insert([
+        {
+          id: user_id,
+          full_name: full_name,
+          specialties: specialties,
+          email: email,
+        },
+      ]);
 
       if (error) {
         await showToast({
