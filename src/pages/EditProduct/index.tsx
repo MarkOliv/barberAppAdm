@@ -14,7 +14,6 @@ import {
   IonSelect,
   IonSelectOption,
   IonTitle,
-  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 
@@ -28,6 +27,7 @@ export const EditProduct = () => {
 
   const id: any = useParams();
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [productId, setProductId] = React.useState(id?.ProductId);
   const [currentProduct, setCurrentProduct] = React.useState<any>();
 
@@ -217,7 +217,7 @@ export const EditProduct = () => {
           </div>
           <button
             type="submit"
-            className="p-4 w-full rounded-xl bg-amber-800 text-white my-5"
+            className="p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
           >
             SALVAR
           </button>

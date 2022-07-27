@@ -6,22 +6,18 @@ import {
   IonBackButton,
   IonButtons,
   IonContent,
-  IonHeader,
-  IonIcon,
   IonInput,
-  IonItem,
   IonLabel,
-  IonList,
   IonModal,
   IonPage,
   IonSelect,
   IonSelectOption,
   IonText,
   IonTitle,
-  IonToolbar,
   useIonToast,
 } from "@ionic/react";
-import { cut } from "ionicons/icons";
+
+import serviceSvg from "../../assets/razor-barber.png";
 
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -134,6 +130,7 @@ const Services = () => {
 
   React.useEffect(() => {
     getServices();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -151,9 +148,10 @@ const Services = () => {
               <div className="py-10 px-5">
                 <div
                   onClick={() => setIsOpen(!isOpen)}
-                  className="flex flex-col justify-center items-center h-32 col-span-2 bg-amber-800 shadow rounded-xl"
+                  className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-xl bg-gradient-to-l from-green-800 to-green-600"
                 >
-                  <IonIcon className="mb-5 w-8 h-8 text-white" src={cut} />
+                  {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={cut} /> */}
+                  <img className="w-10 h-10" src={serviceSvg} alt="" />
 
                   <IonText className="text-white">
                     Cadastrar novo serviço
@@ -204,7 +202,7 @@ const Services = () => {
                   initialBreakpoint={0.75}
                   breakpoints={[0, 0.25, 0.5, 0.75]}
                 >
-                  <div className="flex justify-around p-3 bg-amber-800">
+                  <div className="flex justify-around p-3 bg-gradient-to-l from-green-800 to-green-600">
                     <IonTitle className="text-white">
                       Cadastrar novo serviço
                     </IonTitle>
@@ -301,7 +299,7 @@ const Services = () => {
                     </div>
                     <button
                       type="submit"
-                      className="p-4 w-full rounded-xl bg-amber-800 text-white my-5"
+                      className="p-4 w-full rounded-xl bg-gradient-to-l from-green-800 to-green-700 text-white my-5"
                     >
                       SALVAR
                     </button>

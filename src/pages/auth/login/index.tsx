@@ -19,11 +19,13 @@ import { close, eye, eyeOff } from "ionicons/icons";
 import { Link } from "react-router-dom";
 import supabase from "../../../utils/supabase";
 import React from "react";
+import { useAuth } from "../../../contexts";
 
 const Login = () => {
   const [showLoading, hideLoading] = useIonLoading();
   const [showToast] = useIonToast();
   const router = useIonRouter();
+  const { sessionUser } = useAuth();
 
   const [showPassword, setshowPassword] = React.useState<boolean>(false);
 
@@ -73,6 +75,13 @@ const Login = () => {
     }
   };
 
+  React.useEffect(() => {
+    if (sessionUser) {
+      router.push("/app/home");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <IonPage>
       <IonContent fullscreen>
@@ -118,7 +127,7 @@ const Login = () => {
                 onClick={() => {
                   setshowPassword(!showPassword);
                 }}
-                className="ml-2 text-cyan-500 w-6 h-6"
+                className="ml-2 text-green-700 w-6 h-6"
                 src={showPassword ? eyeOff : eye}
               />
             </div>
@@ -129,7 +138,7 @@ const Login = () => {
             />
             <button
               type="submit"
-              className="p-4 w-full rounded-xl bg-cyan-500 text-white my-5"
+              className="p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
             >
               Entrar
             </button>
@@ -137,7 +146,7 @@ const Login = () => {
 
           <p className="text-gray-600 py-3">
             Esqueceu sua senha?{" "}
-            <Link className="text-cyan-500 " to="/forgot-password">
+            <Link className="text-green-700 " to="/forgot-password">
               clique aqui
             </Link>
           </p>

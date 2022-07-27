@@ -9,11 +9,10 @@ import {
   IonContent,
   IonIcon,
   IonInput,
-  IonItem,
   IonLabel,
   IonPage,
-  IonText,
   useIonLoading,
+  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 import { Link } from "react-router-dom";
@@ -21,9 +20,12 @@ import { close, eye, eyeOff } from "ionicons/icons";
 
 import * as Yup from "yup";
 import supabase from "../../../utils/supabase";
-import { log } from "console";
+import { useAuth } from "../../../contexts";
 
 const Register = () => {
+  const { sessionUser } = useAuth();
+  const router = useIonRouter();
+
   const [showLoading, hideLoading] = useIonLoading();
   const [showToast] = useIonToast();
 
@@ -68,8 +70,11 @@ const Register = () => {
         },
         {
           data: {
-            full_name: "marcos",
-            address: "avenida x numero x",
+            full_name: data.name,
+            avatar_url: null,
+            address: data.address,
+            bio: "bio padrão",
+            client: true,
           },
         }
       );
@@ -79,6 +84,7 @@ const Register = () => {
           message: error.message,
           duration: 2000,
         });
+        console.error(error);
       }
 
       if (user) {
@@ -92,11 +98,18 @@ const Register = () => {
         message: "Erro interno, por favor tente novamente mais tarde",
         duration: 2000,
       });
+      console.error(e);
     } finally {
       await hideLoading();
     }
   };
 
+  React.useEffect(() => {
+    if (sessionUser) {
+      router.push("/app/home");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <IonPage>
       <IonContent fullscreen>
@@ -174,7 +187,7 @@ const Register = () => {
                 onClick={() => {
                   setShowPassword(!showPassword);
                 }}
-                className="ml-2 text-cyan-500 w-6 h-6"
+                className="ml-2 text-green-700 w-6 h-6"
                 src={showPassword ? eyeOff : eye}
               />
             </div>
@@ -197,7 +210,7 @@ const Register = () => {
                 onClick={() => {
                   setShowConfirmPassword(!showConfirmPassword);
                 }}
-                className="ml-2 text-cyan-500 w-6 h-6"
+                className="ml-2 text-green-700 w-6 h-6"
                 src={showConfirmPassword ? eyeOff : eye}
               />
             </div>
@@ -209,7 +222,7 @@ const Register = () => {
 
             <button
               type="submit"
-              className="p-4 w-full rounded-xl bg-cyan-500 text-white my-3"
+              className="p-4 w-full rounded-xl text-white my-3 bg-gradient-to-l from-green-800 to-green-700"
             >
               Cadastrar
             </button>

@@ -18,6 +18,10 @@ export const AuthProvider: React.FC<AuthContextProps> = ({ children }) => {
 
   const handleLogout = React.useCallback(async () => {
     let { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error(error);
+    }
   }, []);
 
   React.useEffect(() => {

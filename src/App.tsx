@@ -36,8 +36,6 @@ import "./theme/variables.css";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import RedefinePassword from "./pages/auth/RedefinePassword";
 import Register from "./pages/auth/Register";
-import React, { useEffect } from "react";
-import supabase from "./utils/supabase";
 import Profile from "./pages/Profile";
 import Services from "./pages/Services";
 import { EditService } from "./pages/EditService";
@@ -45,16 +43,14 @@ import Products from "./pages/Products";
 import { EditProduct } from "./pages/EditProduct";
 import Calendar from "./pages/Calendar";
 import { EditSchedule } from "./pages/EditSchedule";
+import { useAuth } from "./contexts";
+import BarberRegister from "./pages/auth/BarberRegister";
+import Barbers from "./pages/Barbers";
 
 setupIonicReact();
 
 const App: React.FC = () => {
-  const [currentUser, setcurrentUser] = React.useState<any>();
-
-  useEffect(() => {
-    const user = supabase.auth.user();
-    setcurrentUser(user);
-  }, []);
+  const { sessionUser } = useAuth();
 
   return (
     <IonApp>
@@ -62,9 +58,9 @@ const App: React.FC = () => {
         <IonTabs>
           <IonRouterOutlet>
             <Route exact path="/">
-              <Redirect to={currentUser ? "/app/home" : "/signup"} />
+              <Redirect to={sessionUser ? "/app/home" : "/signup"} />
             </Route>
-            <Route exact path="/app/profile" component={Profile} />
+            <Route exact path="/app/profile/:id" component={Profile} />
 
             <Route exact path="/app/home">
               <Home />
@@ -76,7 +72,10 @@ const App: React.FC = () => {
               path="/app/edit-schedule/:scheduleId"
               component={EditSchedule}
             />
+            {/* barber */}
 
+            <Route exact path="/register-barber" component={BarberRegister} />
+            <Route exact path="/app/barbers" component={Barbers} />
             {/* auth */}
 
             <Route exact path="/login" component={Login} />

@@ -5,7 +5,6 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
-  IonIcon,
   IonInput,
   IonLabel,
   IonPage,
@@ -116,7 +115,7 @@ const ForgotPassword = () => {
 
             <button
               type="submit"
-              className="p-5 w-full rounded-xl bg-cyan-500 text-white my-3"
+              className="p-5 w-full rounded-xl text-white my-3 bg-gradient-to-l from-green-800 to-green-700"
             >
               Próximo
             </button>

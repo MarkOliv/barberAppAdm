@@ -25,10 +25,10 @@ import { useParams } from "react-router";
 
 export const EditService = () => {
   const [showToast] = useIonToast();
-  const router = useIonRouter();
 
   const id: any = useParams();
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [serviceId, setServiceId] = React.useState(id?.ServiceId);
   const [currentService, setCurrentService] = React.useState<any>();
 
@@ -122,6 +122,7 @@ export const EditService = () => {
 
   React.useEffect(() => {
     getService();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <IonPage>
