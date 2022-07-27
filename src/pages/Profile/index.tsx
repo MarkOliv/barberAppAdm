@@ -299,136 +299,152 @@ const Profile = () => {
 
   return (
     <IonPage>
-      <IonContent fullscreen>
-        <div className="flex flex-wrap justify-center rounded-b-3xl shadow p-5 bg-gradient-to-l from-green-800 to-green-600">
-          <div className="flex items-center w-full mb-5">
-            <Link to={"/app/home"}>
+      {sessionUser && (
+        <IonContent fullscreen>
+          <div className="flex flex-wrap justify-center rounded-b-3xl shadow p-5 bg-gradient-to-l from-green-800 to-green-600">
+            <div className="flex items-center w-full mb-5">
+              <Link to={"/app/home"}>
+                <IonIcon
+                  className="w-6 h-6 text-white"
+                  src={chevronBackOutline}
+                />
+              </Link>
+              <IonTitle className="font-semibold text-center text-white">
+                Perfil
+              </IonTitle>
               <IonIcon
+                onClick={async () => {
+                  let { error } = await supabase.auth.signOut();
+                }}
                 className="w-6 h-6 text-white"
-                src={chevronBackOutline}
+                src={settingsSharp}
               />
-            </Link>
-            <IonTitle className="font-semibold text-center text-white">
-              Perfil
-            </IonTitle>
-            <Link to={"/settings"}>
-              <IonIcon className="w-6 h-6 text-white" src={settingsSharp} />
-            </Link>
-          </div>
-          <div
-            onClick={() => {
-              id.id === sessionUser?.id
-                ? handleRemoveCurrentAvatar()
-                : console.log("permission denied");
-            }}
-            className="flex justify-center w-full"
-          >
-            <img
-              className="w-40 h-40 rounded-full shadow"
-              src={
-                profileImage
-                  ? profileImage
-                  : "https://spng.pinpng.com/pngs/s/302-3025490_empty-profile-picture-profile-anonymous-hd-png-download.png"
-              }
-              alt="profile"
-            />
-          </div>
-          <div className="w-full">
-            <IonTitle className="text-center text-white font-semibold my-5">
-              {currentProfilePage[0]?.full_name}
-            </IonTitle>
-          </div>
-        </div>
-        {/* content */}
-        <div className="p-5">
-          <IonItem
-            className="mt-5 mb-3"
-            id="open-modal"
-            key={"Nome"}
-            onClick={editUsername}
-          >
-            <IonIcon src={person} />
-            <IonLabel className="ml-5">
-              <h2>Nome</h2>
-              <p>{currentProfilePage[0]?.full_name}</p>
-            </IonLabel>
-          </IonItem>
-          <IonItem
-            className="mt-5 mb-3"
-            id="open-modal2"
-            key={"email"}
-            onClick={editEmail}
-          >
-            <IonIcon src={mail} />
-            <IonLabel className="ml-5">
-              <h2>Email</h2>
-              <p>{currentProfilePage[0]?.email}</p>
-            </IonLabel>
-          </IonItem>
-          <IonItem
-            className="mt-5 mb-3"
-            id="open-modal3"
-            key={"Phone"}
-            onClick={editPhone}
-          >
-            <IonIcon src={phonePortrait} />
-            <IonLabel className="ml-5">
-              <h2>Telefone</h2>
-              <p>
-                {currentProfilePage[0]?.phone
-                  ? currentProfilePage[0]?.phone
-                  : "cadastrar novo telefone"}
-              </p>
-            </IonLabel>
-          </IonItem>
-          {currentProfilePage[0]?.client && (
-            <IonItem
-              className="mt-5"
-              id="open-modal4"
-              key={"Address"}
-              onClick={editAddress}
+            </div>
+            <div
+              onClick={() => {
+                id.id === sessionUser?.id
+                  ? handleRemoveCurrentAvatar()
+                  : console.log("permission denied");
+              }}
+              className="flex justify-center w-full"
             >
-              <IonIcon src={home} />
+              <img
+                className="w-40 h-40 rounded-full shadow"
+                src={
+                  profileImage
+                    ? profileImage
+                    : "https://spng.pinpng.com/pngs/s/302-3025490_empty-profile-picture-profile-anonymous-hd-png-download.png"
+                }
+                alt="profile"
+              />
+            </div>
+            <div className="w-full">
+              <IonTitle className="text-center text-white font-semibold my-5">
+                {currentProfilePage[0]?.full_name}
+              </IonTitle>
+            </div>
+          </div>
+          {/* content */}
+          <div className="p-5">
+            <IonItem
+              className="mt-5 mb-3"
+              id="open-modal"
+              key={"Nome"}
+              onClick={editUsername}
+            >
+              <IonIcon src={person} />
               <IonLabel className="ml-5">
-                <h2>Endereço</h2>
-                <p>{currentProfilePage[0]?.address}</p>
+                <h2>Nome</h2>
+                <p>{currentProfilePage[0]?.full_name}</p>
               </IonLabel>
             </IonItem>
+            <IonItem
+              className="mt-5 mb-3"
+              id="open-modal2"
+              key={"email"}
+              onClick={editEmail}
+            >
+              <IonIcon src={mail} />
+              <IonLabel className="ml-5">
+                <h2>Email</h2>
+                <p>{currentProfilePage[0]?.email}</p>
+              </IonLabel>
+            </IonItem>
+            <IonItem
+              className="mt-5 mb-3"
+              id="open-modal3"
+              key={"Phone"}
+              onClick={editPhone}
+            >
+              <IonIcon src={phonePortrait} />
+              <IonLabel className="ml-5">
+                <h2>Telefone</h2>
+                <p>
+                  {currentProfilePage[0]?.phone
+                    ? currentProfilePage[0]?.phone
+                    : "cadastrar novo telefone"}
+                </p>
+              </IonLabel>
+            </IonItem>
+            {currentProfilePage[0]?.client && (
+              <IonItem
+                className="mt-5"
+                id="open-modal4"
+                key={"Address"}
+                onClick={editAddress}
+              >
+                <IonIcon src={home} />
+                <IonLabel className="ml-5">
+                  <h2>Endereço</h2>
+                  <p>{currentProfilePage[0]?.address}</p>
+                </IonLabel>
+              </IonItem>
+            )}
+          </div>
+          {isUserCurrentProfilePage && (
+            <>
+              <IonModal
+                trigger="open-modal"
+                initialBreakpoint={0.25}
+                breakpoints={[0, 0.25, 0.5, 0.75]}
+              >
+                <ModalEditInfo type={typeModal} data={modalData} />
+              </IonModal>
+              <IonModal
+                trigger="open-modal2"
+                initialBreakpoint={0.25}
+                breakpoints={[0, 0.25, 0.5, 0.75]}
+              >
+                <ModalEditInfo type={typeModal} data={modalData} />
+              </IonModal>
+              <IonModal
+                trigger="open-modal3"
+                initialBreakpoint={0.25}
+                breakpoints={[0, 0.25, 0.5, 0.75]}
+              >
+                <ModalEditInfo type={typeModal} data={modalData} />
+              </IonModal>
+              <IonModal
+                trigger="open-modal4"
+                initialBreakpoint={0.25}
+                breakpoints={[0, 0.25, 0.5, 0.75]}
+              >
+                <ModalEditInfo type={typeModal} data={modalData} />
+              </IonModal>
+            </>
           )}
+        </IonContent>
+      )}
+      {sessionUser === null && (
+        <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
+          <p className="text-black">
+            você precisa estar logado como profissional
+          </p>
+          <Link to="/signup" className="text-cyan-500">
+            Clique aqui
+          </Link>
         </div>
-        {isUserCurrentProfilePage && (
-          <>
-            <IonModal
-              trigger="open-modal"
-              initialBreakpoint={0.25}
-              breakpoints={[0, 0.25, 0.5, 0.75]}
-            >
-              <ModalEditInfo type={typeModal} data={modalData} />
-            </IonModal>
-            <IonModal
-              trigger="open-modal2"
-              initialBreakpoint={0.25}
-              breakpoints={[0, 0.25, 0.5, 0.75]}
-            >
-              <ModalEditInfo type={typeModal} data={modalData} />
-            </IonModal>
-            <IonModal
-              trigger="open-modal3"
-              initialBreakpoint={0.25}
-              breakpoints={[0, 0.25, 0.5, 0.75]}
-            >
-              <ModalEditInfo type={typeModal} data={modalData} />
-            </IonModal>
-            <IonModal
-              trigger="open-modal4"
-              initialBreakpoint={0.25}
-              breakpoints={[0, 0.25, 0.5, 0.75]}
-            >
-              <ModalEditInfo type={typeModal} data={modalData} />
-            </IonModal>
-          </>
-        )}
-      </IonContent>
+      )}
     </IonPage>
   );
 };

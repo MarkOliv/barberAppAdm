@@ -7,6 +7,7 @@ import {
   IonText,
   IonThumbnail,
   IonTitle,
+  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 
@@ -23,6 +24,7 @@ const Barbers = () => {
   const [showToast] = useIonToast();
   const { sessionUser } = useAuth();
 
+  const router = useIonRouter();
   const [barbers, setBarbers] = React.useState<any>([]);
 
   const getBarbers = async () => {
@@ -87,7 +89,8 @@ const Barbers = () => {
                     lines="none"
                     className="rounded-3xl mx-5 my-2 shadow"
                     onClick={() => {
-                      document.location.replace(`/app/profile/${barber?.id}`);
+                      // document.location.replace(`/app/profile/${barber?.id}`);
+                      router.push(`/app/profile/${barber?.id}`);
                     }}
                   >
                     <IonThumbnail slot="start">
