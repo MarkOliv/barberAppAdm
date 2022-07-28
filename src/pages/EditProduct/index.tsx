@@ -8,6 +8,7 @@ import {
   IonBackButton,
   IonButtons,
   IonContent,
+  IonIcon,
   IonInput,
   IonLabel,
   IonPage,
@@ -21,6 +22,8 @@ import { useForm } from "react-hook-form";
 
 import supabase from "../../utils/supabase";
 import { useParams } from "react-router";
+import { chevronBackOutline } from "ionicons/icons";
+import { Link } from "react-router-dom";
 
 export const EditProduct = () => {
   const [showToast] = useIonToast();
@@ -127,12 +130,14 @@ export const EditProduct = () => {
   return (
     <IonPage>
       <IonContent>
-        <div className="flex items-center bg-white p-5 border-b">
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/app/products" />
-          </IonButtons>
-          <IonTitle className="font-bold">Editar</IonTitle>
-        </div>
+        <Link
+          to="/app/products"
+          className="flex items-center bg-white p-5 border-b h-24"
+        >
+          <IonIcon className="w-6 h-6" src={chevronBackOutline} />
+
+          <IonTitle className="font-bold">Editar Produto</IonTitle>
+        </Link>
         <form onSubmit={handleSubmit(handleNewProduct)} className="ion-padding">
           <IonLabel className="text-gray-900" position="stacked">
             Nome

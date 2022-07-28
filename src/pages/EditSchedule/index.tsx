@@ -22,7 +22,7 @@ import {
 
 import supabase from "../../utils/supabase";
 import { useParams } from "react-router";
-import { checkmarkCircle, cut } from "ionicons/icons";
+import { checkmarkCircle, chevronBackOutline, cut } from "ionicons/icons";
 
 import { yupResolver } from "@hookform/resolvers/yup";
 import "yup-phone";
@@ -31,6 +31,7 @@ import { useForm } from "react-hook-form";
 
 import ScheduleImage from "../../assets/Schedule-Time.png";
 import { useAuth } from "../../contexts";
+import { Link } from "react-router-dom";
 
 export const EditSchedule = () => {
   const [showToast] = useIonToast();
@@ -249,12 +250,14 @@ export const EditSchedule = () => {
   return (
     <IonPage>
       <IonContent>
-        <div className="flex items-center bg-white p-5 border-b">
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/app/home" />
-          </IonButtons>
+        <Link
+          to="/app/calendar"
+          className="flex items-center bg-white p-5 border-b h-24"
+        >
+          <IonIcon className="w-6 h-6" src={chevronBackOutline} />
+
           <IonIcon
-            className={`w-7 h-7 ${
+            className={`w-7 h-7 ml-5 ${
               status === "done"
                 ? "text-green-700"
                 : status === "pending"
@@ -263,8 +266,8 @@ export const EditSchedule = () => {
             }`}
             src={checkmarkCircle}
           />
-          <IonTitle className="font-bold">Agendamento</IonTitle>
-        </div>
+          <IonTitle className="-ml-3 font-bold">Agendamento</IonTitle>
+        </Link>
         <img src={ScheduleImage} alt="" />
         <div className="ion-padding">
           <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
