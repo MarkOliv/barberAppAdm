@@ -5,8 +5,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 
 import {
-  IonBackButton,
-  IonButtons,
   IonContent,
   IonIcon,
   IonInput,
@@ -15,7 +13,6 @@ import {
   IonSelect,
   IonSelectOption,
   IonTitle,
-  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 
