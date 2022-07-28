@@ -64,7 +64,7 @@ const Barbers = () => {
             <div className="h-screen bg-gray-100">
               <Link
                 to="/app/home"
-                className="flex items-center bg-white p-5 border-b h-20"
+                className="flex items-center bg-white p-5 border-b h-24"
               >
                 <IonIcon className="w-6 h-6" src={chevronBackOutline} />
 

@@ -6,6 +6,7 @@ import {
   IonBackButton,
   IonButtons,
   IonContent,
+  IonIcon,
   IonInput,
   IonLabel,
   IonModal,
@@ -24,6 +25,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
 import supabase from "../../utils/supabase";
+import { chevronBackOutline } from "ionicons/icons";
 
 const Products = () => {
   const [showToast] = useIonToast();
@@ -141,12 +143,14 @@ const Products = () => {
         <>
           <IonContent>
             <div className="h-screen bg-gray-100">
-              <div className="flex items-center bg-white p-5 border-b">
-                <IonButtons slot="start">
-                  <IonBackButton defaultHref="/app/home" />
-                </IonButtons>
+              <Link
+                to="/app/home"
+                className="flex items-center bg-white p-5 border-b h-24"
+              >
+                <IonIcon className="w-6 h-6" src={chevronBackOutline} />
+
                 <IonTitle className="font-bold">Produtos</IonTitle>
-              </div>
+              </Link>
               <div className="py-10 px-5">
                 <div
                   onClick={() => setIsOpen(!isOpen)}
