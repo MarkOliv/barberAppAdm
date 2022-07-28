@@ -14,7 +14,12 @@ import {
   IonTitle,
   useIonToast,
 } from "@ionic/react";
-import { alarm, checkmarkCircle, time } from "ionicons/icons";
+import {
+  alarm,
+  checkmarkCircle,
+  chevronBackOutline,
+  time,
+} from "ionicons/icons";
 import React from "react";
 
 import { Link } from "react-router-dom";
@@ -340,7 +345,8 @@ const Calendar = () => {
 
         .eq("date", newDate)
         .eq("barber_id", selectedBarber)
-        .neq("status", "canceled");
+        .neq("status", "canceled")
+        .neq("status", "done");
 
       if (error) {
         await showToast({
@@ -382,12 +388,14 @@ const Calendar = () => {
     <IonPage>
       {sessionUser && (
         <IonContent>
-          <div className="flex items-center bg-white p-5 border-b">
-            <IonButtons slot="start">
-              <IonBackButton defaultHref="/app/home" />
-            </IonButtons>
+          <Link
+            to="/app/home"
+            className="flex items-center bg-white p-5 border-b h-24"
+          >
+            <IonIcon className="w-6 h-6" src={chevronBackOutline} />
+
             <IonTitle className="font-bold">Calendário</IonTitle>
-          </div>
+          </Link>
           <div className="h-screen py-10 px-5 bg-gray-100">
             <div className="grid grid-cols-[30%_1fr] gap-4 py-3">
               <div
