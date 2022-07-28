@@ -26,11 +26,12 @@ import { Link } from "react-router-dom";
 
 import supabase from "../../utils/supabase";
 import { chevronBackOutline } from "ionicons/icons";
+import { useAuth } from "../../contexts";
 
 const Services = () => {
   const [showToast] = useIonToast();
 
-  const [currentUser, setcurrentUser] = React.useState<any>();
+  const { sessionUser } = useAuth();
   const [isOpen, setIsOpen] = React.useState(false);
 
   const [schedules, setSchedules] = React.useState<Array<any>>([]);
@@ -126,18 +127,13 @@ const Services = () => {
   };
 
   React.useEffect(() => {
-    const user = supabase.auth.user();
-    setcurrentUser(user);
-  }, []);
-
-  React.useEffect(() => {
     getServices();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <IonPage>
-      {currentUser && (
+      {sessionUser && (
         <>
           <IonContent>
             <div className="h-screen bg-gray-100">
@@ -314,7 +310,7 @@ const Services = () => {
           </IonContent>
         </>
       )}
-      {currentUser === undefined && (
+      {sessionUser === null && (
         <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
           <p className="text-black">você precisa estar logado</p>
           <Link to="/signup" className="text-cyan-500">

@@ -22,11 +22,13 @@ import supabase from "../../utils/supabase";
 import { useParams } from "react-router";
 import { chevronBackOutline } from "ionicons/icons";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../contexts";
 
 export const EditService = () => {
   const [showToast] = useIonToast();
 
   const id: any = useParams();
+  const { sessionUser } = useAuth();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [serviceId, setServiceId] = React.useState(id?.ServiceId);
@@ -127,99 +129,116 @@ export const EditService = () => {
   return (
     <IonPage>
       <IonContent>
-        <Link
-          to="/app/services"
-          className="flex items-center bg-white p-5 border-b h-24"
-        >
-          <IonIcon className="w-6 h-6" src={chevronBackOutline} />
-
-          <IonTitle className="font-bold">Editar Serviço</IonTitle>
-        </Link>
-        <form onSubmit={handleSubmit(handleNewService)} className="ion-padding">
-          <IonLabel className="text-gray-900" position="stacked">
-            Nome
-          </IonLabel>
-          <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
-            <IonInput
-              type="text"
-              className="placeholder: text-gray-900"
-              placeholder={`${currentService?.name}`}
-              {...register("name")}
-            />
-          </div>
-          <ErrorMessage
-            errors={errors}
-            name="name"
-            as={<div style={{ color: "red" }} />}
-          />
-          <div className="py-5">
-            <IonLabel className="text-gray-900" position="stacked">
-              Categoria
-            </IonLabel>
-
-            <IonSelect
-              className="bg-gray-200 rounded-xl placeholder:text-gray-900 mt-3"
-              placeholder={`${currentService?.category}`}
-              {...register("category")}
+        {sessionUser && (
+          <>
+            <Link
+              to="/app/services"
+              className="flex items-center bg-white p-5 border-b h-24"
             >
-              <IonSelectOption value="cabelo">Cabelo</IonSelectOption>
-              <IonSelectOption value="barba">Barba</IonSelectOption>
-            </IonSelect>
-            <ErrorMessage
-              errors={errors}
-              name="category"
-              as={<div style={{ color: "red" }} />}
-            />
-          </div>
+              <IonIcon className="w-6 h-6" src={chevronBackOutline} />
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
+              <IonTitle className="font-bold">Editar Serviço</IonTitle>
+            </Link>
+            <form
+              onSubmit={handleSubmit(handleNewService)}
+              className="ion-padding"
+            >
               <IonLabel className="text-gray-900" position="stacked">
-                Tempo em minutos
+                Nome
               </IonLabel>
-
               <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
                 <IonInput
-                  type={"number"}
+                  type="text"
                   className="placeholder: text-gray-900"
-                  placeholder={`${currentService?.time} minutos`}
-                  {...register("time")}
+                  placeholder={`${currentService?.name}`}
+                  {...register("name")}
                 />
               </div>
               <ErrorMessage
                 errors={errors}
-                name="time"
+                name="name"
                 as={<div style={{ color: "red" }} />}
               />
-            </div>
-            <div>
-              <IonLabel className="text-gray-900" position="stacked">
-                Preço
-              </IonLabel>
+              <div className="py-5">
+                <IonLabel className="text-gray-900" position="stacked">
+                  Categoria
+                </IonLabel>
 
-              <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
-                <IonLabel className="text-gray-400">R$</IonLabel>
-                <IonInput
-                  type={"number"}
-                  className="placeholder: text-gray-900"
-                  placeholder={`${currentService?.price}`}
-                  {...register("price")}
+                <IonSelect
+                  className="bg-gray-200 rounded-xl placeholder:text-gray-900 mt-3"
+                  placeholder={`${currentService?.category}`}
+                  {...register("category")}
+                >
+                  <IonSelectOption value="cabelo">Cabelo</IonSelectOption>
+                  <IonSelectOption value="barba">Barba</IonSelectOption>
+                </IonSelect>
+                <ErrorMessage
+                  errors={errors}
+                  name="category"
+                  as={<div style={{ color: "red" }} />}
                 />
               </div>
-              <ErrorMessage
-                errors={errors}
-                name="price"
-                as={<div style={{ color: "red" }} />}
-              />
-            </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <IonLabel className="text-gray-900" position="stacked">
+                    Tempo em minutos
+                  </IonLabel>
+
+                  <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
+                    <IonInput
+                      type={"number"}
+                      className="placeholder: text-gray-900"
+                      placeholder={`${currentService?.time} minutos`}
+                      {...register("time")}
+                    />
+                  </div>
+                  <ErrorMessage
+                    errors={errors}
+                    name="time"
+                    as={<div style={{ color: "red" }} />}
+                  />
+                </div>
+                <div>
+                  <IonLabel className="text-gray-900" position="stacked">
+                    Preço
+                  </IonLabel>
+
+                  <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
+                    <IonLabel className="text-gray-400">R$</IonLabel>
+                    <IonInput
+                      type={"number"}
+                      className="placeholder: text-gray-900"
+                      placeholder={`${currentService?.price}`}
+                      {...register("price")}
+                    />
+                  </div>
+                  <ErrorMessage
+                    errors={errors}
+                    name="price"
+                    as={<div style={{ color: "red" }} />}
+                  />
+                </div>
+              </div>
+              <button
+                type="submit"
+                className="p-4 w-full rounded-xl bg-amber-800 text-white my-5"
+              >
+                SALVAR
+              </button>
+            </form>
+          </>
+        )}
+        {sessionUser === null && (
+          <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
+            <p className="text-black">
+              você precisa estar logado como profissional
+            </p>
+            <Link to="/signup" className="text-cyan-500">
+              Clique aqui
+            </Link>
           </div>
-          <button
-            type="submit"
-            className="p-4 w-full rounded-xl bg-amber-800 text-white my-5"
-          >
-            SALVAR
-          </button>
-        </form>
+        )}
       </IonContent>
     </IonPage>
   );

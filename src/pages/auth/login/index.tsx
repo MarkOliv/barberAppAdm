@@ -63,7 +63,7 @@ const Login = () => {
       }
 
       if (user) {
-        router.push("/app/home");
+        document.location.replace("/app/home");
       }
     } catch (error) {
       await showToast({
@@ -77,7 +77,7 @@ const Login = () => {
 
   React.useEffect(() => {
     if (sessionUser) {
-      router.push("/app/home");
+      document.location.replace("/app/home");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

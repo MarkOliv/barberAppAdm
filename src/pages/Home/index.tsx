@@ -204,10 +204,10 @@ const Home = () => {
               <div className="flex items-center">
                 <IonAvatar
                   onClick={() => {
-                    // document.location.replace(
-                    //   `/app/profile/${sessionUser?.id}`
-                    // );
-                    router.push(`/app/profile/${sessionUser?.id}`);
+                    document.location.replace(
+                      `/app/profile/${sessionUser?.id}`
+                    );
+                    // router.push(`/app/profile/${sessionUser?.id}`);
                   }}
                   className="flex items-center w-[70px] h-[70px]"
                 >

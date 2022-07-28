@@ -89,8 +89,7 @@ const Barbers = () => {
                     lines="none"
                     className="rounded-3xl mx-5 my-2 shadow"
                     onClick={() => {
-                      // document.location.replace(`/app/profile/${barber?.id}`);
-                      router.push(`/app/profile/${barber?.id}`);
+                      document.location.replace(`/app/profile/${barber?.id}`);
                     }}
                   >
                     <IonThumbnail slot="start">
