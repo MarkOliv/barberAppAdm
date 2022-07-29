@@ -35,14 +35,10 @@ export const EditService = () => {
   const [currentService, setCurrentService] = React.useState<any>();
 
   const schema = Yup.object().shape({
-    name: Yup.string()
-      .min(3, "nome do serviço deve ter no minimo 3 caracteres")
-      .required("O nome é obrigatório"),
-    category: Yup.string().required("A categoria é obrigatória"),
-    time: Yup.number()
-      .min(5, "O tempo de serviço deve ser maior que 5")
-      .required("Informe quanto tempo leva o serviço"),
-    price: Yup.number().required("Informe quanto custa o serviço"),
+    name: Yup.string(),
+    category: Yup.string(),
+    time: Yup.string(),
+    price: Yup.string(),
   });
 
   const {
@@ -55,15 +51,24 @@ export const EditService = () => {
   });
 
   const handleNewService = async (data: any) => {
+    // console.log(data?.price.length);
+
+    let category = `${data?.category}`;
+    let name = `${data?.name}`;
+    let time = `${data?.time}`;
+    let price = `${data?.price}`;
     try {
       const { data: newServiceData, error } = await supabase
         .from("services")
         .update([
           {
-            name: data?.name,
-            category: data?.category,
-            time: data?.time,
-            price: data?.price,
+            name: name.length === 0 ? currentService?.name : data?.name,
+            category:
+              category.length === 0 ? currentService?.category : category,
+            time: Number(time.length === 0 ? currentService?.time : data?.time),
+            price: Number(
+              price.length === 0 ? currentService?.price : data?.price
+            ),
           },
         ])
         .eq("id", serviceId);
@@ -91,7 +96,6 @@ export const EditService = () => {
         message: `${error}`,
         duration: 3000,
       });
-    } finally {
     }
   };
 
@@ -126,6 +130,7 @@ export const EditService = () => {
     getService();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <IonPage>
       <IonContent>
@@ -165,8 +170,8 @@ export const EditService = () => {
                 </IonLabel>
 
                 <IonSelect
-                  className="bg-gray-200 rounded-xl placeholder:text-gray-900 mt-3"
-                  placeholder={`${currentService?.category}`}
+                  className="bg-gray-200 rounded-xl placeholder: text-black mt-3"
+                  placeholder={currentService?.category}
                   {...register("category")}
                 >
                   <IonSelectOption value="cabelo">Cabelo</IonSelectOption>
@@ -207,7 +212,7 @@ export const EditService = () => {
                   <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
                     <IonLabel className="text-gray-400">R$</IonLabel>
                     <IonInput
-                      type={"number"}
+                      type={"text"}
                       className="placeholder: text-gray-900"
                       placeholder={`${currentService?.price}`}
                       {...register("price")}
@@ -222,7 +227,7 @@ export const EditService = () => {
               </div>
               <button
                 type="submit"
-                className="p-4 w-full rounded-xl bg-amber-800 text-white my-5"
+                className="p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
               >
                 SALVAR
               </button>

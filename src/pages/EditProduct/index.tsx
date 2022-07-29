@@ -37,15 +37,10 @@ export const EditProduct = () => {
   const [currentProduct, setCurrentProduct] = React.useState<any>();
 
   const schema = Yup.object().shape({
-    name: Yup.string()
-      .min(3, "nome do serviço deve ter no minimo 3 caracteres")
-      .required("O nome é obrigatório"),
-    category: Yup.string().required("A categoria é obrigatória"),
-    code: Yup.string().min(
-      3,
-      "O código do produto deve ter no minimo 3 caracteres"
-    ),
-    price: Yup.number().required("Informe quanto custa o serviço"),
+    name: Yup.string(),
+    category: Yup.string(),
+    code: Yup.string(),
+    price: Yup.string(),
   });
 
   const {
@@ -58,15 +53,20 @@ export const EditProduct = () => {
   });
 
   const handleNewProduct = async (data: any) => {
+    let name = `${data?.name}`;
+    let category = `${data?.category}`;
+    let code = `${data?.code}`;
+    let price = `${data?.price}`;
     try {
       const { data: newServiceData, error } = await supabase
         .from("products")
         .update([
           {
-            name: data?.name,
-            category: data?.category,
-            code: data?.code,
-            price: data?.price,
+            name: name.length === 0 ? currentProduct?.name : name,
+            category:
+              category.length === 0 ? currentProduct?.category : category,
+            code: code.length === 0 ? currentProduct?.code : code,
+            price: price.length === 0 ? currentProduct?.price : price,
           },
         ])
         .eq("id", productId);
@@ -214,7 +214,7 @@ export const EditProduct = () => {
                   <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
                     <IonLabel className="text-gray-400">R$</IonLabel>
                     <IonInput
-                      type={"number"}
+                      type={"text"}
                       className="placeholder: text-gray-900"
                       placeholder={`${currentProduct?.price}`}
                       {...register("price")}

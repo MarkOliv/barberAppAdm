@@ -100,8 +100,6 @@ const Products = () => {
   };
 
   const getProducts = async () => {
-    console.log("entrou");
-
     try {
       let { data: products, error } = await supabase
         .from("products")
@@ -187,9 +185,15 @@ const Products = () => {
                             scope="row"
                             className="py-4 px-6 font-medium text-gray-900"
                           >
-                            <Link to={`/app/edit-product/${product?.id}`}>
+                            <div
+                              onClick={() => {
+                                document.location.replace(
+                                  `/app/edit-product/${product?.id}`
+                                );
+                              }}
+                            >
                               {product?.name}
-                            </Link>
+                            </div>
                           </th>
                           <td className="py-4 px-6 uppercase">
                             {product?.category}

@@ -115,7 +115,6 @@ const Services = () => {
 
       if (services) {
         await setSchedules(services);
-        console.log(schedules);
       }
     } catch (error) {
       await showToast({
@@ -182,9 +181,15 @@ const Services = () => {
                             scope="row"
                             className="py-4 px-6 font-medium text-gray-900"
                           >
-                            <Link to={`/app/edit-service/${schedule?.id}`}>
+                            <div
+                              onClick={() => {
+                                document.location.replace(
+                                  `/app/edit-service/${schedule?.id}`
+                                );
+                              }}
+                            >
                               {schedule?.name}
-                            </Link>
+                            </div>
                           </th>
                           <td className="py-4 px-6 uppercase">
                             {schedule?.category}
