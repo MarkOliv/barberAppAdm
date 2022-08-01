@@ -91,6 +91,7 @@ const Register = () => {
         await showToast({
           message: "Verifique seu e-email para logar",
           duration: 2000,
+          position: "top",
         });
       }
     } catch (e) {

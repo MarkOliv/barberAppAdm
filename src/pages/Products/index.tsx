@@ -24,8 +24,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
-import supabase from "../../utils/supabase";
 import { chevronBackOutline } from "ionicons/icons";
+import supabase from "../../utils/supabase";
 
 const Products = () => {
   const [showToast] = useIonToast();

@@ -7,6 +7,7 @@ import {
   IonModal,
   IonPage,
   IonTitle,
+  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 import {
@@ -36,6 +37,7 @@ const Profile = () => {
   //user
   const id: any = useParams();
   const { sessionUser } = useAuth();
+  const router = useIonRouter();
 
   const [isUserCurrentProfilePage, setIsUserCurrentProfilePage] =
     React.useState<boolean>();
@@ -314,7 +316,7 @@ const Profile = () => {
               </IonTitle>
               <IonIcon
                 onClick={async () => {
-                  let { error } = await supabase.auth.signOut();
+                  router.push("/app/config");
                 }}
                 className="w-6 h-6 text-white"
                 src={settingsSharp}

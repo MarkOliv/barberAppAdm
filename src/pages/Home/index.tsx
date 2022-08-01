@@ -70,28 +70,6 @@ const Home = () => {
     }
   };
 
-  const validateBarberUser = async () => {
-    const barber = sessionUser?.user_metadata?.barber;
-
-    if (barber === undefined) {
-      let { error } = await supabase.auth.signOut();
-      if (error) {
-        await showToast({
-          position: "top",
-          message: "erro ao validar usuario",
-          duration: 3000,
-        });
-      } else {
-        await showToast({
-          position: "top",
-          message: "Você não está logado como profissional",
-          duration: 3000,
-        });
-        router.push("/login");
-      }
-    }
-  };
-
   const getProfile = async () => {
     try {
       if (sessionUser?.user_metadata?.barber) {
@@ -179,11 +157,6 @@ const Home = () => {
     const nameStr = sessionUser?.user_metadata?.full_name;
     const nameArray = nameStr.split(" ");
     setcurrentName(nameArray[0]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  React.useEffect(() => {
-    validateBarberUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -304,9 +277,7 @@ const Home = () => {
       )}
       {sessionUser === null && (
         <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
-          <p className="text-black">
-            você precisa estar logado como profissional
-          </p>
+          <p className="text-black">você precisa estar logado</p>
           <Link to="/signup" className="text-cyan-500">
             Clique aqui
           </Link>
