@@ -51,6 +51,7 @@ import Help from "./pages/config/Help";
 import Specialties from "./pages/config/Specialties";
 import Product_categories from "./pages/config/ProductsCategories";
 import Services_categories from "./pages/config/ServicesCategories";
+import Reports from "./pages/config/Reports";
 
 setupIonicReact();
 
@@ -69,6 +70,7 @@ const App: React.FC = () => {
             <Route exact path="/app/profile/:id" component={Profile} />
             <Route exact path="/app/config" component={Config} />
             <Route exact path="/app/config/help" component={Help} />
+            <Route exact path="/app/config/reports" component={Reports} />
             <Route
               exact
               path="/app/config/specialties"

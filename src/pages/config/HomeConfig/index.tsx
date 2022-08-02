@@ -15,6 +15,7 @@ import {
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts";
 import {
+  analytics,
   bag,
   build,
   chevronBackOutline,
@@ -168,6 +169,22 @@ const Config = () => {
                       <IonLabel className="ml-5">
                         <h2>Cadastrar Especialidades</h2>
                         <p>Especialidades para o perfil</p>
+                      </IonLabel>
+                    </IonItem>
+
+                    <IonItem
+                      className="mt-5 mb-3 bg-white rounded-3xl shadow"
+                      lines="none"
+                      id="open-modal"
+                      key={"Especialidades"}
+                      onClick={() => {
+                        router.push("/app/config/reports");
+                      }}
+                    >
+                      <IonIcon src={analytics} />
+                      <IonLabel className="ml-5">
+                        <h2>Relatórios</h2>
+                        <p>Balanço Financeiro</p>
                       </IonLabel>
                     </IonItem>
                   </>
