@@ -32,24 +32,42 @@ const Config = () => {
   const [currentUser, setcurrentUser] = React.useState<any>();
   const [avatarUrl, setAvatarUrl] = React.useState<any>();
 
-  const getBarbers = async () => {
+  const getProfile = async () => {
     try {
-      let { data: barber, error } = await supabase
-        .from("barbers")
-        .select("*")
-        .eq("id", sessionUser?.id);
+      if (sessionUser?.user_metadata?.barber) {
+        let { data: barber, error } = await supabase
+          .from("barbers")
+          .select("*")
+          .eq("id", sessionUser?.id);
 
-      if (error) {
-        await showToast({
-          position: "top",
-          message: error.message,
-          duration: 3000,
-        });
-      }
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+        }
 
-      if (barber) {
-        await setcurrentUser(barber);
-        console.log(barber);
+        if (barber) {
+          await setcurrentUser(barber);
+        }
+      } else {
+        let { data: client, error } = await supabase
+          .from("clients")
+          .select("*")
+          .eq("id", sessionUser?.id);
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+        }
+
+        if (client) {
+          await setcurrentUser(client);
+        }
       }
     } catch (error) {
       await showToast({
@@ -61,7 +79,7 @@ const Config = () => {
   };
 
   React.useEffect(() => {
-    getBarbers();
+    getProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -100,56 +118,61 @@ const Config = () => {
                     />
                   </div>
                   <IonLabel>
-                    <h2>{currentUser ? currentUser[0].full_name : "error"}</h2>
-                    <p>{currentUser ? currentUser[0].phone : "error"}</p>
+                    <h2>{currentUser ? currentUser[0]?.full_name : "error"}</h2>
+                    <p>{currentUser ? currentUser[0]?.phone : "error"}</p>
                   </IonLabel>
                 </IonItem>
 
-                <IonItem
-                  className="mt-5 mb-3 bg-white rounded-3xl shadow"
-                  lines="none"
-                  id="open-modal"
-                  key={"Produtos"}
-                  onClick={() => {
-                    router.push("/app/config/products-categories");
-                  }}
-                >
-                  <IonIcon src={bag} />
-                  <IonLabel className="ml-5">
-                    <h2>Categorias dos produtos</h2>
-                    <p>Cadastrar categorias dos produtos</p>
-                  </IonLabel>
-                </IonItem>
-                <IonItem
-                  className="mt-5 mb-3 bg-white rounded-3xl shadow"
-                  lines="none"
-                  id="open-modal"
-                  key={"Serviços"}
-                  onClick={() => {
-                    router.push("/app/config/services-categories");
-                  }}
-                >
-                  <IonIcon src={build} />
-                  <IonLabel className="ml-5">
-                    <h2>Categorias dos serviços</h2>
-                    <p>Cadastrar categorias dos serviços</p>
-                  </IonLabel>
-                </IonItem>
-                <IonItem
-                  className="mt-5 mb-3 bg-white rounded-3xl shadow"
-                  lines="none"
-                  id="open-modal"
-                  key={"Especialidades"}
-                  onClick={() => {
-                    router.push("/app/config/specialties");
-                  }}
-                >
-                  <IonIcon src={cut} />
-                  <IonLabel className="ml-5">
-                    <h2>Cadastrar Especialidades</h2>
-                    <p>Especialidades para o perfil</p>
-                  </IonLabel>
-                </IonItem>
+                {sessionUser?.user_metadata?.barber && (
+                  <>
+                    <IonItem
+                      className="mt-5 mb-3 bg-white rounded-3xl shadow"
+                      lines="none"
+                      id="open-modal"
+                      key={"Produtos"}
+                      onClick={() => {
+                        router.push("/app/config/products-categories");
+                      }}
+                    >
+                      <IonIcon src={bag} />
+                      <IonLabel className="ml-5">
+                        <h2>Categorias dos produtos</h2>
+                        <p>Cadastrar categorias dos produtos</p>
+                      </IonLabel>
+                    </IonItem>
+                    <IonItem
+                      className="mt-5 mb-3 bg-white rounded-3xl shadow"
+                      lines="none"
+                      id="open-modal"
+                      key={"Serviços"}
+                      onClick={() => {
+                        router.push("/app/config/services-categories");
+                      }}
+                    >
+                      <IonIcon src={build} />
+                      <IonLabel className="ml-5">
+                        <h2>Categorias dos serviços</h2>
+                        <p>Cadastrar categorias dos serviços</p>
+                      </IonLabel>
+                    </IonItem>
+                    <IonItem
+                      className="mt-5 mb-3 bg-white rounded-3xl shadow"
+                      lines="none"
+                      id="open-modal"
+                      key={"Especialidades"}
+                      onClick={() => {
+                        router.push("/app/config/specialties");
+                      }}
+                    >
+                      <IonIcon src={cut} />
+                      <IonLabel className="ml-5">
+                        <h2>Cadastrar Especialidades</h2>
+                        <p>Especialidades para o perfil</p>
+                      </IonLabel>
+                    </IonItem>
+                  </>
+                )}
+
                 <IonItem
                   className="mt-5 mb-3 bg-white rounded-3xl shadow"
                   lines="none"

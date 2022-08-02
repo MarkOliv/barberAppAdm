@@ -342,14 +342,16 @@ export const EditSchedule = () => {
 
               {status === "pending" && (
                 <>
-                  <button
-                    onClick={() => {
-                      setIsOpen(!isOpen);
-                    }}
-                    className={`p-4 w-full rounded-xl bg-gradient-to-l from-orange-800 to-orange-600 text-white my-3`}
-                  >
-                    Marcar como Finalizado
-                  </button>
+                  {sessionUser?.user_metadata?.barber && (
+                    <button
+                      onClick={() => {
+                        setIsOpen(!isOpen);
+                      }}
+                      className={`p-4 w-full rounded-xl bg-gradient-to-l from-orange-800 to-orange-600 text-white my-3`}
+                    >
+                      Marcar como Finalizado
+                    </button>
+                  )}
                   <button
                     onClick={handleCancelSchedule}
                     className={

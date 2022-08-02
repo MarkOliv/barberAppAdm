@@ -145,7 +145,7 @@ export const ModalEditInfo = (props: Props) => {
         }
       } else {
         const { data, error } = await supabase
-          .from("client")
+          .from("clients")
           .update({ email: email })
           .eq("id", sessionUser?.id);
 
@@ -230,7 +230,7 @@ export const ModalEditInfo = (props: Props) => {
         }
       } else {
         const { data, error } = await supabase
-          .from("client")
+          .from("clients")
           .update({ full_name: name })
           .eq("id", sessionUser?.id);
 
@@ -316,13 +316,13 @@ export const ModalEditInfo = (props: Props) => {
         }
       } else {
         const { data, error } = await supabase
-          .from("client")
+          .from("clients")
           .update({ phone: phone })
           .eq("id", sessionUser?.id);
 
         if (data) {
           await showToast({
-            message: "Email alterado com sucesso",
+            message: "Phone alterado com sucesso",
             duration: 3000,
           }).then(() => {
             document.location.reload();
@@ -382,9 +382,9 @@ export const ModalEditInfo = (props: Props) => {
 
   const updateAddressInDB = async (address: string) => {
     try {
-      if (userType === "client") {
+      if (userType === "clients") {
         const { data, error } = await supabase
-          .from("client")
+          .from("clients")
           .update({ address: address })
           .eq("id", sessionUser?.id);
 
@@ -418,7 +418,7 @@ export const ModalEditInfo = (props: Props) => {
     if (sessionUser?.user_metadata?.barber) {
       setUserType("barber");
     } else {
-      setUserType("client");
+      setUserType("clients");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

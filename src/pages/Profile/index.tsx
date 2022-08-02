@@ -155,7 +155,7 @@ const Profile = () => {
         }
       } else {
         const { data, error } = await supabase
-          .from("client")
+          .from("clients")
           .update([
             {
               avatar_url: filename,

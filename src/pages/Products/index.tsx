@@ -3,8 +3,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 
 import {
-  IonBackButton,
-  IonButtons,
   IonContent,
   IonIcon,
   IonInput,
@@ -26,11 +24,12 @@ import { Link } from "react-router-dom";
 
 import { chevronBackOutline } from "ionicons/icons";
 import supabase from "../../utils/supabase";
+import { useAuth } from "../../contexts";
 
 const Products = () => {
   const [showToast] = useIonToast();
+  const { sessionUser } = useAuth();
 
-  const [currentUser, setcurrentUser] = React.useState<any>();
   const [isOpen, setIsOpen] = React.useState(false);
 
   const [products, setProducts] = React.useState<Array<any>>([]);
@@ -126,18 +125,13 @@ const Products = () => {
   };
 
   React.useEffect(() => {
-    const user = supabase.auth.user();
-    setcurrentUser(user);
-  }, []);
-
-  React.useEffect(() => {
     getProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <IonPage>
-      {currentUser && (
+      {sessionUser && (
         <>
           <IonContent>
             <div className="h-screen bg-gray-100">
@@ -150,16 +144,18 @@ const Products = () => {
                 <IonTitle className="font-bold">Produtos</IonTitle>
               </Link>
               <div className="py-10 px-5">
-                <div
-                  onClick={() => setIsOpen(!isOpen)}
-                  className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-xl bg-gradient-to-l from-green-800 to-green-600"
-                >
-                  {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={bag} /> */}
-                  <img className="w-14 h-14" src={hairProds} alt="" />
-                  <IonText className="text-white my-1">
-                    Cadastrar novo produto
-                  </IonText>
-                </div>
+                {sessionUser?.user_metadata?.barber && (
+                  <div
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-xl bg-gradient-to-l from-green-800 to-green-600"
+                  >
+                    {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={bag} /> */}
+                    <img className="w-14 h-14" src={hairProds} alt="" />
+                    <IonText className="text-white my-1">
+                      Cadastrar novo produto
+                    </IonText>
+                  </div>
+                )}
 
                 {/* SERVICES */}
 
@@ -187,9 +183,11 @@ const Products = () => {
                           >
                             <div
                               onClick={() => {
-                                document.location.replace(
-                                  `/app/edit-product/${product?.id}`
-                                );
+                                sessionUser?.user_metadata?.barber
+                                  ? document.location.replace(
+                                      `/app/edit-product/${product?.id}`
+                                    )
+                                  : console.log("access denied");
                               }}
                             >
                               {product?.name}
@@ -327,7 +325,7 @@ const Products = () => {
           </IonContent>
         </>
       )}
-      {currentUser === undefined && (
+      {sessionUser === null && (
         <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
           <p className="text-black">você precisa estar logado</p>
           <Link to="/signup" className="text-cyan-500">
