@@ -12,6 +12,7 @@ import {
   IonSelectOption,
   IonText,
   IonTitle,
+  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 import {
@@ -35,6 +36,7 @@ import { useAuth } from "../../contexts";
 const Calendar = () => {
   const [showToast] = useIonToast();
   const { sessionUser } = useAuth();
+  const router = useIonRouter();
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [hours, setHours] = React.useState<Array<string>>([]);
@@ -46,10 +48,8 @@ const Calendar = () => {
   const [consultDate, setConsultDate] = React.useState<any>();
   const [schedulesToShow, setSchedulesToShow] = React.useState<Array<any>>([]);
 
-  const schema = Yup.object().shape({
-    name: Yup.string()
-      .min(3, "nome do produto deve ter no minimo 3 caracteres")
-      .required("O nome é obrigatório"),
+  const barberSchema = Yup.object().shape({
+    name: Yup.string().default(""),
     phone: Yup.string()?.phone(
       "BR",
       false,
@@ -62,34 +62,56 @@ const Calendar = () => {
   });
 
   const {
-    handleSubmit,
+    handleSubmit: handleSubmitBarber,
     register,
     formState: { errors },
   } = useForm({
     mode: "onChange",
-    resolver: yupResolver(schema),
+    resolver: yupResolver(barberSchema),
   });
 
   const getSchedulesToShow = async (date: any) => {
     try {
-      let { data, error } = await supabase
-        .from("schedules")
-        .select("*")
+      if (sessionUser?.user_metadata?.barber) {
+        let { data, error } = await supabase
+          .from("schedules")
+          .select("*")
 
-        .eq("date", date)
-        .eq("barber_id", sessionUser?.id);
+          .eq("date", date)
+          .eq("barber_id", sessionUser?.id);
 
-      if (error) {
-        await showToast({
-          position: "top",
-          message: error.message,
-          duration: 3000,
-        });
-        console.log(error);
-      }
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
 
-      if (data) {
-        setSchedulesToShow(data);
+        if (data) {
+          setSchedulesToShow(data);
+        }
+      } else {
+        let { data, error } = await supabase
+          .from("schedules")
+          .select("*")
+
+          .eq("date", date)
+          .eq("name", sessionUser?.user_metadata?.full_name);
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
+
+        if (data) {
+          setSchedulesToShow(data);
+        }
       }
     } catch (error) {
       await showToast({
@@ -320,7 +342,9 @@ const Calendar = () => {
 
     if (allTimeServices.length === countAvaibleTimes) {
       handleNewSchedule(
-        data.name,
+        sessionUser?.user_metadata?.barber
+          ? data.name
+          : sessionUser?.user_metadata?.full_name,
         data.phone,
         servicesNames,
         data.date,
@@ -397,7 +421,7 @@ const Calendar = () => {
             <IonTitle className="font-bold">Calendário</IonTitle>
           </Link>
           <div className="h-screen py-10 px-5 bg-gray-100">
-            <div className="grid grid-cols-[30%_1fr] gap-4 py-3">
+            <div className={`grid grid-cols-[30%_1fr] gap-4 py-3`}>
               <div
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
@@ -406,22 +430,25 @@ const Calendar = () => {
 
                 <IonText className="text-white">Agendar</IonText>
               </div>
-              <div className="flex flex-col justify-center items-center h-32 bg-white shadow rounded-3xl p-3">
-                <IonText className="text-gray-500">Consultar Data</IonText>
-                <div className="flex justify-center items-center bg-gray-200 rounded-3xl shadow h-10 w-full">
-                  <IonInput
-                    className="text-gray-500"
-                    type="date"
-                    onIonChange={({ detail }) => {
-                      setConsultDate(detail.value);
-                      getSchedulesToShow(detail.value);
-                    }}
-                  />
+
+              <>
+                <div className="flex flex-col justify-center items-center h-32 bg-white shadow rounded-3xl p-3">
+                  <IonText className="text-gray-500">Consultar Data</IonText>
+                  <div className="flex justify-center items-center bg-gray-200 rounded-3xl shadow h-10 w-full">
+                    <IonInput
+                      className="text-gray-500"
+                      type="date"
+                      onIonChange={({ detail }) => {
+                        setConsultDate(detail.value);
+                        getSchedulesToShow(detail.value);
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
+              </>
             </div>
 
-            <div className="h-auto bg-white shadow rounded-3xl py-5">
+            <div className="h-auto w-full bg-white shadow rounded-3xl py-5">
               <div className="flex justify-start mx-5">
                 <IonIcon className="mb-5 w-6 h-6 text-gray-500" src={time} />
                 <IonText className="ml-2 text-gray-500">
@@ -433,8 +460,12 @@ const Calendar = () => {
               </div>
               <IonList className="w-full h-full p-5 rounded-3xl">
                 {schedulesToShow.map((agendamento, index) => (
-                  <Link
-                    to={`/app/edit-schedule/${agendamento.id}`}
+                  <div
+                    onClick={() => {
+                      document.location.replace(
+                        `/app/edit-schedule/${agendamento.id}`
+                      );
+                    }}
                     key={index}
                     className="grid grid-cols-3 w-full py-2"
                   >
@@ -458,7 +489,7 @@ const Calendar = () => {
                         {agendamento.times[0]}
                       </IonLabel>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </IonList>
             </div>
@@ -479,23 +510,30 @@ const Calendar = () => {
                 </button>
               </div>
             </div>
-            <form onSubmit={handleSubmit(handleTimes)} className="ion-padding">
-              <IonLabel className="text-gray-600" position="stacked">
-                Nome
-              </IonLabel>
-              <div className="flex items-center bg-gray-200 rounded-3xl p-3 mt-1">
-                <IonInput
-                  type="text"
-                  className="placeholder: text-gray-600"
-                  placeholder="José da Silva"
-                  {...register("name")}
-                />
-              </div>
-              <ErrorMessage
-                errors={errors}
-                name="name"
-                as={<div style={{ color: "red" }} />}
-              />
+            <form
+              onSubmit={handleSubmitBarber(handleTimes)}
+              className="ion-padding"
+            >
+              {sessionUser?.user_metadata?.barber && (
+                <>
+                  <IonLabel className="text-gray-600" position="stacked">
+                    Nome
+                  </IonLabel>
+                  <div className="flex items-center bg-gray-200 rounded-3xl p-3 mt-1">
+                    <IonInput
+                      type="text"
+                      className="placeholder: text-gray-600"
+                      placeholder="José da Silva"
+                      {...register("name")}
+                    />
+                  </div>
+                  <ErrorMessage
+                    errors={errors}
+                    name="name"
+                    as={<div style={{ color: "red" }} />}
+                  />
+                </>
+              )}
               <IonLabel className="text-gray-600" position="stacked">
                 Numero de telefone
               </IonLabel>
