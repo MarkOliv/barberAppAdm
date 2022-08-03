@@ -43,7 +43,10 @@ export const EditSchedule = () => {
   const [schedules, setSchedules] = React.useState<Array<any>>([]);
 
   const [status, setStatus] = React.useState<string>();
-  const [isOpen, setIsOpen] = React.useState<boolean>(false);
+  const [openMarkAsDoneModal, setOpenMarkAsDoneModal] =
+    React.useState<boolean>(false);
+  const [openCancelScheduleModal, setOpenCancelScheduleModal] =
+    React.useState<boolean>(false);
 
   const [totalValue, setTotalValue] = React.useState<number>(0);
 
@@ -124,6 +127,7 @@ export const EditSchedule = () => {
           message: "Status alterado com sucesso",
           duration: 3000,
         });
+        document.location.replace("/app/calendar");
       }
     } catch (error) {
       await showToast({
@@ -213,7 +217,7 @@ export const EditSchedule = () => {
           message: "Agendamento Finalizado com sucesso",
           duration: 3000,
         });
-        router.push("/app/calendar");
+        document.location.replace("/app/calendar");
       }
 
       if (error) {
@@ -250,228 +254,306 @@ export const EditSchedule = () => {
   return (
     <IonPage>
       <IonContent>
-        <Link
-          to="/app/calendar"
-          className="flex items-center bg-white p-5 border-b h-24"
-        >
-          <IonIcon className="w-6 h-6" src={chevronBackOutline} />
-
-          <IonIcon
-            className={`w-7 h-7 ml-5 ${
-              status === "done"
-                ? "text-green-700"
-                : status === "pending"
-                ? "text-orange-700"
-                : "text-red-700"
-            }`}
-            src={checkmarkCircle}
-          />
-          <IonTitle className="-ml-3 font-bold">Agendamento</IonTitle>
-        </Link>
-        <img src={ScheduleImage} alt="" />
-        <div className="ion-padding">
-          <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
-            <IonInput
-              type="text"
-              className=""
-              readonly={true}
-              value={schedules.length > 0 ? schedules[0].name : "Error"}
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="my-3 col-span-2">
-              <div
-                id="date"
-                className="flex items-center bg-gray-200 rounded-xl p-3 mt-3"
-              >
-                <IonInput
-                  type={"text"}
-                  readonly={true}
-                  value={schedules.length > 0 ? schedules[0].date : "error"}
-                  className="placeholder: text-gray-900"
-                />
-              </div>
-            </div>
-            <div id="price" className="my-3">
-              <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
-                <IonInput
-                  type={"text"}
-                  readonly={true}
-                  value={
-                    schedules.length > 0 ? "R$ " + schedules[0]?.price : "error"
-                  }
-                  className="placeholder: text-gray-900"
-                />
-              </div>
-            </div>
-          </div>
-          <p className=" flex justify-center items-center">às</p>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="my-3">
-              <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
-                <IonInput
-                  type={"text"}
-                  readonly={true}
-                  value={schedules.length > 0 ? schedules[0].times[0] : "error"}
-                  className="placeholder: text-gray-900"
-                />
-              </div>
-            </div>
-            <div className="my-3">
-              <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
-                <IonInput
-                  type={"text"}
-                  value={
-                    schedules.length > 0
-                      ? schedules[0].times[schedules[0]?.times.length - 1]
-                      : "error"
-                  }
-                  readonly={true}
-                  className="placeholder: text-gray-900 text-center uppercase "
-                />
-              </div>
-            </div>
-          </div>
-
-          {status === "pending" && (
-            <>
-              <button
-                onClick={() => {
-                  setIsOpen(!isOpen);
-                }}
-                className={`p-4 w-full rounded-xl bg-gradient-to-l from-orange-800 to-orange-600 text-white my-3`}
-              >
-                Marcar como Finalizado
-              </button>
-              <button
-                onClick={handleCancelSchedule}
-                className={
-                  "p-4 w-full rounded-xl bg-gradient-to-l from-red-500 to-red-700 text-white my-3"
-                }
-              >
-                Desagendar
-              </button>
-            </>
-          )}
-          {status === "canceled" && (
-            <div className="flex justify-center items-center w-full rounded-3xl shadow bg-red-500 p-10 uppercase text-white">
-              <IonLabel className="text-center">
-                Este agendamento foi Cancelado
-              </IonLabel>
-            </div>
-          )}
-        </div>
-
-        {/* =============================== MODAL ================================= */}
-        <IonModal
-          isOpen={isOpen}
-          initialBreakpoint={0.85}
-          breakpoints={[0, 0.75, 0.85, 0.9, 1]}
-        >
-          <div className="flex justify-around p-3 bg-gradient-to-l from-green-800 to-green-600">
-            <IonTitle className="text-white">Marcar como finalizado</IonTitle>
-            <div className="p-2">
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="ml-2 text-white"
-              >
-                FECHAR
-              </button>
-            </div>
-          </div>
-
-          <form
-            onSubmit={handleSubmit(handleCashFlowIn)}
-            className="ion-padding"
-          >
-            <div
-              id="SERVICES"
-              className="w-full h-auto shadow rounded-3xl py-5 bg-red"
+        {sessionUser && (
+          <>
+            <Link
+              to="/app/calendar"
+              className="flex items-center bg-white p-5 border-b h-24"
             >
-              <div className="flex justify-start items-center mx-5">
-                <IonIcon className="text-black w-6 h-6" src={cut} />
-                <IonText className="ml-2 text-gray-500">Serviços</IonText>
+              <IonIcon className="w-6 h-6" src={chevronBackOutline} />
+
+              <IonIcon
+                className={`w-7 h-7 ml-5 ${
+                  status === "done"
+                    ? "text-green-700"
+                    : status === "pending"
+                    ? "text-orange-700"
+                    : "text-red-700"
+                }`}
+                src={checkmarkCircle}
+              />
+              <IonTitle className="-ml-3 font-bold">Agendamento</IonTitle>
+            </Link>
+            <img src={ScheduleImage} alt="" />
+            <div className="ion-padding">
+              <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
+                <IonInput
+                  type="text"
+                  className=""
+                  readonly={true}
+                  value={schedules.length > 0 ? schedules[0].name : "Error"}
+                />
               </div>
-              <div className="flex justify-center">
-                <div className="h-[1px] w-4/5 bg-gray-500" />
+              <div className="grid grid-cols-3 gap-4">
+                <div className="my-3 col-span-2">
+                  <div
+                    id="date"
+                    className="flex items-center bg-gray-200 rounded-xl p-3 mt-3"
+                  >
+                    <IonInput
+                      type={"text"}
+                      readonly={true}
+                      value={schedules.length > 0 ? schedules[0].date : "error"}
+                      className="placeholder: text-gray-900"
+                    />
+                  </div>
+                </div>
+                <div id="price" className="my-3">
+                  <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
+                    <IonInput
+                      type={"text"}
+                      readonly={true}
+                      value={
+                        schedules.length > 0
+                          ? "R$ " + schedules[0]?.price
+                          : "error"
+                      }
+                      className="placeholder: text-gray-900"
+                    />
+                  </div>
+                </div>
               </div>
-              <IonList className="w-full h-full p-5 rounded-3xl bg-transparent">
-                {schedules[0]?.services.map((service: any, index: any) => (
-                  <div key={index} className="grid grid-cols-2 w-full py-2">
-                    <IonLabel className="text-gray-500 col-span-2">
-                      {service}
-                    </IonLabel>
-                    {/* <div className="flex justify-end items-center">
+              <p className=" flex justify-center items-center">às</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="my-3">
+                  <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
+                    <IonInput
+                      type={"text"}
+                      readonly={true}
+                      value={
+                        schedules.length > 0 ? schedules[0].times[0] : "error"
+                      }
+                      className="placeholder: text-gray-900"
+                    />
+                  </div>
+                </div>
+                <div className="my-3">
+                  <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
+                    <IonInput
+                      type={"text"}
+                      value={
+                        schedules.length > 0
+                          ? schedules[0].times[schedules[0]?.times.length - 1]
+                          : "error"
+                      }
+                      readonly={true}
+                      className="placeholder: text-gray-900 text-center uppercase "
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {status === "pending" && (
+                <>
+                  {sessionUser?.user_metadata?.barber && (
+                    <button
+                      onClick={() => {
+                        setOpenMarkAsDoneModal(!openMarkAsDoneModal);
+                      }}
+                      className={`p-4 w-full rounded-xl bg-gradient-to-l from-orange-800 to-orange-600 text-white my-3`}
+                    >
+                      Marcar como Finalizado
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      setOpenCancelScheduleModal(!openCancelScheduleModal);
+                    }}
+                    className={
+                      "p-4 w-full rounded-xl bg-gradient-to-l from-red-500 to-red-700 text-white my-3"
+                    }
+                  >
+                    Cancelar Agendamento
+                  </button>
+                </>
+              )}
+              {status === "canceled" && (
+                <div className="flex justify-center items-center w-full rounded-3xl shadow bg-red-500 p-10 uppercase text-white">
+                  <IonLabel className="text-center">
+                    Este agendamento foi Cancelado
+                  </IonLabel>
+                </div>
+              )}
+            </div>
+
+            {/* =============================== MODAL ================================= */}
+            <IonModal
+              isOpen={openMarkAsDoneModal}
+              initialBreakpoint={0.85}
+              breakpoints={[0, 0.75, 0.85, 0.9, 1]}
+            >
+              <div className="flex justify-around p-3 bg-gradient-to-l from-green-800 to-green-600">
+                <IonTitle className="text-white">
+                  Marcar como finalizado
+                </IonTitle>
+                <div className="p-2">
+                  <button
+                    onClick={() => setOpenMarkAsDoneModal(!openMarkAsDoneModal)}
+                    className="ml-2 text-white"
+                  >
+                    FECHAR
+                  </button>
+                </div>
+              </div>
+
+              <form
+                onSubmit={handleSubmit(handleCashFlowIn)}
+                className="ion-padding"
+              >
+                <div
+                  id="SERVICES"
+                  className="w-full h-auto shadow rounded-3xl py-5 bg-red"
+                >
+                  <div className="flex justify-start items-center mx-5">
+                    <IonIcon className="text-black w-6 h-6" src={cut} />
+                    <IonText className="ml-2 text-gray-500">Serviços</IonText>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="h-[1px] w-4/5 bg-gray-500" />
+                  </div>
+                  <IonList className="w-full h-full p-5 rounded-3xl bg-transparent">
+                    {schedules[0]?.services.map((service: any, index: any) => (
+                      <div key={index} className="grid grid-cols-2 w-full py-2">
+                        <IonLabel className="text-gray-500 col-span-2">
+                          {service}
+                        </IonLabel>
+                        {/* <div className="flex justify-end items-center">
                       <IonLabel className="mr-3 text-gray-500">R$20</IonLabel>
                     </div> */}
+                      </div>
+                    ))}
+                  </IonList>
+                </div>
+
+                <IonSelect
+                  id="PRODUCTS"
+                  onIonChange={({ detail }) => {
+                    let data: Array<any> = detail.value;
+                    let total = 0;
+                    for (let i = 0; i < data.length; i++) {
+                      for (let y = 0; y < products.length; y++) {
+                        if (data[i] === products[y]?.name) {
+                          total += products[y].price;
+                        }
+                      }
+                    }
+                    total += schedules[0]?.price;
+                    setTotalValue(total);
+                  }}
+                  multiple={true}
+                  className="bg-gray-200 rounded-3xl placeholder: text-gray-800 my-3 h-14"
+                  placeholder="Comprou/consumiu produtos"
+                  {...register("products")}
+                >
+                  {products.map((product, index) => (
+                    <IonSelectOption key={index} value={product?.name}>
+                      {product?.name}
+                    </IonSelectOption>
+                  ))}
+                </IonSelect>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div id="NAME" className="my-3 col-span-2">
+                    <IonLabel className="text-gray-500 ">Nome</IonLabel>
+                    <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
+                      <IonInput
+                        type={"text"}
+                        readonly={true}
+                        value={
+                          schedules.length > 0 ? schedules[0].name : "Error"
+                        }
+                        className="placeholder: text-gray-900"
+                      />
+                    </div>
                   </div>
-                ))}
-              </IonList>
-            </div>
+                  <div id="price" className="my-3">
+                    <IonLabel className="text-gray-500 ">Valor Total</IonLabel>
+                    <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
+                      <IonInput
+                        type={"text"}
+                        readonly={true}
+                        className="placeholder: text-gray-900"
+                        value={
+                          totalValue > 0
+                            ? "R$" + totalValue
+                            : "R$" + schedules[0]?.price
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="p-4 w-full rounded-3xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
+                >
+                  CONFIRMAR
+                </button>
+              </form>
+            </IonModal>
 
-            <IonSelect
-              id="PRODUCTS"
-              onIonChange={({ detail }) => {
-                let data: Array<any> = detail.value;
-                let total = 0;
-                for (let i = 0; i < data.length; i++) {
-                  for (let y = 0; y < products.length; y++) {
-                    if (data[i] === products[y]?.name) {
-                      total += products[y].price;
-                    }
-                  }
-                }
-                total += schedules[0]?.price;
-                setTotalValue(total);
-              }}
-              multiple={true}
-              className="bg-gray-200 rounded-3xl placeholder: text-gray-800 my-3 h-14"
-              placeholder="Comprou/consumiu produtos"
-              {...register("products")}
+            {/* CONFIRM MODAL TO CANCEL SCHEDULE */}
+
+            <IonModal
+              isOpen={openCancelScheduleModal}
+              initialBreakpoint={0.3}
+              breakpoints={[0, 0.3, 0.5, 0.65, 1]}
             >
-              {products.map((product, index) => (
-                <IonSelectOption key={index} value={product?.name}>
-                  {product?.name}
-                </IonSelectOption>
-              ))}
-            </IonSelect>
-
-            <div className="grid grid-cols-3 gap-2">
-              <div id="NAME" className="my-3 col-span-2">
-                <IonLabel className="text-gray-500 ">Nome</IonLabel>
-                <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
-                  <IonInput
-                    type={"text"}
-                    readonly={true}
-                    value={schedules.length > 0 ? schedules[0].name : "Error"}
-                    className="placeholder: text-gray-900"
-                  />
+              <div className="flex justify-around p-3 bg-gradient-to-l from-green-800 to-green-600">
+                <IonTitle className="text-white">
+                  Cancelar esse agendamento?
+                </IonTitle>
+                <div className="p-2">
+                  <button
+                    onClick={() =>
+                      setOpenCancelScheduleModal(!openCancelScheduleModal)
+                    }
+                    className="text-white"
+                  >
+                    FECHAR
+                  </button>
                 </div>
               </div>
-              <div id="price" className="my-3">
-                <IonLabel className="text-gray-500 ">Valor Total</IonLabel>
-                <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
-                  <IonInput
-                    type={"text"}
-                    readonly={true}
-                    className="placeholder: text-gray-900"
-                    value={
-                      totalValue > 0
-                        ? "R$" + totalValue
-                        : "R$" + schedules[0]?.price
+              <div className="ion-padding">
+                <IonLabel className="text-gray-400 my-3">
+                  O cancelamento é irreversivél, após cancelalo não terá como
+                  desfazer essa ação, sendo necessário refazer o agendamento
+                  caso tenha cancelado por engano.
+                </IonLabel>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={handleCancelSchedule}
+                    className={
+                      "p-4 w-full rounded-xl bg-gradient-to-l from-green-500 to-green-700 text-white my-3"
                     }
-                  />
+                  >
+                    Confirmar
+                  </button>
+                  <button
+                    onClick={() => {
+                      setOpenCancelScheduleModal(false);
+                    }}
+                    className={
+                      "p-4 w-full rounded-xl bg-gradient-to-l from-red-500 to-red-700 text-white my-3"
+                    }
+                  >
+                    Cancelar
+                  </button>
                 </div>
               </div>
-            </div>
-            <button
-              type="submit"
-              className="p-4 w-full rounded-3xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
-            >
-              CONFIRMAR
-            </button>
-          </form>
-        </IonModal>
+            </IonModal>
+          </>
+        )}{" "}
+        {sessionUser === null && (
+          <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
+            <p className="text-black">
+              você precisa estar logado como profissional
+            </p>
+            <Link to="/signup" className="text-cyan-500">
+              Clique aqui
+            </Link>
+          </div>
+        )}
       </IonContent>
     </IonPage>
   );

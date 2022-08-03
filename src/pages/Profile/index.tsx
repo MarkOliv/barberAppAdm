@@ -7,6 +7,7 @@ import {
   IonModal,
   IonPage,
   IonTitle,
+  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 import {
@@ -17,8 +18,6 @@ import {
   phonePortrait,
   settingsSharp,
 } from "ionicons/icons";
-
-import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 
 import { Link, useParams } from "react-router-dom";
 import { ModalEditInfo } from "../../components/ModalEditInfo";
@@ -36,199 +35,71 @@ const Profile = () => {
   //user
   const id: any = useParams();
   const { sessionUser } = useAuth();
+  const router = useIonRouter();
 
   const [isUserCurrentProfilePage, setIsUserCurrentProfilePage] =
     React.useState<boolean>();
 
-  const handleRemoveCurrentAvatar = async () => {
+  const getBarberProfile = async () => {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { data, error } = await supabase.storage
-        .from("avatar-images")
-        .remove([`public/${currentProfilePage[0]?.avatar_url}`]);
+      let { data, error } = await supabase
+        .from("barbers")
+        .select("*")
+
+        .eq("id", id.id);
 
       if (error) {
         await showToast({
           position: "top",
-          message: `${error}`,
+          message: error.message,
           duration: 3000,
         });
         console.log(error);
       }
-    } catch (error) {
-      await showToast({
-        position: "top",
-        message: `${error}`,
-        duration: 3000,
-      });
-      console.log(error);
-    } finally {
-      await handleTakeAPicture();
-    }
-  };
 
-  const handleTakeAPicture = async () => {
-    try {
-      const capturedPhoto = await Camera.getPhoto({
-        resultType: CameraResultType.Uri,
-        source: CameraSource.Camera,
-        quality: 100,
-      });
-
-      let path = capturedPhoto?.path || capturedPhoto?.webPath;
-      path = `${path}`;
-      await uploadNewAvatar(path);
-    } catch (error) {
-      await showToast({
-        position: "top",
-        message: `${error}`,
-        duration: 3000,
-      });
-      console.log(error);
-    }
-  };
-
-  const uploadNewAvatar = async (path: string) => {
-    try {
-      const response = await fetch(path);
-      const blob = await response.blob();
-
-      const filename = path.substring(path.lastIndexOf("/") + 1);
-
-      const { data, error } = await supabase.storage
-        .from("avatar-images")
-        .upload(`/public/${sessionUser?.id}-${filename}`, blob, {
-          cacheControl: "3600",
-          upsert: false,
-        });
       if (data) {
-        handleSaveAvatarFileName(`${sessionUser?.id}-${filename}`);
+        if (data.length !== 0) {
+          setCurrentProfilePage(data);
+        }
       }
+    } catch (error) {}
+  };
+
+  const getClientProfile = async () => {
+    try {
+      let { data, error } = await supabase
+        .from("clients")
+        .select("*")
+
+        .eq("id", id.id);
+
       if (error) {
         await showToast({
           position: "top",
-          message: `${error}`,
+          message: error.message,
           duration: 3000,
         });
         console.log(error);
       }
-    } catch (error) {
-      await showToast({
-        position: "top",
-        message: `${error}`,
-        duration: 3000,
-      });
-      console.log(error);
-    }
-  };
 
-  const handleSaveAvatarFileName = async (filename: string) => {
-    try {
-      if (currentProfilePage[0].barber) {
-        const { data, error } = await supabase
-          .from("barbers")
-          .update([
-            {
-              avatar_url: filename,
-            },
-          ])
-          .eq("id", sessionUser?.id);
-
-        if (data) {
-          await showToast({
-            position: "top",
-            message: `foto de perfil adicionada com sucesso`,
-            duration: 3000,
-          });
-          document.location.reload();
-        }
-
-        if (error) {
-          await showToast({
-            position: "top",
-            message: `${error}`,
-            duration: 3000,
-          });
-          console.log(error);
-        }
-      } else {
-        const { data, error } = await supabase
-          .from("client")
-          .update([
-            {
-              avatar_url: filename,
-            },
-          ])
-          .eq("id", sessionUser?.id);
-
-        if (data) {
-          await showToast({
-            position: "top",
-            message: `foto de perfil adicionada com sucesso`,
-            duration: 3000,
-          });
-          document.location.reload();
-        }
-
-        if (error) {
-          await showToast({
-            position: "top",
-            message: `${error}`,
-            duration: 3000,
-          });
-          console.log(error);
+      if (data) {
+        if (data.length !== 0) {
+          setCurrentProfilePage(data);
         }
       }
-    } catch (error) {
-      await showToast({
-        position: "top",
-        message: `${error}`,
-        duration: 3000,
-      });
-      console.log(error);
-    }
+    } catch (error) {}
   };
-
   const getProfile = async () => {
     try {
-      if (sessionUser?.user_metadata?.barber) {
-        let { data, error } = await supabase
-          .from("barbers")
-          .select("*")
-
-          .eq("id", id.id);
-
-        if (error) {
-          await showToast({
-            position: "top",
-            message: error.message,
-            duration: 3000,
-          });
-          console.log(error);
-        }
-
-        if (data) {
-          setCurrentProfilePage(data);
+      if (id.id === sessionUser?.id) {
+        if (sessionUser?.user_metadata?.barber) {
+          getBarberProfile();
+        } else {
+          getClientProfile();
         }
       } else {
-        let { data, error } = await supabase
-          .from("clients")
-          .select("*")
-
-          .eq("id", id.id);
-
-        if (error) {
-          await showToast({
-            position: "top",
-            message: error.message,
-            duration: 3000,
-          });
-          console.log(error);
-        }
-
-        if (data) {
-          setCurrentProfilePage(data);
-        }
+        getClientProfile();
+        getBarberProfile();
       }
     } catch (error) {
       await showToast({
@@ -314,22 +185,15 @@ const Profile = () => {
               </IonTitle>
               <IonIcon
                 onClick={async () => {
-                  let { error } = await supabase.auth.signOut();
+                  router.push("/app/config");
                 }}
                 className="w-6 h-6 text-white"
                 src={settingsSharp}
               />
             </div>
-            <div
-              onClick={() => {
-                id.id === sessionUser?.id
-                  ? handleRemoveCurrentAvatar()
-                  : console.log("permission denied");
-              }}
-              className="flex justify-center w-full"
-            >
+            <div className="flex justify-center shadow-md shadow-green-500/50 rounded-full">
               <img
-                className="w-40 h-40 rounded-full shadow"
+                className="w-40 h-40 rounded-full"
                 src={
                   profileImage
                     ? profileImage
@@ -338,6 +202,7 @@ const Profile = () => {
                 alt="profile"
               />
             </div>
+
             <div className="w-full">
               <IonTitle className="text-center text-white font-semibold my-5">
                 {currentProfilePage[0]?.full_name}

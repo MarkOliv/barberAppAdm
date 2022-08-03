@@ -46,6 +46,12 @@ import { EditSchedule } from "./pages/EditSchedule";
 import { useAuth } from "./contexts";
 import BarberRegister from "./pages/auth/BarberRegister";
 import Barbers from "./pages/Barbers";
+import Config from "./pages/config/HomeConfig";
+import Help from "./pages/config/Help";
+import Specialties from "./pages/config/Specialties";
+import Product_categories from "./pages/config/ProductsCategories";
+import Services_categories from "./pages/config/ServicesCategories";
+import Reports from "./pages/config/Reports";
 
 setupIonicReact();
 
@@ -60,7 +66,26 @@ const App: React.FC = () => {
             <Route exact path="/">
               <Redirect to={sessionUser ? "/app/home" : "/signup"} />
             </Route>
+
             <Route exact path="/app/profile/:id" component={Profile} />
+            <Route exact path="/app/config" component={Config} />
+            <Route exact path="/app/config/help" component={Help} />
+            <Route exact path="/app/config/reports" component={Reports} />
+            <Route
+              exact
+              path="/app/config/specialties"
+              component={Specialties}
+            />
+            <Route
+              exact
+              path="/app/config/products-categories"
+              component={Product_categories}
+            />
+            <Route
+              exact
+              path="/app/config/services-categories"
+              component={Services_categories}
+            />
 
             <Route exact path="/app/home">
               <Home />
@@ -76,6 +101,7 @@ const App: React.FC = () => {
 
             <Route exact path="/register-barber" component={BarberRegister} />
             <Route exact path="/app/barbers" component={Barbers} />
+
             {/* auth */}
 
             <Route exact path="/login" component={Login} />

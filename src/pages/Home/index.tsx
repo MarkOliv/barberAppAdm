@@ -41,24 +41,46 @@ const Home = () => {
     let currentDate = new Intl.DateTimeFormat("en-US").format(date);
 
     try {
-      let { data, error } = await supabase
-        .from("schedules")
-        .select("*")
+      if (sessionUser?.user_metadata?.barber) {
+        let { data, error } = await supabase
+          .from("schedules")
+          .select("*")
 
-        .eq("date", currentDate)
-        .eq("barber_id", sessionUser?.id);
+          .eq("date", currentDate)
+          .eq("barber_id", sessionUser?.id);
 
-      if (error) {
-        await showToast({
-          position: "top",
-          message: error.message,
-          duration: 3000,
-        });
-        console.log(error);
-      }
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
 
-      if (data) {
-        setSchedulesToShow(data);
+        if (data) {
+          setSchedulesToShow(data);
+        }
+      } else {
+        let { data, error } = await supabase
+          .from("schedules")
+          .select("*")
+
+          .eq("date", currentDate)
+          .eq("name", sessionUser?.user_metadata?.full_name);
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
+
+        if (data) {
+          setSchedulesToShow(data);
+        }
       }
     } catch (error) {
       await showToast({
@@ -67,28 +89,6 @@ const Home = () => {
         duration: 3000,
       });
       console.log(error);
-    }
-  };
-
-  const validateBarberUser = async () => {
-    const barber = sessionUser?.user_metadata?.barber;
-
-    if (barber === undefined) {
-      let { error } = await supabase.auth.signOut();
-      if (error) {
-        await showToast({
-          position: "top",
-          message: "erro ao validar usuario",
-          duration: 3000,
-        });
-      } else {
-        await showToast({
-          position: "top",
-          message: "Você não está logado como profissional",
-          duration: 3000,
-        });
-        router.push("/login");
-      }
     }
   };
 
@@ -112,6 +112,7 @@ const Home = () => {
 
         if (data) {
           setCurrentProfile(data);
+          console.log(data);
         }
       } else {
         let { data, error } = await supabase
@@ -131,6 +132,7 @@ const Home = () => {
 
         if (data) {
           setCurrentProfile(data);
+          console.log(data);
         }
       }
     } catch (error) {
@@ -171,7 +173,6 @@ const Home = () => {
 
   React.useEffect(() => {
     getAvatarUrl();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentProfile]);
 
@@ -179,11 +180,6 @@ const Home = () => {
     const nameStr = sessionUser?.user_metadata?.full_name;
     const nameArray = nameStr.split(" ");
     setcurrentName(nameArray[0]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  React.useEffect(() => {
-    validateBarberUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -204,10 +200,10 @@ const Home = () => {
               <div className="flex items-center">
                 <IonAvatar
                   onClick={() => {
-                    // document.location.replace(
-                    //   `/app/profile/${sessionUser?.id}`
-                    // );
-                    router.push(`/app/profile/${sessionUser?.id}`);
+                    document.location.replace(
+                      `/app/profile/${sessionUser?.id}`
+                    );
+                    // router.push(`/app/profile/${sessionUser?.id}`);
                   }}
                   className="flex items-center w-[70px] h-[70px]"
                 >
@@ -219,7 +215,7 @@ const Home = () => {
                 </IonAvatar>
               </div>
             </div>
-            <div className="grid grid-cols-4 gap-4 py-3">
+            <div className={`grid grid-cols-4  gap-4 py-3`}>
               <Link
                 to="/app/calendar"
                 className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
@@ -236,6 +232,7 @@ const Home = () => {
 
                 <IonText className="text-gray-400 ">Chats</IonText>
               </div>
+
               <Link
                 to={"/app/barbers"}
                 className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-r from-white to-white-200"
@@ -276,13 +273,23 @@ const Home = () => {
               </div>
               <IonList className="w-full h-full p-5 rounded-3xl bg-transparent">
                 {schedulesToShow.map((agendamento, index) => (
-                  <div key={index} className="grid grid-cols-3 w-full py-2">
+                  <div
+                    onClick={() => {
+                      document.location.replace(
+                        `/app/edit-schedule/${agendamento.id}`
+                      );
+                    }}
+                    key={index}
+                    className="grid grid-cols-3 w-full py-2"
+                  >
                     <div className="flex justify-start items-center">
                       <IonIcon
                         className={`w-7 h-7 ${
                           agendamento.status === "pending"
                             ? "text-orange-700"
-                            : "text-green-700"
+                            : agendamento.status === "done"
+                            ? "text-green-700"
+                            : "text-red-700"
                         }`}
                         src={checkmarkCircle}
                       />
@@ -304,9 +311,7 @@ const Home = () => {
       )}
       {sessionUser === null && (
         <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
-          <p className="text-black">
-            você precisa estar logado como profissional
-          </p>
+          <p className="text-black">você precisa estar logado</p>
           <Link to="/signup" className="text-cyan-500">
             Clique aqui
           </Link>

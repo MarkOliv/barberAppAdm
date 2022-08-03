@@ -7,7 +7,6 @@ import {
   IonText,
   IonThumbnail,
   IonTitle,
-  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 
@@ -24,7 +23,6 @@ const Barbers = () => {
   const [showToast] = useIonToast();
   const { sessionUser } = useAuth();
 
-  const router = useIonRouter();
   const [barbers, setBarbers] = React.useState<any>([]);
 
   const getBarbers = async () => {
@@ -70,18 +68,20 @@ const Barbers = () => {
 
                 <IonTitle className="font-bold">Barbeiros</IonTitle>
               </Link>
-              <div className="py-10 px-5">
-                <Link
-                  to="/register-barber"
-                  className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
-                >
-                  {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={bag} /> */}
-                  <img className="w-16 h-16" src={barberPerson} alt="" />
-                  <IonText className="text-white my-1">
-                    Cadastrar novo barbeiro
-                  </IonText>
-                </Link>
-              </div>
+              {sessionUser?.user_metadata?.barber && (
+                <div className="py-10 px-5">
+                  <Link
+                    to="/register-barber"
+                    className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
+                  >
+                    {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={bag} /> */}
+                    <img className="w-16 h-16" src={barberPerson} alt="" />
+                    <IonText className="text-white my-1">
+                      Cadastrar novo barbeiro
+                    </IonText>
+                  </Link>
+                </div>
+              )}
               <div className="h-[34rem] overflow-auto">
                 {barbers.map((barber: any, index: any) => (
                   <IonItem
@@ -89,8 +89,7 @@ const Barbers = () => {
                     lines="none"
                     className="rounded-3xl mx-5 my-2 shadow"
                     onClick={() => {
-                      // document.location.replace(`/app/profile/${barber?.id}`);
-                      router.push(`/app/profile/${barber?.id}`);
+                      document.location.replace(`/app/profile/${barber?.id}`);
                     }}
                   >
                     <IonThumbnail slot="start">

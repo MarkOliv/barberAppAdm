@@ -70,7 +70,7 @@ const Register = () => {
         },
         {
           data: {
-            full_name: data.name,
+            full_name: data.fullName,
             avatar_url: null,
             address: data.address,
             bio: "bio padrão",
@@ -88,10 +88,12 @@ const Register = () => {
       }
 
       if (user) {
-        await showToast({
-          message: "Verifique seu e-email para logar",
-          duration: 2000,
-        });
+        handleCreateNewClient(
+          data.fullName,
+          data?.email,
+          data?.address,
+          user?.id
+        );
       }
     } catch (e) {
       await showToast({
@@ -99,11 +101,52 @@ const Register = () => {
         duration: 2000,
       });
       console.error(e);
+    }
+  };
+
+  const handleCreateNewClient = async (
+    full_name: string,
+    userEmail: string,
+    address: string,
+    user_id: string
+  ) => {
+    try {
+      const { data, error } = await supabase.from("clients").insert([
+        {
+          id: user_id,
+          email: userEmail,
+          full_name: full_name,
+          address: address,
+          barber: false,
+          client: true,
+        },
+      ]);
+
+      if (error) {
+        await showToast({
+          message: error.message,
+          duration: 2000,
+        });
+        console.error(error);
+      }
+
+      if (data) {
+        await showToast({
+          message: "Verifique seu e-email para logar",
+          duration: 2000,
+          position: "top",
+        });
+      }
+    } catch (error) {
+      await showToast({
+        message: "Erro interno, por favor tente novamente mais tarde",
+        duration: 2000,
+      });
+      console.error(error);
     } finally {
       await hideLoading();
     }
   };
-
   React.useEffect(() => {
     if (sessionUser) {
       router.push("/app/home");
