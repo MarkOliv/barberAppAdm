@@ -103,7 +103,7 @@ const BarberRegister = () => {
         {
           data: {
             email: data.email,
-            full_name: data.fullName,
+            username: data.fullName,
             specialties: data.specialties,
             barber: true,
           },
@@ -154,7 +154,7 @@ const BarberRegister = () => {
       const { data, error } = await supabase.from("barbers").insert([
         {
           id: user_id,
-          full_name: full_name,
+          username: full_name,
           specialties: specialties,
           email: email,
         },

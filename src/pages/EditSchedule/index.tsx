@@ -2,8 +2,6 @@
 import * as React from "react";
 
 import {
-  IonBackButton,
-  IonButtons,
   IonContent,
   IonIcon,
   IonInput,
@@ -36,8 +34,13 @@ import { Link } from "react-router-dom";
 export const EditSchedule = () => {
   const [showToast] = useIonToast();
   const [showLoading, hideLoading] = useIonLoading();
-  const { sessionUser } = useAuth();
+
   const router = useIonRouter();
+  const { sessionUser } = useAuth();
+  //scheduleId
+  const id: any = useParams();
+
+  const [clientProfile, setClientProfile] = React.useState<Array<any>>();
 
   const [products, setProducts] = React.useState<Array<any>>([]);
   const [schedules, setSchedules] = React.useState<Array<any>>([]);
@@ -63,8 +66,28 @@ export const EditSchedule = () => {
     resolver: yupResolver(schema),
   });
 
-  //scheduleId
-  const id: any = useParams();
+  const handleIsScheduleClientRegistered = async (client_name: any) => {
+    try {
+      let { data, error } = await supabase
+        .from("clients")
+        .select("*")
+
+        .eq("username", client_name);
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+
+      if (data) {
+        setClientProfile(data);
+      }
+    } catch (error) {}
+  };
 
   const getSchedule = async () => {
     try {
@@ -251,6 +274,12 @@ export const EditSchedule = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  React.useEffect(() => {
+    console.log(schedules[0]?.name);
+    handleIsScheduleClientRegistered(schedules[0]?.name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [schedules]);
+
   return (
     <IonPage>
       <IonContent>
@@ -276,8 +305,16 @@ export const EditSchedule = () => {
             </Link>
             <img src={ScheduleImage} alt="" />
             <div className="ion-padding">
-              <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
+              <div
+                onClick={() => {
+                  clientProfile
+                    ? router.push(`/app/profile/${clientProfile[0]?.id}`)
+                    : console.log("client not registred");
+                }}
+                className="flex items-center bg-gray-200 rounded-xl p-3 mt-3"
+              >
                 <IonInput
+                  id="name"
                   type="text"
                   className=""
                   readonly={true}

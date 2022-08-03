@@ -125,7 +125,7 @@ const Profile = () => {
       console.log(error);
     }
     if (publicURL) {
-      // console.log(publicURL);
+      console.log(publicURL);
       setProfileImage(publicURL);
     }
   };
@@ -137,7 +137,7 @@ const Profile = () => {
 
   const editUsername = () => {
     setTypeModal("username");
-    setModalData(currentProfilePage[0]?.full_name);
+    setModalData(currentProfilePage[0]?.username);
   };
 
   const editPhone = () => {
@@ -183,13 +183,15 @@ const Profile = () => {
               <IonTitle className="font-semibold text-center text-white">
                 Perfil
               </IonTitle>
-              <IonIcon
-                onClick={async () => {
-                  router.push("/app/config");
-                }}
-                className="w-6 h-6 text-white"
-                src={settingsSharp}
-              />
+              {id.id === sessionUser?.id && (
+                <IonIcon
+                  onClick={async () => {
+                    router.push("/app/config");
+                  }}
+                  className="w-6 h-6 text-white"
+                  src={settingsSharp}
+                />
+              )}
             </div>
             <div className="flex justify-center shadow-md shadow-green-500/50 rounded-full">
               <img
@@ -205,7 +207,7 @@ const Profile = () => {
 
             <div className="w-full">
               <IonTitle className="text-center text-white font-semibold my-5">
-                {currentProfilePage[0]?.full_name}
+                {currentProfilePage[0]?.username}
               </IonTitle>
             </div>
           </div>
@@ -220,7 +222,7 @@ const Profile = () => {
               <IonIcon src={person} />
               <IonLabel className="ml-5">
                 <h2>Nome</h2>
-                <p>{currentProfilePage[0]?.full_name}</p>
+                <p>{currentProfilePage[0]?.username}</p>
               </IonLabel>
             </IonItem>
             <IonItem
