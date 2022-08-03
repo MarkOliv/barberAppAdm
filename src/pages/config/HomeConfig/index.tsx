@@ -25,6 +25,8 @@ import {
 } from "ionicons/icons";
 import supabase from "../../../utils/supabase";
 
+import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
+
 const Config = () => {
   const { sessionUser } = useAuth();
   const router = useIonRouter();
@@ -32,6 +34,155 @@ const Config = () => {
 
   const [currentUser, setcurrentUser] = React.useState<any>();
   const [avatarUrl, setAvatarUrl] = React.useState<any>();
+
+  const handleRemoveCurrentAvatar = async () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { data, error } = await supabase.storage
+        .from("avatar-images")
+        .remove([`public/${currentUser[0]?.avatar_url}`]);
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: `${error}`,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    } finally {
+      await handleTakeAPicture();
+    }
+  };
+
+  const handleTakeAPicture = async () => {
+    try {
+      const capturedPhoto = await Camera.getPhoto({
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Camera,
+        quality: 100,
+      });
+
+      let path = capturedPhoto?.path || capturedPhoto?.webPath;
+      path = `${path}`;
+      await uploadNewAvatar(path);
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
+  };
+
+  const uploadNewAvatar = async (path: string) => {
+    try {
+      const response = await fetch(path);
+      const blob = await response.blob();
+
+      const filename = path.substring(path.lastIndexOf("/") + 1);
+
+      const { data, error } = await supabase.storage
+        .from("avatar-images")
+        .upload(`/public/${sessionUser?.id}-${filename}`, blob, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+      if (data) {
+        handleSaveAvatarFileName(`${sessionUser?.id}-${filename}`);
+      }
+      if (error) {
+        await showToast({
+          position: "top",
+          message: `${error}`,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
+  };
+
+  const handleSaveAvatarFileName = async (filename: string) => {
+    try {
+      if (currentUser[0].barber) {
+        const { data, error } = await supabase
+          .from("barbers")
+          .update([
+            {
+              avatar_url: filename,
+            },
+          ])
+          .eq("id", sessionUser?.id);
+
+        if (data) {
+          await showToast({
+            position: "top",
+            message: `foto de perfil adicionada com sucesso`,
+            duration: 3000,
+          });
+          document.location.reload();
+        }
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: `${error}`,
+            duration: 3000,
+          });
+          console.log(error);
+        }
+      } else {
+        const { data, error } = await supabase
+          .from("clients")
+          .update([
+            {
+              avatar_url: filename,
+            },
+          ])
+          .eq("id", sessionUser?.id);
+
+        if (data) {
+          await showToast({
+            position: "top",
+            message: `foto de perfil adicionada com sucesso`,
+            duration: 3000,
+          });
+          document.location.reload();
+        }
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: `${error}`,
+            duration: 3000,
+          });
+          console.log(error);
+        }
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
+  };
 
   const getProfile = async () => {
     try {
@@ -107,7 +258,7 @@ const Config = () => {
                   lines="none"
                   className="flex items-center rounded-3xl my-2 shadow h-32 bg-white"
                 >
-                  <div slot="start">
+                  <div onClick={handleRemoveCurrentAvatar} slot="start">
                     <img
                       alt="profilePicture"
                       className="rounded-full w-20 h-20"

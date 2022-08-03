@@ -43,7 +43,10 @@ export const EditSchedule = () => {
   const [schedules, setSchedules] = React.useState<Array<any>>([]);
 
   const [status, setStatus] = React.useState<string>();
-  const [isOpen, setIsOpen] = React.useState<boolean>(false);
+  const [openMarkAsDoneModal, setOpenMarkAsDoneModal] =
+    React.useState<boolean>(false);
+  const [openCancelScheduleModal, setOpenCancelScheduleModal] =
+    React.useState<boolean>(false);
 
   const [totalValue, setTotalValue] = React.useState<number>(0);
 
@@ -345,7 +348,7 @@ export const EditSchedule = () => {
                   {sessionUser?.user_metadata?.barber && (
                     <button
                       onClick={() => {
-                        setIsOpen(!isOpen);
+                        setOpenMarkAsDoneModal(!openMarkAsDoneModal);
                       }}
                       className={`p-4 w-full rounded-xl bg-gradient-to-l from-orange-800 to-orange-600 text-white my-3`}
                     >
@@ -353,12 +356,14 @@ export const EditSchedule = () => {
                     </button>
                   )}
                   <button
-                    onClick={handleCancelSchedule}
+                    onClick={() => {
+                      setOpenCancelScheduleModal(!openCancelScheduleModal);
+                    }}
                     className={
                       "p-4 w-full rounded-xl bg-gradient-to-l from-red-500 to-red-700 text-white my-3"
                     }
                   >
-                    Desagendar
+                    Cancelar Agendamento
                   </button>
                 </>
               )}
@@ -373,7 +378,7 @@ export const EditSchedule = () => {
 
             {/* =============================== MODAL ================================= */}
             <IonModal
-              isOpen={isOpen}
+              isOpen={openMarkAsDoneModal}
               initialBreakpoint={0.85}
               breakpoints={[0, 0.75, 0.85, 0.9, 1]}
             >
@@ -383,7 +388,7 @@ export const EditSchedule = () => {
                 </IonTitle>
                 <div className="p-2">
                   <button
-                    onClick={() => setIsOpen(!isOpen)}
+                    onClick={() => setOpenMarkAsDoneModal(!openMarkAsDoneModal)}
                     className="ml-2 text-white"
                   >
                     FECHAR
@@ -484,6 +489,58 @@ export const EditSchedule = () => {
                   CONFIRMAR
                 </button>
               </form>
+            </IonModal>
+
+            {/* CONFIRM MODAL TO CANCEL SCHEDULE */}
+
+            <IonModal
+              isOpen={openCancelScheduleModal}
+              initialBreakpoint={0.3}
+              breakpoints={[0, 0.3, 0.5, 0.65, 1]}
+            >
+              <div className="flex justify-around p-3 bg-gradient-to-l from-green-800 to-green-600">
+                <IonTitle className="text-white">
+                  Cancelar esse agendamento?
+                </IonTitle>
+                <div className="p-2">
+                  <button
+                    onClick={() =>
+                      setOpenCancelScheduleModal(!openCancelScheduleModal)
+                    }
+                    className="text-white"
+                  >
+                    FECHAR
+                  </button>
+                </div>
+              </div>
+              <div className="ion-padding">
+                <IonLabel className="text-gray-400 my-3">
+                  O cancelamento é irreversivél, após cancelalo não terá como
+                  desfazer essa ação, sendo necessário refazer o agendamento
+                  caso tenha cancelado por engano.
+                </IonLabel>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={handleCancelSchedule}
+                    className={
+                      "p-4 w-full rounded-xl bg-gradient-to-l from-green-500 to-green-700 text-white my-3"
+                    }
+                  >
+                    Confirmar
+                  </button>
+                  <button
+                    onClick={() => {
+                      setOpenCancelScheduleModal(false);
+                    }}
+                    className={
+                      "p-4 w-full rounded-xl bg-gradient-to-l from-red-500 to-red-700 text-white my-3"
+                    }
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
             </IonModal>
           </>
         )}{" "}

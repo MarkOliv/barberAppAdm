@@ -264,6 +264,7 @@ const Calendar = () => {
     let servicesNames: Array<any> = [];
     let totalPriceServces = 0;
     let totalTimeServices = 0;
+
     // eslint-disable-next-line array-callback-return
     services.map((service: any) => {
       totalTimeServices += service?.time;
