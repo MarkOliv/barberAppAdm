@@ -16,12 +16,11 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts";
 import {
   analytics,
-  bag,
-  build,
   chevronBackOutline,
   cut,
   helpCircle,
   logOut,
+  pricetags,
 } from "ionicons/icons";
 import supabase from "../../../utils/supabase";
 
@@ -246,7 +245,7 @@ const Config = () => {
           <>
             <div className="h-screen bg-gray-100">
               <Link
-                to={`/app/profile/${sessionUser?.id}`}
+                to={`/app/home`}
                 className="flex items-center bg-white p-5 border-b h-24"
               >
                 <IonIcon className="w-6 h-6" src={chevronBackOutline} />
@@ -281,45 +280,14 @@ const Config = () => {
                       className="mt-5 mb-3 bg-white rounded-3xl shadow"
                       lines="none"
                       id="open-modal"
-                      key={"Produtos"}
                       onClick={() => {
-                        router.push("/app/config/products-categories");
+                        router.push("/app/config/categories");
                       }}
                     >
-                      <IonIcon src={bag} />
+                      <IonIcon src={pricetags} />
                       <IonLabel className="ml-5">
-                        <h2>Categorias dos produtos</h2>
-                        <p>Cadastrar categorias dos produtos</p>
-                      </IonLabel>
-                    </IonItem>
-                    <IonItem
-                      className="mt-5 mb-3 bg-white rounded-3xl shadow"
-                      lines="none"
-                      id="open-modal"
-                      key={"Serviços"}
-                      onClick={() => {
-                        router.push("/app/config/services-categories");
-                      }}
-                    >
-                      <IonIcon src={build} />
-                      <IonLabel className="ml-5">
-                        <h2>Categorias dos serviços</h2>
-                        <p>Cadastrar categorias dos serviços</p>
-                      </IonLabel>
-                    </IonItem>
-                    <IonItem
-                      className="mt-5 mb-3 bg-white rounded-3xl shadow"
-                      lines="none"
-                      id="open-modal"
-                      key={"Especialidades"}
-                      onClick={() => {
-                        router.push("/app/config/specialties");
-                      }}
-                    >
-                      <IonIcon src={cut} />
-                      <IonLabel className="ml-5">
-                        <h2>Cadastrar Especialidades</h2>
-                        <p>Especialidades para o perfil</p>
+                        <h2>Categorias</h2>
+                        <p>Cadastrar categorias de produtos e serviços</p>
                       </IonLabel>
                     </IonItem>
 
@@ -327,7 +295,21 @@ const Config = () => {
                       className="mt-5 mb-3 bg-white rounded-3xl shadow"
                       lines="none"
                       id="open-modal"
-                      key={"Relatórios"}
+                      onClick={() => {
+                        router.push("/app/config/specialties");
+                      }}
+                    >
+                      <IonIcon src={cut} />
+                      <IonLabel className="ml-5">
+                        <h2>Especialidades</h2>
+                        <p>Especialidade para barbeiros</p>
+                      </IonLabel>
+                    </IonItem>
+
+                    <IonItem
+                      className="mt-5 mb-3 bg-white rounded-3xl shadow"
+                      lines="none"
+                      id="open-modal"
                       onClick={() => {
                         router.push("/app/config/reports");
                       }}
@@ -345,7 +327,6 @@ const Config = () => {
                   className="mt-5 mb-3 bg-white rounded-3xl shadow"
                   lines="none"
                   id="open-modal"
-                  key={"Central de Ajuda"}
                   onClick={() => {
                     router.push("/app/config/help");
                   }}

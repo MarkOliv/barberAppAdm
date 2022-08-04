@@ -14,9 +14,9 @@ import {
 } from "@ionic/react";
 
 import { Link } from "react-router-dom";
-import { useAuth } from "../../../contexts";
+import { useAuth } from "../../../../contexts";
 import { chevronBackOutline, trashBin } from "ionicons/icons";
-import supabase from "../../../utils/supabase";
+import supabase from "../../../../utils/supabase";
 
 const Services_categories = () => {
   const { sessionUser } = useAuth();
@@ -125,7 +125,7 @@ const Services_categories = () => {
           <>
             <div className="h-screen bg-gray-100">
               <Link
-                to="/app/config"
+                to="/app/config/categories"
                 className="flex items-center bg-white p-5 border-b h-24"
               >
                 <IonIcon className="w-6 h-6" src={chevronBackOutline} />

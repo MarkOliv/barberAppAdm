@@ -13,16 +13,9 @@ import {
 
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts";
-import {
-  bag,
-  build,
-  chevronBackOutline,
-  cut,
-  person,
-  wallet,
-} from "ionicons/icons";
+import { bag, build, chevronBackOutline, wallet } from "ionicons/icons";
 
-const Specialties = () => {
+const Categories = () => {
   const { sessionUser } = useAuth();
 
   const router = useIonRouter();
@@ -46,29 +39,30 @@ const Specialties = () => {
                   className="mt-5 mb-3 bg-white rounded-3xl shadow"
                   lines="none"
                   id="open-modal"
+                  key={"Produtos"}
                   onClick={() => {
-                    router.push("/app/config/register-specialties");
+                    router.push("/app/config/products-categories");
                   }}
                 >
-                  <IonIcon src={cut} />
+                  <IonIcon src={bag} />
                   <IonLabel className="ml-5">
-                    <h2>Cadastrar Especialidades</h2>
-                    <p>cadastro e remoção de especialidades</p>
+                    <h2>Categorias dos produtos</h2>
+                    <p>Cadastrar categorias dos produtos</p>
                   </IonLabel>
                 </IonItem>
-
                 <IonItem
                   className="mt-5 mb-3 bg-white rounded-3xl shadow"
                   lines="none"
                   id="open-modal"
+                  key={"Serviços"}
                   onClick={() => {
-                    router.push("/app/config/edit-my-specialties");
+                    router.push("/app/config/services-categories");
                   }}
                 >
-                  <IonIcon src={person} />
+                  <IonIcon src={build} />
                   <IonLabel className="ml-5">
-                    <h2>Editar minhas especialidades</h2>
-                    <p>Especialidades para o seu perfil</p>
+                    <h2>Categorias dos serviços</h2>
+                    <p>Cadastrar categorias dos serviços</p>
                   </IonLabel>
                 </IonItem>
               </div>
@@ -88,4 +82,4 @@ const Specialties = () => {
   );
 };
 
-export default Specialties;
+export default Categories;
