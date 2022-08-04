@@ -8,6 +8,7 @@ import {
   IonList,
   IonPage,
   IonText,
+  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 import {
@@ -15,12 +16,11 @@ import {
   calendar,
   chatbubbles,
   checkmarkCircle,
-  cut,
+  people,
   time,
 } from "ionicons/icons";
 
 import servicesIcon from "../../assets/barberServicesCut.png";
-import barberBg from "../../assets/barber-bg.png";
 
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts";
@@ -30,31 +30,57 @@ const Home = () => {
   const [showToast] = useIonToast();
   const [schedulesToShow, setSchedulesToShow] = React.useState<Array<any>>([]);
   const [currentName, setcurrentName] = React.useState(null);
+  const [profileImage, setProfileImage] = React.useState<string>("");
+  const [currentProfile, setCurrentProfile] = React.useState<any>([]);
 
   const { sessionUser } = useAuth();
+  const router = useIonRouter();
 
   const getSchedulesToShow = async () => {
     let date = new Date();
     let currentDate = new Intl.DateTimeFormat("en-US").format(date);
 
     try {
-      let { data, error } = await supabase
-        .from("schedules")
-        .select("*")
+      if (sessionUser?.user_metadata?.barber) {
+        let { data, error } = await supabase
+          .from("schedules")
+          .select("*")
 
-        .eq("date", currentDate);
+          .eq("date", currentDate)
+          .eq("barber_id", sessionUser?.id);
 
-      if (error) {
-        await showToast({
-          position: "top",
-          message: error.message,
-          duration: 3000,
-        });
-        console.log(error);
-      }
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
 
-      if (data) {
-        setSchedulesToShow(data);
+        if (data) {
+          setSchedulesToShow(data);
+        }
+      } else {
+        let { data, error } = await supabase
+          .from("schedules")
+          .select("*")
+
+          .eq("date", currentDate)
+          .eq("name", sessionUser?.user_metadata?.full_name);
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
+
+        if (data) {
+          setSchedulesToShow(data);
+        }
       }
     } catch (error) {
       await showToast({
@@ -66,14 +92,95 @@ const Home = () => {
     }
   };
 
+  const getProfile = async () => {
+    try {
+      if (sessionUser?.user_metadata?.barber) {
+        let { data, error } = await supabase
+          .from("barbers")
+          .select("*")
+
+          .eq("id", sessionUser?.id);
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
+
+        if (data) {
+          setCurrentProfile(data);
+          console.log(data);
+        }
+      } else {
+        let { data, error } = await supabase
+          .from("clients")
+          .select("*")
+
+          .eq("id", sessionUser?.id);
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
+
+        if (data) {
+          setCurrentProfile(data);
+          console.log(data);
+        }
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    } finally {
+    }
+  };
+
+  const getAvatarUrl = async () => {
+    const { publicURL, error } = supabase.storage
+      .from("avatar-images")
+      .getPublicUrl(`public/${currentProfile[0].avatar_url}`);
+
+    if (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
+    if (publicURL) {
+      // console.log(publicURL);
+      setProfileImage(publicURL);
+    }
+  };
+
   React.useEffect(() => {
     getSchedulesToShow();
+    getProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    getAvatarUrl();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentProfile]);
 
   React.useEffect(() => {
     const nameStr = sessionUser?.user_metadata?.full_name;
     const nameArray = nameStr.split(" ");
     setcurrentName(nameArray[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -91,20 +198,27 @@ const Home = () => {
                 </IonText>
               </div>
               <div className="flex items-center">
-                <Link to="/app/profile">
-                  <IonAvatar className="flex items-center w-[70px] h-[70px]">
-                    <img
-                      src="https://blog.unyleya.edu.br/wp-content/uploads/2017/12/saiba-como-a-educacao-ajuda-voce-a-ser-uma-pessoa-melhor.jpeg"
-                      alt="profile"
-                    />
-                  </IonAvatar>
-                </Link>
+                <IonAvatar
+                  onClick={() => {
+                    document.location.replace(
+                      `/app/profile/${sessionUser?.id}`
+                    );
+                    // router.push(`/app/profile/${sessionUser?.id}`);
+                  }}
+                  className="flex items-center w-[70px] h-[70px]"
+                >
+                  <img
+                    className="w-[70px] h-[70px]"
+                    src={profileImage}
+                    alt="profile"
+                  />
+                </IonAvatar>
               </div>
             </div>
-            <div className="grid grid-cols-[30%_1fr] gap-4 py-3">
+            <div className={`grid grid-cols-4  gap-4 py-3`}>
               <Link
                 to="/app/calendar"
-                className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
+                className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
               >
                 <IonIcon className="mb-5 w-8 h-8 text-white" src={calendar} />
 
@@ -118,17 +232,17 @@ const Home = () => {
 
                 <IonText className="text-gray-400 ">Chats</IonText>
               </div>
+
+              <Link
+                to={"/app/barbers"}
+                className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-r from-white to-white-200"
+              >
+                <IonIcon className="mb-5 w-8 h-8 text-gray-500" src={people} />
+
+                <IonText className="text-gray-400 ">barbeiros</IonText>
+              </Link>
             </div>
             <div className="grid grid-cols-3 gap-4 py-3">
-              <Link
-                to="/app/services/"
-                className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
-              >
-                {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={cut} /> */}
-                <img className="w-10 h-10" src={servicesIcon} alt="" />
-                <IonText className="text-white my-1">Serviços</IonText>
-              </Link>
-
               <Link
                 to="/app/products"
                 className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-r from-white to-white-200"
@@ -136,6 +250,14 @@ const Home = () => {
                 <IonIcon className="mb-5 w-8 h-8 text-gray-500" src={bag} />
 
                 <IonText className="text-gray-400">Produtos</IonText>
+              </Link>
+              <Link
+                to="/app/services/"
+                className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
+              >
+                {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={cut} /> */}
+                <img className="w-10 h-10" src={servicesIcon} alt="" />
+                <IonText className="text-white my-1">Serviços</IonText>
               </Link>
             </div>
 
@@ -151,13 +273,23 @@ const Home = () => {
               </div>
               <IonList className="w-full h-full p-5 rounded-3xl bg-transparent">
                 {schedulesToShow.map((agendamento, index) => (
-                  <div key={index} className="grid grid-cols-3 w-full py-2">
+                  <div
+                    onClick={() => {
+                      document.location.replace(
+                        `/app/edit-schedule/${agendamento.id}`
+                      );
+                    }}
+                    key={index}
+                    className="grid grid-cols-3 w-full py-2"
+                  >
                     <div className="flex justify-start items-center">
                       <IonIcon
                         className={`w-7 h-7 ${
                           agendamento.status === "pending"
                             ? "text-orange-700"
-                            : "text-green-700"
+                            : agendamento.status === "done"
+                            ? "text-green-700"
+                            : "text-red-700"
                         }`}
                         src={checkmarkCircle}
                       />

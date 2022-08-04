@@ -36,8 +36,6 @@ import "./theme/variables.css";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import RedefinePassword from "./pages/auth/RedefinePassword";
 import Register from "./pages/auth/Register";
-import React, { useEffect } from "react";
-import supabase from "./utils/supabase";
 import Profile from "./pages/Profile";
 import Services from "./pages/Services";
 import { EditService } from "./pages/EditService";
@@ -46,7 +44,14 @@ import { EditProduct } from "./pages/EditProduct";
 import Calendar from "./pages/Calendar";
 import { EditSchedule } from "./pages/EditSchedule";
 import { useAuth } from "./contexts";
-import BarberRegister from "./pages/auth/barber_register";
+import BarberRegister from "./pages/auth/BarberRegister";
+import Barbers from "./pages/Barbers";
+import Config from "./pages/config/HomeConfig";
+import Help from "./pages/config/Help";
+import Specialties from "./pages/config/Specialties";
+import Product_categories from "./pages/config/ProductsCategories";
+import Services_categories from "./pages/config/ServicesCategories";
+import Reports from "./pages/config/Reports";
 
 setupIonicReact();
 
@@ -61,7 +66,26 @@ const App: React.FC = () => {
             <Route exact path="/">
               <Redirect to={sessionUser ? "/app/home" : "/signup"} />
             </Route>
-            <Route exact path="/app/profile" component={Profile} />
+
+            <Route exact path="/app/profile/:id" component={Profile} />
+            <Route exact path="/app/config" component={Config} />
+            <Route exact path="/app/config/help" component={Help} />
+            <Route exact path="/app/config/reports" component={Reports} />
+            <Route
+              exact
+              path="/app/config/specialties"
+              component={Specialties}
+            />
+            <Route
+              exact
+              path="/app/config/products-categories"
+              component={Product_categories}
+            />
+            <Route
+              exact
+              path="/app/config/services-categories"
+              component={Services_categories}
+            />
 
             <Route exact path="/app/home">
               <Home />
@@ -73,12 +97,15 @@ const App: React.FC = () => {
               path="/app/edit-schedule/:scheduleId"
               component={EditSchedule}
             />
+            {/* barber */}
+
+            <Route exact path="/register-barber" component={BarberRegister} />
+            <Route exact path="/app/barbers" component={Barbers} />
 
             {/* auth */}
 
             <Route exact path="/login" component={Login} />
             <Route exact path="/register" component={Register} />
-            <Route exact path="/register-barber" component={BarberRegister} />
             <Route exact path="/signup" component={SignUp} />
             <Route exact path="/forgot-password" component={ForgotPassword} />
             <Route

@@ -9,11 +9,10 @@ import {
   IonContent,
   IonIcon,
   IonInput,
-  IonItem,
   IonLabel,
   IonPage,
-  IonText,
   useIonLoading,
+  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 import { Link } from "react-router-dom";
@@ -21,9 +20,12 @@ import { close, eye, eyeOff } from "ionicons/icons";
 
 import * as Yup from "yup";
 import supabase from "../../../utils/supabase";
-import { log } from "console";
+import { useAuth } from "../../../contexts";
 
 const Register = () => {
+  const { sessionUser } = useAuth();
+  const router = useIonRouter();
+
   const [showLoading, hideLoading] = useIonLoading();
   const [showToast] = useIonToast();
 
@@ -68,8 +70,11 @@ const Register = () => {
         },
         {
           data: {
-            full_name: "marcos",
-            address: "avenida x numero x",
+            username: data.fullName,
+            avatar_url: null,
+            address: data.address,
+            bio: "bio padrão",
+            client: true,
           },
         }
       );
@@ -79,24 +84,75 @@ const Register = () => {
           message: error.message,
           duration: 2000,
         });
+        console.error(error);
       }
 
       if (user) {
-        await showToast({
-          message: "Verifique seu e-email para logar",
-          duration: 2000,
-        });
+        handleCreateNewClient(
+          data.fullName,
+          data?.email,
+          data?.address,
+          user?.id
+        );
       }
     } catch (e) {
       await showToast({
         message: "Erro interno, por favor tente novamente mais tarde",
         duration: 2000,
       });
+      console.error(e);
+    }
+  };
+
+  const handleCreateNewClient = async (
+    full_name: string,
+    userEmail: string,
+    address: string,
+    user_id: string
+  ) => {
+    try {
+      const { data, error } = await supabase.from("clients").insert([
+        {
+          id: user_id,
+          email: userEmail,
+          username: full_name,
+          address: address,
+          barber: false,
+          client: true,
+        },
+      ]);
+
+      if (error) {
+        await showToast({
+          message: error.message,
+          duration: 2000,
+        });
+        console.error(error);
+      }
+
+      if (data) {
+        await showToast({
+          message: "Verifique seu e-email para logar",
+          duration: 2000,
+          position: "top",
+        });
+      }
+    } catch (error) {
+      await showToast({
+        message: "Erro interno, por favor tente novamente mais tarde",
+        duration: 2000,
+      });
+      console.error(error);
     } finally {
       await hideLoading();
     }
   };
-
+  React.useEffect(() => {
+    if (sessionUser) {
+      router.push("/app/home");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <IonPage>
       <IonContent fullscreen>

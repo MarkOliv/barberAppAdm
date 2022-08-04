@@ -16,6 +16,7 @@ import "yup-phone";
 import { useForm } from "react-hook-form";
 import React from "react";
 import supabase from "../utils/supabase";
+import { useAuth } from "../contexts";
 
 type Props = {
   type: string;
@@ -25,6 +26,8 @@ export const ModalEditInfo = (props: Props) => {
   const { type, data } = props;
 
   const [showToast] = useIonToast();
+  const [userType, setUserType] = React.useState<string>();
+  const { sessionUser } = useAuth();
 
   const schemaEmail = Yup.object().shape({
     email: Yup.string()
@@ -86,8 +89,10 @@ export const ModalEditInfo = (props: Props) => {
 
   const handleSubmitEmail = async (data: any) => {
     try {
+      var newEmail = data.email;
+
       const { data: email, error: emailError } = await supabase.auth.update({
-        email: data?.email,
+        email: newEmail,
       });
 
       if (email) {
@@ -95,7 +100,7 @@ export const ModalEditInfo = (props: Props) => {
           message: "Email alterado com sucesso",
           duration: 3000,
         }).then(() => {
-          document.location.reload();
+          updateEmailInDB(newEmail);
         });
       }
 
@@ -103,8 +108,6 @@ export const ModalEditInfo = (props: Props) => {
         await showToast({
           message: `Erro ao atualizar email, erro de código: ${emailError.status}`,
           duration: 3000,
-        }).then(() => {
-          document.location.reload();
         });
       }
     } catch (error) {
@@ -114,6 +117,64 @@ export const ModalEditInfo = (props: Props) => {
       });
     }
   };
+
+  const updateEmailInDB = async (email: string) => {
+    try {
+      if (userType === "barber") {
+        const { data, error } = await supabase
+          .from("barbers")
+          .update({ email: email })
+          .eq("id", sessionUser?.id);
+
+        if (data) {
+          await showToast({
+            message: "Email alterado com sucesso",
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+
+        if (error) {
+          await showToast({
+            message: `Erro ao atualizar email, erro de código: ${error.code}`,
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+      } else {
+        const { data, error } = await supabase
+          .from("clients")
+          .update({ email: email })
+          .eq("id", sessionUser?.id);
+
+        if (data) {
+          await showToast({
+            message: "Email alterado com sucesso",
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+
+        if (error) {
+          await showToast({
+            message: `Erro ao atualizar email, erro de código: ${error.code}`,
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+      }
+    } catch (error) {
+      await showToast({
+        message: `Erro!!! ${error}`,
+        duration: 2000,
+      });
+    }
+  };
+
   const handleSubmitUserName = async (data: any) => {
     try {
       const { data: fullName, error: fullNameError } =
@@ -126,7 +187,7 @@ export const ModalEditInfo = (props: Props) => {
           message: "Nome alterado com sucesso",
           duration: 3000,
         }).then(() => {
-          document.location.reload();
+          updateUserNameInDB(data?.username);
         });
       }
 
@@ -134,9 +195,62 @@ export const ModalEditInfo = (props: Props) => {
         await showToast({
           message: `Erro ao atualizar nome, erro de código: ${fullNameError.status}`,
           duration: 3000,
-        }).then(() => {
-          document.location.reload();
         });
+      }
+    } catch (error) {
+      await showToast({
+        message: `Erro!!! ${error}`,
+        duration: 2000,
+      });
+    }
+  };
+
+  const updateUserNameInDB = async (name: string) => {
+    try {
+      if (userType === "barber") {
+        const { data, error } = await supabase
+          .from("barbers")
+          .update({ full_name: name })
+          .eq("id", sessionUser?.id);
+
+        if (data) {
+          await showToast({
+            message: "Email alterado com sucesso",
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+
+        if (error) {
+          await showToast({
+            message: `Erro ao atualizar email, erro de código: ${error.code}`,
+            duration: 3000,
+          });
+        }
+      } else {
+        const { data, error } = await supabase
+          .from("clients")
+          .update({ full_name: name })
+          .eq("id", sessionUser?.id);
+
+        if (data) {
+          await showToast({
+            message: "Email alterado com sucesso",
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+
+        if (error) {
+          await showToast({
+            message: `Erro ao atualizar email, erro de código: ${error.code}`,
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
       }
     } catch (error) {
       await showToast({
@@ -149,7 +263,7 @@ export const ModalEditInfo = (props: Props) => {
   const handleSubmitPhone = async (data: any) => {
     try {
       const { data: phone, error: phoneError } = await supabase.auth.update({
-        phone: data?.phone,
+        data: { phone: data?.phone },
       });
 
       if (phone) {
@@ -157,7 +271,7 @@ export const ModalEditInfo = (props: Props) => {
           message: "Telefone alterado com sucesso",
           duration: 3000,
         }).then(() => {
-          document.location.reload();
+          updatePhoneInDB(data?.phone);
         });
       }
 
@@ -165,9 +279,64 @@ export const ModalEditInfo = (props: Props) => {
         await showToast({
           message: `Erro ao atualizar telefone, erro de código: ${phoneError.status}`,
           duration: 3000,
-        }).then(() => {
-          document.location.reload();
         });
+      }
+    } catch (error) {
+      await showToast({
+        message: `Erro!!! ${error}`,
+        duration: 2000,
+      });
+    }
+  };
+
+  const updatePhoneInDB = async (phone: string) => {
+    try {
+      if (userType === "barber") {
+        const { data, error } = await supabase
+          .from("barbers")
+          .update({ phone: phone })
+          .eq("id", sessionUser?.id);
+
+        if (data) {
+          await showToast({
+            message: "Email alterado com sucesso",
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+
+        if (error) {
+          await showToast({
+            message: `Erro ao atualizar email, erro de código: ${error.code}`,
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+      } else {
+        const { data, error } = await supabase
+          .from("clients")
+          .update({ phone: phone })
+          .eq("id", sessionUser?.id);
+
+        if (data) {
+          await showToast({
+            message: "Phone alterado com sucesso",
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+
+        if (error) {
+          await showToast({
+            message: `Erro ao atualizar email, erro de código: ${error.code}`,
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
       }
     } catch (error) {
       await showToast({
@@ -190,6 +359,7 @@ export const ModalEditInfo = (props: Props) => {
           message: "Endereço alterado com sucesso",
           duration: 3000,
         }).then(() => {
+          updateAddressInDB(data?.address);
           document.location.reload();
         });
       }
@@ -210,11 +380,54 @@ export const ModalEditInfo = (props: Props) => {
     }
   };
 
+  const updateAddressInDB = async (address: string) => {
+    try {
+      if (userType === "clients") {
+        const { data, error } = await supabase
+          .from("clients")
+          .update({ address: address })
+          .eq("id", sessionUser?.id);
+
+        if (data) {
+          await showToast({
+            message: "Email alterado com sucesso",
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+
+        if (error) {
+          await showToast({
+            message: `Erro ao atualizar email, erro de código: ${error.code}`,
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+      }
+    } catch (error) {
+      await showToast({
+        message: `Erro!!! ${error}`,
+        duration: 2000,
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    if (sessionUser?.user_metadata?.barber) {
+      setUserType("barber");
+    } else {
+      setUserType("clients");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <IonContent>
       {type === "username" && (
         <form onSubmit={SubmitUserName(handleSubmitUserName)}>
-          <div className="flex justify-around rounded-b-md p-3 bg-sky-400">
+          <div className="flex justify-around rounded-b-md p-3 bg-gradient-to-l from-green-800 to-green-600">
             <IonTitle className="text-white">Nome</IonTitle>
             <div className="p-2">
               <button type="submit" className="ml-2 text-white">
@@ -244,7 +457,7 @@ export const ModalEditInfo = (props: Props) => {
       )}
       {type === "email" && (
         <form onSubmit={SubmitEmail(handleSubmitEmail)}>
-          <div className="flex justify-around rounded-b-md p-3 bg-sky-400">
+          <div className="flex justify-around rounded-b-md p-3 bg-gradient-to-l from-green-800 to-green-600">
             <IonTitle className="text-white">E-mail</IonTitle>
             <div className="p-2">
               <button type="submit" className="ml-2 text-white">
@@ -274,7 +487,7 @@ export const ModalEditInfo = (props: Props) => {
       )}
       {type === "phone" && (
         <form onSubmit={SubmitPhone(handleSubmitPhone)}>
-          <div className="flex justify-around rounded-b-md p-3 bg-sky-400">
+          <div className="flex justify-around rounded-b-md p-3 bg-gradient-to-l from-green-800 to-green-600">
             <IonTitle className="text-white">Telefone</IonTitle>
             <div className="p-2">
               <button type="submit" className="ml-2 text-white">
@@ -304,7 +517,7 @@ export const ModalEditInfo = (props: Props) => {
       )}
       {type === "address" && (
         <form onSubmit={SubmitAddress(handleSubmitAddress)}>
-          <div className="flex justify-around rounded-b-md p-3 bg-sky-400">
+          <div className="flex justify-around rounded-b-md p-3 bg-gradient-to-l from-green-800 to-green-600">
             <IonTitle className="text-white">Endereço</IonTitle>
             <div className="p-2">
               <button type="submit" className="ml-2 text-white">

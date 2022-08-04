@@ -12,14 +12,13 @@ import {
   IonSelectOption,
   IonText,
   IonTitle,
+  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 import {
   alarm,
-  alarmOutline,
-  calendar,
   checkmarkCircle,
-  cut,
+  chevronBackOutline,
   time,
 } from "ionicons/icons";
 import React from "react";
@@ -32,61 +31,87 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import "yup-phone";
 import * as Yup from "yup";
 import { useForm } from "react-hook-form";
+import { useAuth } from "../../contexts";
 
 const Calendar = () => {
   const [showToast] = useIonToast();
+  const { sessionUser } = useAuth();
+  const router = useIonRouter();
 
   const [isOpen, setIsOpen] = React.useState(false);
-  const [currentUser, setcurrentUser] = React.useState<any>();
   const [hours, setHours] = React.useState<Array<string>>([]);
   const [services, setServices] = React.useState<Array<any>>([]);
-  const [schedules, setSchedules] = React.useState<Array<any>>([]);
+  const [barbers, setBarbers] = React.useState<Array<any>>([]);
+  const [selectedBarber, setSelectedBarber] = React.useState<any>();
+
   // Handling states to show the consult
   const [consultDate, setConsultDate] = React.useState<any>();
   const [schedulesToShow, setSchedulesToShow] = React.useState<Array<any>>([]);
 
-  const schema = Yup.object().shape({
-    name: Yup.string()
-      .min(3, "nome do produto deve ter no minimo 3 caracteres")
-      .required("O nome é obrigatório"),
+  const barberSchema = Yup.object().shape({
+    name: Yup.string().default(""),
     phone: Yup.string()?.phone(
       "BR",
       false,
       "insira um numero de telefone válido"
     ),
-    service: Yup.array().required("A categoria é obrigatória"),
+    barber: Yup.string().required("O Barbeiro é obrigatório"),
+    service: Yup.array().required("Selecione pelo menos um serviço"),
     date: Yup.string().required("A data é obrigatória"),
     time: Yup.string().required("Informe qual horário"),
   });
 
   const {
-    handleSubmit,
+    handleSubmit: handleSubmitBarber,
     register,
     formState: { errors },
   } = useForm({
     mode: "onChange",
-    resolver: yupResolver(schema),
+    resolver: yupResolver(barberSchema),
   });
 
   const getSchedulesToShow = async (date: any) => {
     try {
-      let { data, error } = await supabase
-        .from("schedules")
-        .select("*")
+      if (sessionUser?.user_metadata?.barber) {
+        let { data, error } = await supabase
+          .from("schedules")
+          .select("*")
 
-        .eq("date", date);
+          .eq("date", date)
+          .eq("barber_id", sessionUser?.id);
 
-      if (error) {
-        await showToast({
-          position: "top",
-          message: error.message,
-          duration: 3000,
-        });
-        console.log(error);
-      }
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
 
-      if (data) {
-        setSchedulesToShow(data);
+        if (data) {
+          setSchedulesToShow(data);
+        }
+      } else {
+        let { data, error } = await supabase
+          .from("schedules")
+          .select("*")
+
+          .eq("date", date)
+          .eq("name", sessionUser?.user_metadata?.full_name);
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+          console.log(error);
+        }
+
+        if (data) {
+          setSchedulesToShow(data);
+        }
       }
     } catch (error) {
       await showToast({
@@ -113,7 +138,32 @@ const Calendar = () => {
       }
 
       if (services) {
-        await setServices(services);
+        setServices(services);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
+  };
+
+  const getBarbers = async () => {
+    try {
+      let { data: barbers, error } = await supabase.from("barbers").select("*");
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+      }
+
+      if (barbers) {
+        setBarbers(barbers);
       }
     } catch (error) {
       await showToast({
@@ -147,6 +197,7 @@ const Calendar = () => {
     }
 
     // removing already times scheduleds
+    // eslint-disable-next-line array-callback-return
     schedulesTimes.map((time: string) => {
       let currentTime = time.substring(0, 5); //valor original = 00:00:00 estou deixando como 00:00
       let i = hours.findIndex((v) => v === currentTime);
@@ -160,7 +211,9 @@ const Calendar = () => {
     phone: number,
     services: Array<any>,
     date: string,
-    times: Array<any>
+    times: Array<any>,
+    barber_id: any,
+    price: number
   ) => {
     try {
       const { data: newSchedule, error } = await supabase
@@ -172,6 +225,8 @@ const Calendar = () => {
             services: services,
             date: date,
             times: times,
+            barber_id: barber_id,
+            price: price,
           },
         ]);
 
@@ -207,11 +262,14 @@ const Calendar = () => {
     let services = data?.service;
 
     let servicesNames: Array<any> = [];
+    let totalPriceServces = 0;
     let totalTimeServices = 0;
+
     // eslint-disable-next-line array-callback-return
     services.map((service: any) => {
       totalTimeServices += service?.time;
       servicesNames.push(service?.name);
+      totalPriceServces += service?.price;
     });
 
     //fazer com switch case
@@ -246,6 +304,7 @@ const Calendar = () => {
 
     for (let i = Number(minutsTime); count >= y; i = i + 15) {
       y++; //so contador
+
       if (i >= 60) {
         h++;
         i = 0;
@@ -256,7 +315,11 @@ const Calendar = () => {
         }
       } else {
         if (h >= 10) {
-          allTimeServices.push(`${h}:${i}`);
+          if (i === 0) {
+            allTimeServices.push(`${h}:0${i}`);
+          } else {
+            allTimeServices.push(`${h}:${i}`);
+          }
         } else if (i === 0) {
           allTimeServices.push(`0${h}:0${i}`);
         } else {
@@ -266,6 +329,8 @@ const Calendar = () => {
     }
 
     //comparar allTimeServices com hours. Pois no hours so tem os horarios disponiveis e se nao bater algum horario do allTimeServices eu nao deixo agendar, pq vai ocupar um horario que nao esta disponivel
+    console.log(allTimeServices);
+    console.log(hours);
 
     let countAvaibleTimes = 0;
     for (let i = 0; i < allTimeServices.length; i++) {
@@ -278,11 +343,15 @@ const Calendar = () => {
 
     if (allTimeServices.length === countAvaibleTimes) {
       handleNewSchedule(
-        data.name,
+        sessionUser?.user_metadata?.barber
+          ? data.name
+          : sessionUser?.user_metadata?.full_name,
         data.phone,
         servicesNames,
         data.date,
-        allTimeServices
+        allTimeServices,
+        data.barber,
+        totalPriceServces
       );
     } else {
       showToast({
@@ -299,7 +368,10 @@ const Calendar = () => {
         .from("schedules")
         .select("*")
 
-        .eq("date", newDate);
+        .eq("date", newDate)
+        .eq("barber_id", selectedBarber)
+        .neq("status", "canceled")
+        .neq("status", "done");
 
       if (error) {
         await showToast({
@@ -313,6 +385,7 @@ const Calendar = () => {
       let schedulesTimes: Array<any> = [];
       if (data) {
         data.map((schedule) => {
+          // eslint-disable-next-line array-callback-return
           schedule?.times.map((time: any) => {
             schedulesTimes.push(time);
           });
@@ -331,26 +404,25 @@ const Calendar = () => {
   };
 
   React.useEffect(() => {
-    const user = supabase.auth.user();
-    setcurrentUser(user);
-  }, []);
-
-  React.useEffect(() => {
     getServices();
+    getBarbers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <IonPage>
-      {currentUser && (
+      {sessionUser && (
         <IonContent>
-          <div className="flex items-center bg-white p-5 border-b">
-            <IonButtons slot="start">
-              <IonBackButton defaultHref="/app/home" />
-            </IonButtons>
+          <Link
+            to="/app/home"
+            className="flex items-center bg-white p-5 border-b h-24"
+          >
+            <IonIcon className="w-6 h-6" src={chevronBackOutline} />
+
             <IonTitle className="font-bold">Calendário</IonTitle>
-          </div>
+          </Link>
           <div className="h-screen py-10 px-5 bg-gray-100">
-            <div className="grid grid-cols-[30%_1fr] gap-4 py-3">
+            <div className={`grid grid-cols-[30%_1fr] gap-4 py-3`}>
               <div
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
@@ -359,22 +431,25 @@ const Calendar = () => {
 
                 <IonText className="text-white">Agendar</IonText>
               </div>
-              <div className="flex flex-col justify-center items-center h-32 bg-white shadow rounded-3xl p-3">
-                <IonText className="text-gray-500">Consultar Data</IonText>
-                <div className="flex justify-center items-center bg-gray-200 rounded-3xl shadow h-10 w-full">
-                  <IonInput
-                    className="text-gray-500"
-                    type="date"
-                    onIonChange={({ detail }) => {
-                      setConsultDate(detail.value);
-                      getSchedulesToShow(detail.value);
-                    }}
-                  />
+
+              <>
+                <div className="flex flex-col justify-center items-center h-32 bg-white shadow rounded-3xl p-3">
+                  <IonText className="text-gray-500">Consultar Data</IonText>
+                  <div className="flex justify-center items-center bg-gray-200 rounded-3xl shadow h-10 w-full">
+                    <IonInput
+                      className="text-gray-500"
+                      type="date"
+                      onIonChange={({ detail }) => {
+                        setConsultDate(detail.value);
+                        getSchedulesToShow(detail.value);
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
+              </>
             </div>
 
-            <div className="h-auto bg-white shadow rounded-3xl py-5">
+            <div className="h-auto w-full bg-white shadow rounded-3xl py-5">
               <div className="flex justify-start mx-5">
                 <IonIcon className="mb-5 w-6 h-6 text-gray-500" src={time} />
                 <IonText className="ml-2 text-gray-500">
@@ -386,8 +461,12 @@ const Calendar = () => {
               </div>
               <IonList className="w-full h-full p-5 rounded-3xl">
                 {schedulesToShow.map((agendamento, index) => (
-                  <Link
-                    to={`/app/edit-schedule/${agendamento.id}`}
+                  <div
+                    onClick={() => {
+                      document.location.replace(
+                        `/app/edit-schedule/${agendamento.id}`
+                      );
+                    }}
                     key={index}
                     className="grid grid-cols-3 w-full py-2"
                   >
@@ -396,7 +475,9 @@ const Calendar = () => {
                         className={`w-7 h-7 ${
                           agendamento.status === "pending"
                             ? "text-orange-700"
-                            : "text-green-700"
+                            : agendamento.status === "done"
+                            ? "text-green-700"
+                            : "text-red-700"
                         }`}
                         src={checkmarkCircle}
                       />
@@ -409,15 +490,15 @@ const Calendar = () => {
                         {agendamento.times[0]}
                       </IonLabel>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </IonList>
             </div>
           </div>
           <IonModal
             isOpen={isOpen}
-            initialBreakpoint={0.75}
-            breakpoints={[0, 0.75, 0.9, 1]}
+            initialBreakpoint={0.85}
+            breakpoints={[0, 0.75, 0.85, 0.9, 1]}
           >
             <div className="flex justify-around p-3 bg-gradient-to-l from-green-800 to-green-600">
               <IonTitle className="text-white">Fazer Agendamento</IonTitle>
@@ -430,23 +511,30 @@ const Calendar = () => {
                 </button>
               </div>
             </div>
-            <form onSubmit={handleSubmit(handleTimes)} className="ion-padding">
-              <IonLabel className="text-gray-600" position="stacked">
-                Nome
-              </IonLabel>
-              <div className="flex items-center bg-gray-200 rounded-3xl p-3 mt-1">
-                <IonInput
-                  type="text"
-                  className="placeholder: text-gray-600"
-                  placeholder="José da Silva"
-                  {...register("name")}
-                />
-              </div>
-              <ErrorMessage
-                errors={errors}
-                name="name"
-                as={<div style={{ color: "red" }} />}
-              />
+            <form
+              onSubmit={handleSubmitBarber(handleTimes)}
+              className="ion-padding"
+            >
+              {sessionUser?.user_metadata?.barber && (
+                <>
+                  <IonLabel className="text-gray-600" position="stacked">
+                    Nome
+                  </IonLabel>
+                  <div className="flex items-center bg-gray-200 rounded-3xl p-3 mt-1">
+                    <IonInput
+                      type="text"
+                      className="placeholder: text-gray-600"
+                      placeholder="José da Silva"
+                      {...register("name")}
+                    />
+                  </div>
+                  <ErrorMessage
+                    errors={errors}
+                    name="name"
+                    as={<div style={{ color: "red" }} />}
+                  />
+                </>
+              )}
               <IonLabel className="text-gray-600" position="stacked">
                 Numero de telefone
               </IonLabel>
@@ -461,6 +549,29 @@ const Calendar = () => {
               <ErrorMessage
                 errors={errors}
                 name="phone"
+                as={<div style={{ color: "red" }} />}
+              />
+              <IonLabel className="text-gray-600" position="stacked">
+                Barbeiro
+              </IonLabel>
+              <IonSelect
+                className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3"
+                placeholder="Selecione o Barbeiro"
+                onIonChange={({ detail }) => {
+                  setSelectedBarber(detail.value);
+                }}
+                {...register("barber")}
+              >
+                {barbers &&
+                  barbers.map((barber, index) => (
+                    <IonSelectOption key={index} value={barber?.id}>
+                      {barber?.full_name}
+                    </IonSelectOption>
+                  ))}
+              </IonSelect>
+              <ErrorMessage
+                errors={errors}
+                name="barber"
                 as={<div style={{ color: "red" }} />}
               />
               <IonLabel className="text-gray-600" position="stacked">
@@ -480,6 +591,7 @@ const Calendar = () => {
                         id: service?.id,
                         name: service?.name,
                         time: service?.time,
+                        price: service?.price,
                       }}
                     >
                       {service?.name}
@@ -537,7 +649,7 @@ const Calendar = () => {
           </IonModal>
         </IonContent>
       )}
-      {currentUser == undefined && (
+      {sessionUser === undefined && (
         <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
           <p className="text-black">você precisa estar logado</p>
           <Link to="/signup" className="text-cyan-500">
