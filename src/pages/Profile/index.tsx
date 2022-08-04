@@ -6,6 +6,9 @@ import {
   IonLabel,
   IonModal,
   IonPage,
+  IonSlide,
+  IonSlides,
+  IonText,
   IonTitle,
   useIonRouter,
   useIonToast,
@@ -31,6 +34,12 @@ const Profile = () => {
   const [modalData, setModalData] = React.useState<any>();
   const [currentProfilePage, setCurrentProfilePage] = React.useState<any>([]);
   const [profileImage, setProfileImage] = React.useState<string>();
+  const [specialties, setSpecialties] = React.useState<Array<any>>([]);
+
+  const slideOpts = {
+    initialSlide: 1,
+    speed: 400,
+  };
 
   //user
   const id: any = useParams();
@@ -168,138 +177,168 @@ const Profile = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentProfilePage]);
 
+  React.useEffect(() => {
+    if (currentProfilePage[0]?.specialties !== undefined) {
+      setSpecialties(currentProfilePage[0]?.specialties);
+    }
+  }, [currentProfilePage]);
+
   return (
     <IonPage>
       {sessionUser && (
         <IonContent fullscreen>
-          <div className="flex flex-wrap justify-center rounded-b-3xl shadow p-5 bg-gradient-to-l from-green-800 to-green-600">
-            <div className="flex items-center w-full mb-5">
-              <Link to={"/app/home"}>
-                <IonIcon
-                  className="w-6 h-6 text-white"
-                  src={chevronBackOutline}
+          <div className="bg-gray-100 h-screen">
+            <div className="flex flex-wrap justify-center rounded-b-3xl shadow p-5 bg-gradient-to-l from-green-800 to-green-600">
+              <div className="flex items-center w-full mb-5">
+                <Link to={"/app/home"}>
+                  <IonIcon
+                    className="w-6 h-6 text-white"
+                    src={chevronBackOutline}
+                  />
+                </Link>
+                <IonTitle className="font-semibold text-center text-white">
+                  Perfil
+                </IonTitle>
+                {id.id === sessionUser?.id && (
+                  <IonIcon
+                    onClick={async () => {
+                      router.push("/app/config");
+                    }}
+                    className="w-6 h-6 text-white text-right"
+                    src={settingsSharp}
+                  />
+                )}
+              </div>
+              <div className="flex justify-center shadow-md shadow-green-500/50 rounded-full">
+                <img
+                  className="w-40 h-40 rounded-full"
+                  src={
+                    profileImage
+                      ? profileImage
+                      : "https://spng.pinpng.com/pngs/s/302-3025490_empty-profile-picture-profile-anonymous-hd-png-download.png"
+                  }
+                  alt="profile"
                 />
-              </Link>
-              <IonTitle className="font-semibold text-center text-white">
-                Perfil
-              </IonTitle>
-              {id.id === sessionUser?.id && (
-                <IonIcon
-                  onClick={async () => {
-                    router.push("/app/config");
-                  }}
-                  className="w-6 h-6 text-white"
-                  src={settingsSharp}
-                />
-              )}
-            </div>
-            <div className="flex justify-center shadow-md shadow-green-500/50 rounded-full">
-              <img
-                className="w-40 h-40 rounded-full"
-                src={
-                  profileImage
-                    ? profileImage
-                    : "https://spng.pinpng.com/pngs/s/302-3025490_empty-profile-picture-profile-anonymous-hd-png-download.png"
-                }
-                alt="profile"
-              />
-            </div>
+              </div>
 
-            <div className="w-full">
-              <IonTitle className="text-center text-white font-semibold my-5">
-                {currentProfilePage[0]?.username}
-              </IonTitle>
+              <div className="w-full">
+                <IonTitle className="text-center text-white font-semibold my-5">
+                  {currentProfilePage[0]?.username}
+                </IonTitle>
+              </div>
             </div>
-          </div>
-          {/* content */}
-          <div className="p-5">
-            <IonItem
-              className="mt-5 mb-3"
-              id="open-modal"
-              key={"Nome"}
-              onClick={editUsername}
-            >
-              <IonIcon src={person} />
-              <IonLabel className="ml-5">
-                <h2>Nome</h2>
-                <p>{currentProfilePage[0]?.username}</p>
-              </IonLabel>
-            </IonItem>
-            <IonItem
-              className="mt-5 mb-3"
-              id="open-modal2"
-              key={"email"}
-              onClick={editEmail}
-            >
-              <IonIcon src={mail} />
-              <IonLabel className="ml-5">
-                <h2>Email</h2>
-                <p>{currentProfilePage[0]?.email}</p>
-              </IonLabel>
-            </IonItem>
-            <IonItem
-              className="mt-5 mb-3"
-              id="open-modal3"
-              key={"Phone"}
-              onClick={editPhone}
-            >
-              <IonIcon src={phonePortrait} />
-              <IonLabel className="ml-5">
-                <h2>Telefone</h2>
-                <p>
-                  {currentProfilePage[0]?.phone
-                    ? currentProfilePage[0]?.phone
-                    : "cadastrar novo telefone"}
-                </p>
-              </IonLabel>
-            </IonItem>
-            {currentProfilePage[0]?.client && (
+            {/* content */}
+            <div className="p-5">
+              <div className="flex justify-start">
+                <IonLabel className="text-gray-700 text-xl">
+                  Especialidades
+                </IonLabel>
+              </div>
+
+              <IonSlides pager={true} options={slideOpts}>
+                {specialties.map((specialtie, index) => (
+                  <IonSlide key={index}>
+                    <div className="flex h-20 w-80 justify-center items-center p-3 rounded-3xl bg-white shadow-md my-3">
+                      <IonText className="text-gray-600">{specialtie}</IonText>
+                    </div>
+                  </IonSlide>
+                ))}
+              </IonSlides>
+
               <IonItem
-                className="mt-5"
-                id="open-modal4"
-                key={"Address"}
-                onClick={editAddress}
+                className="mt-2 mb-2 rounded-3xl"
+                lines="none"
+                id="open-modal"
+                key={"Nome"}
+                onClick={editUsername}
               >
-                <IonIcon src={home} />
+                <IonIcon src={person} />
                 <IonLabel className="ml-5">
-                  <h2>Endereço</h2>
-                  <p>{currentProfilePage[0]?.address}</p>
+                  <h2>Nome</h2>
+                  <p>{currentProfilePage[0]?.username}</p>
                 </IonLabel>
               </IonItem>
+              {currentProfilePage[0]?.client && (
+                <IonItem
+                  className="mt-2 mb-2 rounded-3xl"
+                  lines="none"
+                  id="open-modal2"
+                  key={"email"}
+                  onClick={editEmail}
+                >
+                  <IonIcon src={mail} />
+                  <IonLabel className="ml-5">
+                    <h2>Email</h2>
+                    <p>{currentProfilePage[0]?.email}</p>
+                  </IonLabel>
+                </IonItem>
+              )}
+              <IonItem
+                className="mt-2 mb-2 rounded-3xl"
+                lines="none"
+                id="open-modal3"
+                key={"Phone"}
+                onClick={editPhone}
+              >
+                <IonIcon src={phonePortrait} />
+                <IonLabel className="ml-5">
+                  <h2>Telefone</h2>
+                  <p>
+                    {currentProfilePage[0]?.phone
+                      ? currentProfilePage[0]?.phone
+                      : "cadastrar novo telefone"}
+                  </p>
+                </IonLabel>
+              </IonItem>
+              {currentProfilePage[0]?.client && (
+                <IonItem
+                  className="mt-2 mb-2 rounded-3xl"
+                  lines="none"
+                  id="open-modal4"
+                  key={"Address"}
+                  onClick={editAddress}
+                >
+                  <IonIcon src={home} />
+                  <IonLabel className="ml-5">
+                    <h2>Endereço</h2>
+                    <p>{currentProfilePage[0]?.address}</p>
+                  </IonLabel>
+                </IonItem>
+              )}
+            </div>
+            {isUserCurrentProfilePage && (
+              <>
+                <IonModal
+                  trigger="open-modal"
+                  initialBreakpoint={0.25}
+                  breakpoints={[0, 0.25, 0.5, 0.75]}
+                >
+                  <ModalEditInfo type={typeModal} data={modalData} />
+                </IonModal>
+                <IonModal
+                  trigger="open-modal2"
+                  initialBreakpoint={0.25}
+                  breakpoints={[0, 0.25, 0.5, 0.75]}
+                >
+                  <ModalEditInfo type={typeModal} data={modalData} />
+                </IonModal>
+                <IonModal
+                  trigger="open-modal3"
+                  initialBreakpoint={0.25}
+                  breakpoints={[0, 0.25, 0.5, 0.75]}
+                >
+                  <ModalEditInfo type={typeModal} data={modalData} />
+                </IonModal>
+                <IonModal
+                  trigger="open-modal4"
+                  initialBreakpoint={0.25}
+                  breakpoints={[0, 0.25, 0.5, 0.75]}
+                >
+                  <ModalEditInfo type={typeModal} data={modalData} />
+                </IonModal>
+              </>
             )}
           </div>
-          {isUserCurrentProfilePage && (
-            <>
-              <IonModal
-                trigger="open-modal"
-                initialBreakpoint={0.25}
-                breakpoints={[0, 0.25, 0.5, 0.75]}
-              >
-                <ModalEditInfo type={typeModal} data={modalData} />
-              </IonModal>
-              <IonModal
-                trigger="open-modal2"
-                initialBreakpoint={0.25}
-                breakpoints={[0, 0.25, 0.5, 0.75]}
-              >
-                <ModalEditInfo type={typeModal} data={modalData} />
-              </IonModal>
-              <IonModal
-                trigger="open-modal3"
-                initialBreakpoint={0.25}
-                breakpoints={[0, 0.25, 0.5, 0.75]}
-              >
-                <ModalEditInfo type={typeModal} data={modalData} />
-              </IonModal>
-              <IonModal
-                trigger="open-modal4"
-                initialBreakpoint={0.25}
-                breakpoints={[0, 0.25, 0.5, 0.75]}
-              >
-                <ModalEditInfo type={typeModal} data={modalData} />
-              </IonModal>
-            </>
-          )}
         </IonContent>
       )}
       {sessionUser === null && (

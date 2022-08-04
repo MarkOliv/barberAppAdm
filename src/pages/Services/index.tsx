@@ -35,6 +35,7 @@ const Services = () => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const [schedules, setSchedules] = React.useState<Array<any>>([]);
+  const [Categories, setCategories] = React.useState<Array<any>>([]);
 
   const schema = Yup.object().shape({
     name: Yup.string()
@@ -125,8 +126,37 @@ const Services = () => {
     }
   };
 
+  const getCategories = async () => {
+    try {
+      let { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .eq("for", "SERVICES");
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+      }
+
+      if (data) {
+        await setCategories(data);
+        // console.log(data);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+    }
+  };
+
   React.useEffect(() => {
     getServices();
+    getCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -148,7 +178,7 @@ const Services = () => {
                 {sessionUser?.user_metadata?.barber && (
                   <div
                     onClick={() => setIsOpen(!isOpen)}
-                    className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-xl bg-gradient-to-l from-green-800 to-green-600"
+                    className="flex flex-col justify-center items-center h-32 col-span-2 shadow-md rounded-xl bg-gradient-to-l from-green-800 to-green-600"
                   >
                     {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={cut} /> */}
                     <img className="w-10 h-10" src={serviceSvg} alt="" />
@@ -255,8 +285,11 @@ const Services = () => {
                         placeholder="Selecione a categoria"
                         {...register("category")}
                       >
-                        <IonSelectOption value="cabelo">Cabelo</IonSelectOption>
-                        <IonSelectOption value="barba">Barba</IonSelectOption>
+                        {Categories.map((category, index) => (
+                          <IonSelectOption key={index} value={category?.name}>
+                            {category?.name}
+                          </IonSelectOption>
+                        ))}
                       </IonSelect>
                       <ErrorMessage
                         errors={errors}

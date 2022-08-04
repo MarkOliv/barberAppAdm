@@ -147,7 +147,7 @@ const Products = () => {
                 {sessionUser?.user_metadata?.barber && (
                   <div
                     onClick={() => setIsOpen(!isOpen)}
-                    className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-xl bg-gradient-to-l from-green-800 to-green-600"
+                    className="flex flex-col justify-center items-center h-32 col-span-2 shadow-md rounded-xl bg-gradient-to-l from-green-800 to-green-600"
                   >
                     {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={bag} /> */}
                     <img className="w-14 h-14" src={hairProds} alt="" />

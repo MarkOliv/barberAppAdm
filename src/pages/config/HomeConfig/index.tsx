@@ -327,7 +327,7 @@ const Config = () => {
                       className="mt-5 mb-3 bg-white rounded-3xl shadow"
                       lines="none"
                       id="open-modal"
-                      key={"Especialidades"}
+                      key={"Relatórios"}
                       onClick={() => {
                         router.push("/app/config/reports");
                       }}

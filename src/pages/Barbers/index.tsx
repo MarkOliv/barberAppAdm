@@ -72,7 +72,7 @@ const Barbers = () => {
                 <div className="py-10 px-5">
                   <Link
                     to="/register-barber"
-                    className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
+                    className="flex flex-col justify-center items-center h-32 col-span-2 shadow-lg rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
                   >
                     {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={bag} /> */}
                     <img className="w-16 h-16" src={barberPerson} alt="" />
@@ -87,7 +87,7 @@ const Barbers = () => {
                   <IonItem
                     key={index}
                     lines="none"
-                    className="rounded-3xl mx-5 my-2 shadow"
+                    className="rounded-3xl mx-5 my-2 shadow-md"
                     onClick={() => {
                       document.location.replace(`/app/profile/${barber?.id}`);
                     }}
@@ -100,7 +100,7 @@ const Barbers = () => {
                       />
                     </IonThumbnail>
                     <IonLabel>
-                      <h2>{barber?.full_name}</h2>
+                      <h2>{barber?.username}</h2>
                       {barber?.id === sessionUser?.id && <p>(eu)</p>}
                     </IonLabel>
                   </IonItem>

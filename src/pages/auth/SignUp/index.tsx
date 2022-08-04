@@ -22,14 +22,14 @@ const SignUP = () => {
             <img src={hairFashionLogo} alt="" />
           </div>
 
-          <Link to="register">
-            <button className="p-5 w-full rounded-xl bg-gradient-to-l from-green-800 to-green-700 text-white my-3">
-              Cadastre-se
+          <Link to="/login">
+            <button className="p-5 w-full rounded-xl bg-gradient-to-l from-green-800 to-green-600 text-white my-3">
+              Faça Login
             </button>
           </Link>
-          <Link to="/login">
-            <button className="p-5 w-full rounded-xl bg-gradient-to-l from-green-800 to-green-700 text-white my-3">
-              Faça Login
+          <Link to="register">
+            <button className="p-5 w-full rounded-xl bg-gradient-to-l from-green-800 to-green-600 text-white my-3">
+              Cadastre-se
             </button>
           </Link>
         </div>
