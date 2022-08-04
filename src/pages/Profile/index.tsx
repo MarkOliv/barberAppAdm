@@ -238,7 +238,7 @@ const Profile = () => {
               <IonSlides pager={true} options={slideOpts}>
                 {specialties.map((specialtie, index) => (
                   <IonSlide key={index}>
-                    <div className="flex h-20 w-80 justify-center items-center p-3 rounded-3xl bg-white shadow-md my-3">
+                    <div className="flex h-28  w-80 justify-center items-center p-3 rounded-3xl bg-white shadow-md my-3">
                       <IonText className="text-gray-600">{specialtie}</IonText>
                     </div>
                   </IonSlide>
