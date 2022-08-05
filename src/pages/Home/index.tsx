@@ -112,7 +112,7 @@ const Home = () => {
 
         if (data) {
           setCurrentProfile(data);
-          console.log(data);
+          // console.log(data);
         }
       } else {
         let { data, error } = await supabase
@@ -132,7 +132,7 @@ const Home = () => {
 
         if (data) {
           setCurrentProfile(data);
-          console.log(data);
+          // console.log(data);
         }
       }
     } catch (error) {
@@ -203,12 +203,11 @@ const Home = () => {
                     document.location.replace(
                       `/app/profile/${sessionUser?.id}`
                     );
-                    // router.push(`/app/profile/${sessionUser?.id}`);
                   }}
-                  className="flex items-center w-[70px] h-[70px]"
+                  className="flex items-center w-[70px] h-[70px] shadow-lg"
                 >
                   <img
-                    className="w-[70px] h-[70px]"
+                    className="w-[70px] h-[70px] "
                     src={profileImage}
                     alt="profile"
                   />
@@ -218,13 +217,13 @@ const Home = () => {
             <div className={`grid grid-cols-4  gap-4 py-3`}>
               <Link
                 to="/app/calendar"
-                className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
+                className="flex flex-col justify-center items-center h-32 col-span-2 shadow-lg rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
               >
                 <IonIcon className="mb-5 w-8 h-8 text-white" src={calendar} />
 
                 <IonText className="text-white">Calendário</IonText>
               </Link>
-              <div className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-r from-white to-white-200">
+              <div className="flex flex-col justify-center items-center h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200">
                 <IonIcon
                   className="mb-5 w-8 h-8 text-gray-500"
                   src={chatbubbles}
@@ -235,7 +234,7 @@ const Home = () => {
 
               <Link
                 to={"/app/barbers"}
-                className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-r from-white to-white-200"
+                className="flex flex-col justify-center items-center h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200"
               >
                 <IonIcon className="mb-5 w-8 h-8 text-gray-500" src={people} />
 
@@ -245,7 +244,7 @@ const Home = () => {
             <div className="grid grid-cols-3 gap-4 py-3">
               <Link
                 to="/app/products"
-                className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-r from-white to-white-200"
+                className="flex flex-col justify-center items-center h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200"
               >
                 <IonIcon className="mb-5 w-8 h-8 text-gray-500" src={bag} />
 
@@ -253,7 +252,7 @@ const Home = () => {
               </Link>
               <Link
                 to="/app/services/"
-                className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
+                className="flex flex-col justify-center items-center h-32 col-span-2 shadow-lg rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
               >
                 {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={cut} /> */}
                 <img className="w-10 h-10" src={servicesIcon} alt="" />
@@ -261,7 +260,7 @@ const Home = () => {
               </Link>
             </div>
 
-            <div className="w-full h-auto shadow rounded-3xl py-5 bg-red">
+            <div className="w-full h-auto shadow-lg rounded-3xl py-5 bg-red">
               <div className="flex justify-start mx-5">
                 <IonIcon className="mb-5 w-6 h-6 text-gray-500" src={time} />
                 <IonText className="ml-2 text-gray-500">

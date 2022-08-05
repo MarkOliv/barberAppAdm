@@ -4,120 +4,28 @@ import * as React from "react";
 import {
   IonContent,
   IonIcon,
-  IonInput,
+  IonItem,
   IonLabel,
-  IonList,
   IonPage,
-  IonText,
   IonTitle,
-  useIonToast,
+  useIonRouter,
 } from "@ionic/react";
 
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts";
-import { chevronBackOutline, trashBin } from "ionicons/icons";
-import supabase from "../../../utils/supabase";
+import {
+  bag,
+  build,
+  chevronBackOutline,
+  cut,
+  person,
+  wallet,
+} from "ionicons/icons";
 
 const Specialties = () => {
   const { sessionUser } = useAuth();
-  const [showToast] = useIonToast();
 
-  const [specialties, setSpecialties] = React.useState<Array<any>>([]);
-  const [newSpecialtie, setNewSpecialtie] = React.useState<any>();
-
-  const handleNewSpecialtie = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("specialties")
-        .insert([{ name: newSpecialtie }]);
-
-      if (error) {
-        await showToast({
-          position: "top",
-          message: error.message,
-          duration: 3000,
-        });
-      }
-
-      if (data) {
-        setSpecialties((current) => [...current, data[0]]);
-      }
-    } catch (error) {
-      await showToast({
-        position: "top",
-        message: `${error}`,
-        duration: 3000,
-      });
-    }
-  };
-
-  const getSpecialties = async () => {
-    try {
-      let { data, error } = await supabase.from("specialties").select("*");
-
-      if (error) {
-        await showToast({
-          position: "top",
-          message: error.message,
-          duration: 3000,
-        });
-      }
-
-      if (data) {
-        await setSpecialties(data);
-        console.log(data);
-      }
-    } catch (error) {
-      await showToast({
-        position: "top",
-        message: `${error}`,
-        duration: 3000,
-      });
-    }
-  };
-
-  const HandleRemoveSpecialtie = async (id: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("specialties")
-        .delete()
-        .eq("id", id);
-
-      if (error) {
-        await showToast({
-          position: "top",
-          message: error.message,
-          duration: 3000,
-        });
-      }
-
-      if (data) {
-        await showToast({
-          position: "top",
-          message: "Especialidade excluida com sucesso !",
-          duration: 3000,
-        });
-        console.log(data);
-
-        getSpecialties();
-      }
-    } catch (error) {
-      await showToast({
-        position: "top",
-        message: `${error}`,
-        duration: 3000,
-      });
-    }
-  };
-
-  React.useEffect(() => {
-    getSpecialties();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  React.useEffect(() => {
-    console.log(specialties);
-  }, [specialties]);
+  const router = useIonRouter();
 
   return (
     <IonPage>
@@ -131,59 +39,38 @@ const Specialties = () => {
               >
                 <IonIcon className="w-6 h-6" src={chevronBackOutline} />
 
-                <IonTitle className="font-bold">Especialidades</IonTitle>
+                <IonTitle className="font-bold">Relatórios</IonTitle>
               </Link>
               <div className="py-10 px-5">
-                <div className="w-full h-auto shadow rounded-3xl py-3 bg-white">
-                  <div className="flex justify-start mx-5">
-                    <IonText className="ml-2 text-gray-500">
-                      Especialidades Cadastradas
-                    </IonText>
-                  </div>
-                  <div className="flex justify-center">
-                    <div className="h-[1px] w-4/5 bg-gray-500" />
-                  </div>
-                  <IonList className="w-full h-full p-5 rounded-3xl bg-transparent">
-                    {specialties.map((specialtie, index) => (
-                      <div key={index} className="grid grid-cols-3 w-full py-2">
-                        <IonLabel className="text-gray-500 col-span-2">
-                          {specialtie?.name}
-                        </IonLabel>
-                        <div className="flex justify-end items-center">
-                          <IonIcon
-                            onClick={() => {
-                              HandleRemoveSpecialtie(specialtie?.id);
-                            }}
-                            className="text-red-500 w-4 h-4"
-                            src={trashBin}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </IonList>
-                </div>
-              </div>
-
-              <div className="ion-padding">
-                <IonLabel className="text-gray-400">
-                  Nova Especialidade
-                </IonLabel>
-                <div className="flex items-center bg-gray-200 rounded-xl p-3">
-                  <IonInput
-                    type="text"
-                    className="placeholder: text-gray-900"
-                    placeholder={`Nova especialidade`}
-                    onIonChange={({ detail }) => {
-                      setNewSpecialtie(detail?.value);
-                    }}
-                  />
-                </div>
-                <button
-                  onClick={handleNewSpecialtie}
-                  className="p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
+                <IonItem
+                  className="mt-5 mb-3 bg-white rounded-3xl shadow"
+                  lines="none"
+                  id="open-modal"
+                  onClick={() => {
+                    router.push("/app/config/register-specialties");
+                  }}
                 >
-                  Cadatrar
-                </button>
+                  <IonIcon src={cut} />
+                  <IonLabel className="ml-5">
+                    <h2>Cadastrar Especialidades</h2>
+                    <p>cadastro e remoção de especialidades</p>
+                  </IonLabel>
+                </IonItem>
+
+                <IonItem
+                  className="mt-5 mb-3 bg-white rounded-3xl shadow"
+                  lines="none"
+                  id="open-modal"
+                  onClick={() => {
+                    router.push("/app/config/edit-my-specialties");
+                  }}
+                >
+                  <IonIcon src={person} />
+                  <IonLabel className="ml-5">
+                    <h2>Editar minhas especialidades</h2>
+                    <p>Especialidades para o seu perfil</p>
+                  </IonLabel>
+                </IonItem>
               </div>
             </div>
           </>

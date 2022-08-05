@@ -48,10 +48,14 @@ import BarberRegister from "./pages/auth/BarberRegister";
 import Barbers from "./pages/Barbers";
 import Config from "./pages/config/HomeConfig";
 import Help from "./pages/config/Help";
-import Specialties from "./pages/config/Specialties";
-import Product_categories from "./pages/config/ProductsCategories";
-import Services_categories from "./pages/config/ServicesCategories";
+
+import Product_categories from "./pages/config/Categories/ProductsCategories";
+import Services_categories from "./pages/config/Categories/ServicesCategories";
 import Reports from "./pages/config/Reports";
+import Categories from "./pages/config/Categories";
+import RegisterSpecialties from "./pages/config/Specialties/RegisterSpecialties";
+import Specialties from "./pages/config/Specialties";
+import EditMyEspecialties from "./pages/config/Specialties/EditMyEspecialties";
 
 setupIonicReact();
 
@@ -76,6 +80,17 @@ const App: React.FC = () => {
               path="/app/config/specialties"
               component={Specialties}
             />
+            <Route
+              exact
+              path="/app/config/register-specialties"
+              component={RegisterSpecialties}
+            />
+            <Route
+              exact
+              path="/app/config/edit-my-specialties"
+              component={EditMyEspecialties}
+            />
+            <Route exact path="/app/config/categories" component={Categories} />
             <Route
               exact
               path="/app/config/products-categories"

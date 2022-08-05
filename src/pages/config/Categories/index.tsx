@@ -8,14 +8,17 @@ import {
   IonLabel,
   IonPage,
   IonTitle,
+  useIonRouter,
 } from "@ionic/react";
 
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts";
-import { chatbox, chevronBackOutline, documentLock } from "ionicons/icons";
+import { bag, build, chevronBackOutline, wallet } from "ionicons/icons";
 
-const Help = () => {
+const Categories = () => {
   const { sessionUser } = useAuth();
+
+  const router = useIonRouter();
 
   return (
     <IonPage>
@@ -29,31 +32,37 @@ const Help = () => {
               >
                 <IonIcon className="w-6 h-6" src={chevronBackOutline} />
 
-                <IonTitle className="font-bold">Ajuda</IonTitle>
+                <IonTitle className="font-bold">Relatórios</IonTitle>
               </Link>
               <div className="py-10 px-5">
                 <IonItem
-                  className="mt-5 mb-3 bg-white rounded-3xl shadow h-20 flex items-center"
+                  className="mt-5 mb-3 bg-white rounded-3xl shadow"
                   lines="none"
                   id="open-modal"
-                  key={"Categorias"}
+                  key={"Produtos"}
+                  onClick={() => {
+                    router.push("/app/config/products-categories");
+                  }}
                 >
-                  <IonIcon src={documentLock} />
+                  <IonIcon src={bag} />
                   <IonLabel className="ml-5">
-                    <h2>Termos e Política de Privacidade</h2>
+                    <h2>Categorias dos produtos</h2>
+                    <p>Cadastrar categorias dos produtos</p>
                   </IonLabel>
                 </IonItem>
                 <IonItem
-                  className="mt-5 mb-3 bg-white rounded-3xl shadow h-20 flex items-center"
+                  className="mt-5 mb-3 bg-white rounded-3xl shadow"
                   lines="none"
                   id="open-modal"
-                  key={"Especialidades"}
+                  key={"Serviços"}
+                  onClick={() => {
+                    router.push("/app/config/services-categories");
+                  }}
                 >
-                  <IonIcon src={chatbox} />
+                  <IonIcon src={build} />
                   <IonLabel className="ml-5">
-                    <a href="mailto:marcosgarcia.oliveira02@gmail.com">
-                      Fale Conosco
-                    </a>
+                    <h2>Categorias dos serviços</h2>
+                    <p>Cadastrar categorias dos serviços</p>
                   </IonLabel>
                 </IonItem>
               </div>
@@ -73,4 +82,4 @@ const Help = () => {
   );
 };
 
-export default Help;
+export default Categories;

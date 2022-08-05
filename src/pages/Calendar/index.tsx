@@ -17,6 +17,7 @@ import {
 } from "@ionic/react";
 import {
   alarm,
+  calendar,
   checkmarkCircle,
   chevronBackOutline,
   time,
@@ -425,7 +426,7 @@ const Calendar = () => {
             <div className={`grid grid-cols-[30%_1fr] gap-4 py-3`}>
               <div
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
+                className="flex flex-col justify-center items-center h-32 shadow-md rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
               >
                 <IonIcon className="mb-5 w-8 h-8 text-white" src={alarm} />
 
@@ -433,11 +434,13 @@ const Calendar = () => {
               </div>
 
               <>
-                <div className="flex flex-col justify-center items-center h-32 bg-white shadow rounded-3xl p-3">
+                <div className="flex flex-col justify-center items-center h-32 bg-white shadow-md rounded-3xl p-3">
                   <IonText className="text-gray-500">Consultar Data</IonText>
-                  <div className="flex justify-center items-center bg-gray-200 rounded-3xl shadow h-10 w-full">
+                  <div className="flex justify-center items-center bg-gray-200 rounded-3xl shadow-md h-10 w-full">
+                    <IonIcon className="ml-3 text-gray-500" src={calendar} />
                     <IonInput
                       className="text-gray-500"
+                      placeholder="dd/mm/aaaa"
                       type="date"
                       onIonChange={({ detail }) => {
                         setConsultDate(detail.value);
@@ -449,7 +452,7 @@ const Calendar = () => {
               </>
             </div>
 
-            <div className="h-auto w-full bg-white shadow rounded-3xl py-5">
+            <div className="h-auto w-full bg-white shadow-md rounded-3xl py-5">
               <div className="flex justify-start mx-5">
                 <IonIcon className="mb-5 w-6 h-6 text-gray-500" src={time} />
                 <IonText className="ml-2 text-gray-500">
@@ -565,7 +568,7 @@ const Calendar = () => {
                 {barbers &&
                   barbers.map((barber, index) => (
                     <IonSelectOption key={index} value={barber?.id}>
-                      {barber?.full_name}
+                      {barber?.username}
                     </IonSelectOption>
                   ))}
               </IonSelect>
@@ -607,7 +610,7 @@ const Calendar = () => {
               <IonLabel className="text-gray-600" position="stacked">
                 Data
               </IonLabel>
-              <div className="flex justify-center items-center bg-gray-200 rounded-3xl shadow h-10 w-full my-3">
+              <div className="flex justify-center items-center bg-gray-200 rounded-3xl shadow-md h-10 w-full my-3">
                 <IonInput
                   onIonChange={({ detail }) => {
                     let data = detail.value;
@@ -641,7 +644,7 @@ const Calendar = () => {
               />
               <button
                 type="submit"
-                className="p-4 w-full rounded-3xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
+                className="p-4 w-full rounded-3xl text-white my-5 shadow-md bg-gradient-to-l from-green-800 to-green-700"
               >
                 AGENDAR
               </button>
