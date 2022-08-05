@@ -51,7 +51,9 @@ const Help = () => {
                 >
                   <IonIcon src={chatbox} />
                   <IonLabel className="ml-5">
-                    <h2>Fale Conosco</h2>
+                    <a href="mailto:marcosgarcia.oliveira02@gmail.com">
+                      Fale Conosco
+                    </a>
                   </IonLabel>
                 </IonItem>
               </div>
