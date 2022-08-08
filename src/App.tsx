@@ -56,6 +56,8 @@ import Categories from "./pages/config/Categories";
 import RegisterSpecialties from "./pages/config/Specialties/RegisterSpecialties";
 import Specialties from "./pages/config/Specialties";
 import EditMyEspecialties from "./pages/config/Specialties/EditMyEspecialties";
+import Notifications from "./pages/Notifications";
+import Chat from "./pages/Chat";
 
 setupIonicReact();
 
@@ -75,6 +77,8 @@ const App: React.FC = () => {
             <Route exact path="/app/config" component={Config} />
             <Route exact path="/app/config/help" component={Help} />
             <Route exact path="/app/config/reports" component={Reports} />
+            <Route exact path="/app/notifications" component={Notifications} />
+            <Route exact path="/app/chat" component={Chat} />
             <Route
               exact
               path="/app/config/specialties"
