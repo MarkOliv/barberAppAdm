@@ -4,10 +4,11 @@ import {
   IonIcon,
   IonInput,
   IonLabel,
+  IonTextarea,
   IonTitle,
   useIonToast,
 } from "@ionic/react";
-import { call, home, mail, person } from "ionicons/icons";
+import { call, clipboard, home, mail, person } from "ionicons/icons";
 
 import { ErrorMessage } from "@hookform/error-message";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -51,6 +52,12 @@ export const ModalEditInfo = (props: Props) => {
     address: Yup.string().required("Insira seu novo endereço"),
   });
 
+  const schemaBio = Yup.object().shape({
+    bio: Yup.string()
+      .required("Insira sua nova bio")
+      .max(70, "máximo de caracteres 70"),
+  });
+
   const {
     handleSubmit: SubmitEmail,
     register: registerEmail,
@@ -85,6 +92,15 @@ export const ModalEditInfo = (props: Props) => {
   } = useForm({
     mode: "onChange",
     resolver: yupResolver(schemaAddress),
+  });
+
+  const {
+    handleSubmit: SubmitBio,
+    register: registerBio,
+    formState: { errors: errorsBio },
+  } = useForm({
+    mode: "onChange",
+    resolver: yupResolver(schemaBio),
   });
 
   const handleSubmitEmail = async (data: any) => {
@@ -179,7 +195,7 @@ export const ModalEditInfo = (props: Props) => {
     try {
       const { data: fullName, error: fullNameError } =
         await supabase.auth.update({
-          data: { full_name: data?.username },
+          data: { username: data?.username },
         });
 
       if (fullName) {
@@ -414,6 +430,90 @@ export const ModalEditInfo = (props: Props) => {
     }
   };
 
+  const handleSubmitBio = async (data: any) => {
+    try {
+      const { data: bio, error: bioError } = await supabase.auth.update({
+        data: { bio: data?.bio },
+      });
+
+      if (bio) {
+        updateBioInDB(data?.bio);
+        document.location.reload();
+      }
+
+      if (bioError) {
+        await showToast({
+          message: `Erro ao atualizar bio, erro de código: ${bioError?.status}`,
+          duration: 3000,
+        }).then(() => {
+          document.location.reload();
+        });
+      }
+    } catch (error) {
+      await showToast({
+        message: `Erro!!! ${error}`,
+        duration: 2000,
+      });
+    }
+  };
+
+  const updateBioInDB = async (bio: string) => {
+    try {
+      if (userType === "clients") {
+        const { data, error } = await supabase
+          .from("clients")
+          .update({ bio: bio })
+          .eq("id", sessionUser?.id);
+
+        if (data) {
+          await showToast({
+            message: "bio alterada com sucesso",
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+
+        if (error) {
+          await showToast({
+            message: `Erro ao atualizar a bio, erro de código: ${error.code}`,
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+      } else {
+        const { data, error } = await supabase
+          .from("barbers")
+          .update({ bio: bio })
+          .eq("id", sessionUser?.id);
+
+        if (data) {
+          await showToast({
+            message: "bio alterada com sucesso",
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+
+        if (error) {
+          await showToast({
+            message: `Erro ao atualizar a bio, erro de código: ${error.code}`,
+            duration: 3000,
+          }).then(() => {
+            document.location.reload();
+          });
+        }
+      }
+    } catch (error) {
+      await showToast({
+        message: `Erro!!! ${error}`,
+        duration: 2000,
+      });
+    }
+  };
+
   React.useEffect(() => {
     if (sessionUser?.user_metadata?.barber) {
       setUserType("barber");
@@ -540,6 +640,36 @@ export const ModalEditInfo = (props: Props) => {
             <ErrorMessage
               errors={errorsAddress}
               name="address"
+              as={<div style={{ color: "red" }} />}
+            />
+          </div>
+        </form>
+      )}
+      {type === "bio" && (
+        <form onSubmit={SubmitBio(handleSubmitBio)}>
+          <div className="flex justify-around rounded-b-md p-3 bg-gradient-to-l from-green-800 to-green-600">
+            <IonTitle className="text-white">Bio</IonTitle>
+            <div className="p-2">
+              <button type="submit" className="ml-2 text-white">
+                SALVAR
+              </button>
+            </div>
+          </div>
+          <div className="p-5">
+            <IonLabel className="ml-2 text-gray-600">
+              Digite sua nova bio
+            </IonLabel>
+            <div className="flex items-center bg-gray-200 h-32 rounded-md">
+              <IonIcon className="ml-3" src={clipboard} />
+              <IonTextarea
+                className="h-28"
+                placeholder={data}
+                {...registerBio("bio")}
+              />
+            </div>
+            <ErrorMessage
+              errors={errorsBio}
+              name="bio"
               as={<div style={{ color: "red" }} />}
             />
           </div>

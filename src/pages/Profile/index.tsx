@@ -20,6 +20,7 @@ import {
   person,
   phonePortrait,
   settingsSharp,
+  create,
 } from "ionicons/icons";
 
 import { Link, useParams } from "react-router-dom";
@@ -139,6 +140,11 @@ const Profile = () => {
     }
   };
 
+  const editBio = () => {
+    setTypeModal("bio");
+    setModalData(currentProfilePage[0]?.bio);
+  };
+
   const editEmail = () => {
     setTypeModal("email");
     setModalData(currentProfilePage[0]?.email);
@@ -222,9 +228,26 @@ const Profile = () => {
               </div>
 
               <div className="w-full">
-                <IonTitle className="text-center text-white font-semibold my-5">
+                <IonTitle className="text-center text-white font-semibold mt-5">
                   {currentProfilePage[0]?.username}
                 </IonTitle>
+                <p className="text-center text-white">
+                  {currentProfilePage[0]?.bio
+                    ? currentProfilePage[0]?.bio
+                    : "Sem bio ainda"}
+                </p>
+
+                <IonIcon
+                  id="open-modal5"
+                  className={`absolute w-6 h-6 right-10 top-64 text-white ${
+                    currentProfilePage[0]?.id === sessionUser?.id
+                      ? "block"
+                      : "hidden"
+                  }`}
+                  src={create}
+                  key={"bio"}
+                  onClick={editBio}
+                />
               </div>
             </div>
             {/* content */}
@@ -257,6 +280,9 @@ const Profile = () => {
                   <h2>Nome</h2>
                   <p>{currentProfilePage[0]?.username}</p>
                 </IonLabel>
+                {sessionUser?.id === currentProfilePage[0]?.id && (
+                  <IonIcon src={create} />
+                )}
               </IonItem>
               {currentProfilePage[0]?.client && (
                 <IonItem
@@ -271,6 +297,9 @@ const Profile = () => {
                     <h2>Email</h2>
                     <p>{currentProfilePage[0]?.email}</p>
                   </IonLabel>
+                  {sessionUser?.id === currentProfilePage[0]?.id && (
+                    <IonIcon src={create} />
+                  )}
                 </IonItem>
               )}
               <IonItem
@@ -289,6 +318,9 @@ const Profile = () => {
                       : "cadastrar novo telefone"}
                   </p>
                 </IonLabel>
+                {sessionUser?.id === currentProfilePage[0]?.id && (
+                  <IonIcon src={create} />
+                )}
               </IonItem>
               {currentProfilePage[0]?.client && (
                 <IonItem
@@ -303,6 +335,9 @@ const Profile = () => {
                     <h2>Endereço</h2>
                     <p>{currentProfilePage[0]?.address}</p>
                   </IonLabel>
+                  {sessionUser?.id === currentProfilePage[0]?.id && (
+                    <IonIcon src={create} />
+                  )}
                 </IonItem>
               )}
             </div>
@@ -332,6 +367,13 @@ const Profile = () => {
                 <IonModal
                   trigger="open-modal4"
                   initialBreakpoint={0.25}
+                  breakpoints={[0, 0.25, 0.5, 0.75]}
+                >
+                  <ModalEditInfo type={typeModal} data={modalData} />
+                </IonModal>
+                <IonModal
+                  trigger="open-modal5"
+                  initialBreakpoint={0.5}
                   breakpoints={[0, 0.25, 0.5, 0.75]}
                 >
                   <ModalEditInfo type={typeModal} data={modalData} />

@@ -4,8 +4,10 @@ import * as React from "react";
 import {
   IonContent,
   IonIcon,
+  IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonPage,
   IonTitle,
   useIonRouter,
@@ -21,6 +23,7 @@ import {
   helpCircle,
   logOut,
   pricetags,
+  create,
 } from "ionicons/icons";
 import supabase from "../../../utils/supabase";
 
@@ -33,6 +36,8 @@ const Config = () => {
 
   const [currentUser, setcurrentUser] = React.useState<any>();
   const [avatarUrl, setAvatarUrl] = React.useState<any>();
+
+  const [isOpen, setIsOpen] = React.useState(false);
 
   const handleRemoveCurrentAvatar = async () => {
     try {
@@ -269,7 +274,7 @@ const Config = () => {
                     />
                   </div>
                   <IonLabel>
-                    <h2>{currentUser ? currentUser[0]?.full_name : "error"}</h2>
+                    <h2>{currentUser ? currentUser[0]?.username : "error"}</h2>
                     <p>{currentUser ? currentUser[0]?.phone : "error"}</p>
                   </IonLabel>
                 </IonItem>
