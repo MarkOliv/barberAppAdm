@@ -202,6 +202,7 @@ const Home = () => {
                 <IonIcon
                   className="w-5 h-5 text-gray-500 mr-5"
                   src={notifications}
+                  onClick={() => router.push("/app/notifications")}
                 />
                 <IonAvatar
                   onClick={() => {
@@ -228,7 +229,10 @@ const Home = () => {
 
                 <IonText className="text-white">Calendário</IonText>
               </Link>
-              <div className="flex flex-col justify-center items-center h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200">
+              <div
+                onClick={() => router.push("/app/chat")}
+                className="flex flex-col justify-center items-center h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200"
+              >
                 <IonIcon
                   className="mb-5 w-8 h-8 text-gray-500"
                   src={chatbubbles}
