@@ -42,6 +42,7 @@ const Notifications = () => {
 
       if (notifications) {
         setAllNotifications(notifications);
+        // console.log(notifications);
       }
     } catch (error) {
       if (error) {
@@ -88,6 +89,7 @@ const Notifications = () => {
   }, []);
 
   React.useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const mySubscription = supabase
       .from("notifications")
       .on("INSERT", (payload) => {
@@ -99,6 +101,7 @@ const Notifications = () => {
   }, []);
 
   React.useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const mySubscription = supabase
       .from("notifications")
       .on("UPDATE", (payload) => {
@@ -134,7 +137,11 @@ const Notifications = () => {
                       >
                         <IonIcon className="text-green-500" src={mailOpen} />
                         <IonLabel className="ml-5">
-                          <h2>{notification?.message}</h2>
+                          <h2>
+                            {notification?.type === "schedule"
+                              ? `Novo agendamento ${notification?.message}`
+                              : `Nova mensagem de ${notification?.message}`}
+                          </h2>
                         </IonLabel>
                       </IonItem>
                     )}
@@ -157,7 +164,11 @@ const Notifications = () => {
                       >
                         <IonIcon className="text-orange-500" src={mailUnread} />
                         <IonLabel className="ml-5">
-                          <h2>{notification?.message}</h2>
+                          <h2>
+                            {notification?.type === "schedule"
+                              ? `Novo agendamento ${notification?.message}`
+                              : `Nova mensagem de ${notification?.message}`}
+                          </h2>
                         </IonLabel>
                       </IonItem>
                     )}
