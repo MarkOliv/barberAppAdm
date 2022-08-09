@@ -127,10 +127,9 @@ const Notifications = () => {
               </Link>
               <div className="py-10 px-5">
                 {allNotifications.map((notification, index) => (
-                  <>
+                  <div key={index}>
                     {notification?.status === "read" && (
                       <IonItem
-                        key={index}
                         className="mt-5 mb-3 bg-white rounded-3xl shadow-md border-b border-r border-green-500 h-20 flex items-center"
                         lines="none"
                         id="open-modal"
@@ -145,16 +144,15 @@ const Notifications = () => {
                         </IonLabel>
                       </IonItem>
                     )}
-                  </>
+                  </div>
                 ))}
 
                 {/* UNREAD */}
                 <IonTitle className="text-gray-500">Não lidas</IonTitle>
                 {allNotifications.map((notification, index) => (
-                  <>
+                  <div key={index}>
                     {notification?.status === "unread" && (
                       <IonItem
-                        key={index}
                         className="mt-5 mb-3 bg-white rounded-3xl shadow-md border-b border-r border-orange-500 h-20 flex items-center"
                         lines="none"
                         id="open-modal"
@@ -172,7 +170,7 @@ const Notifications = () => {
                         </IonLabel>
                       </IonItem>
                     )}
-                  </>
+                  </div>
                 ))}
               </div>
             </div>
