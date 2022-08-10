@@ -58,6 +58,8 @@ import Specialties from "./pages/config/Specialties";
 import EditMyEspecialties from "./pages/config/Specialties/EditMyEspecialties";
 import Notifications from "./pages/Notifications";
 import Chat from "./pages/Chat";
+import Balance from "./pages/config/Reports/Balance";
+import Expenses from "./pages/config/Reports/Expenses";
 
 setupIonicReact();
 
@@ -73,10 +75,22 @@ const App: React.FC = () => {
               <Redirect to={sessionUser ? "/app/home" : "/signup"} />
             </Route>
 
+            <Route exact path="/app/config/reports" component={Reports} />
+            <Route
+              exact
+              path="/app/config/reports/balance"
+              component={Balance}
+            />
+
+            <Route
+              exact
+              path="/app/config/reports/add-expenses"
+              component={Expenses}
+            />
+
             <Route exact path="/app/profile/:id" component={Profile} />
             <Route exact path="/app/config" component={Config} />
             <Route exact path="/app/config/help" component={Help} />
-            <Route exact path="/app/config/reports" component={Reports} />
             <Route exact path="/app/notifications" component={Notifications} />
             <Route exact path="/app/chat" component={Chat} />
             <Route

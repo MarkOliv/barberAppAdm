@@ -8,11 +8,13 @@ import {
   IonLabel,
   IonPage,
   IonTitle,
+  useIonRouter,
 } from "@ionic/react";
 
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts";
 import {
+  bagAdd,
   chatbox,
   chevronBackOutline,
   documentLock,
@@ -21,6 +23,7 @@ import {
 
 const Reports = () => {
   const { sessionUser } = useAuth();
+  const router = useIonRouter();
 
   return (
     <IonPage>
@@ -40,12 +43,26 @@ const Reports = () => {
                 <IonItem
                   className="mt-5 mb-3 bg-white rounded-3xl shadow h-20 flex items-center"
                   lines="none"
-                  id="open-modal"
-                  key={"Especialidades"}
+                  onClick={() => {
+                    router.push("/app/config/reports/balance");
+                  }}
                 >
                   <IonIcon src={wallet} />
                   <IonLabel className="ml-5">
                     <h2>Balanço Financeiro</h2>
+                  </IonLabel>
+                </IonItem>
+
+                <IonItem
+                  className="mt-5 mb-3 bg-white rounded-3xl shadow h-20 flex items-center"
+                  lines="none"
+                  onClick={() => {
+                    router.push("/app/config/reports/add-expenses");
+                  }}
+                >
+                  <IonIcon src={bagAdd} />
+                  <IonLabel className="ml-5">
+                    <h2>Adicionar Despesa</h2>
                   </IonLabel>
                 </IonItem>
               </div>
