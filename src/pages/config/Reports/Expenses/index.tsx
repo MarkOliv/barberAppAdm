@@ -10,18 +10,92 @@ import {
   IonPage,
   IonTextarea,
   IonTitle,
+  useIonLoading,
   useIonRouter,
+  useIonToast,
 } from "@ionic/react";
 
 import { Link } from "react-router-dom";
 
-import { bagAdd, chevronBackOutline, wallet } from "ionicons/icons";
+import { chevronBackOutline } from "ionicons/icons";
 import { useAuth } from "../../../../contexts";
 import { ErrorMessage } from "@hookform/error-message";
 
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+import { useForm } from "react-hook-form";
+import supabase from "../../../../utils/supabase";
+
 const Expenses = () => {
   const { sessionUser } = useAuth();
+  const [showToast] = useIonToast();
+  const [showLoading, hideLoading] = useIonLoading();
+
   const router = useIonRouter();
+
+  const schema = Yup.object().shape({
+    expense_name: Yup.string()
+      .required("Nome da despesa é obrigatório")
+      .min(3, "O nome deve ter no minimo 3 caracteres"),
+    description: Yup.string()
+      .required("Adicione uma descrição da despesa")
+      .min(5, "a descrição deve ter no minimo 5 caracteres"),
+    total_value: Yup.string().required("Insira o valor da despesa"),
+  });
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+    resolver: yupResolver(schema),
+  });
+
+  const handleNewExpense = async (data: any) => {
+    await showLoading();
+    try {
+      const { data: expenseData, error } = await supabase
+        .from("cashFlow")
+        .insert([
+          {
+            barber_id: sessionUser?.id,
+            expense_name: data?.expense_name,
+            type: "debit",
+            total_value: data?.total_value,
+            description: data?.description,
+          },
+        ]);
+
+      if (expenseData) {
+        await showToast({
+          position: "top",
+          message: "Despesa inserida com sucesso",
+          duration: 3000,
+        });
+        console.log(expenseData);
+        document.location.reload();
+      }
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    } finally {
+      await hideLoading();
+    }
+  };
 
   return (
     <IonPage>
@@ -30,7 +104,7 @@ const Expenses = () => {
           <>
             <div className="h-screen bg-gray-100">
               <Link
-                to="/app/config"
+                to="/app/config/reports"
                 className="flex items-center bg-white p-5 border-b h-24"
               >
                 <IonIcon className="w-6 h-6" src={chevronBackOutline} />
@@ -38,28 +112,54 @@ const Expenses = () => {
                 <IonTitle className="font-bold">Adicionar Despesa</IonTitle>
               </Link>
               <div className="py-10 px-5">
-                <form>
+                <form onSubmit={handleSubmit(handleNewExpense)}>
                   <IonLabel className="text-gray-600" position="stacked">
                     Nome da Despesa
                   </IonLabel>
                   <div className="flex items-center bg-gray-200 rounded-xl p-3 my-3">
-                    <IonInput type="text" placeholder="Fornecedor Fulano" />
+                    <IonInput
+                      type="text"
+                      placeholder="Fornecedor Fulano"
+                      {...register("expense_name")}
+                    />
                   </div>
+                  <ErrorMessage
+                    errors={errors}
+                    name="expense_name"
+                    as={<div style={{ color: "red" }} />}
+                  />
 
                   <IonLabel className="text-gray-600" position="stacked">
                     Descrição
                   </IonLabel>
                   <div className="flex items-center bg-gray-200 rounded-xl p-3 my-3">
-                    <IonTextarea placeholder="Descreva sobre oque é esta despesa" />
+                    <IonTextarea
+                      placeholder="Descreva sobre oque é esta despesa"
+                      {...register("description")}
+                    />
                   </div>
+                  <ErrorMessage
+                    errors={errors}
+                    name="description"
+                    as={<div style={{ color: "red" }} />}
+                  />
 
                   <IonLabel className="text-gray-600" position="stacked">
                     Valor Total
                   </IonLabel>
                   <div className="flex items-center bg-gray-200 rounded-xl p-3 my-3">
                     <p className="text-gray-500">R$</p>
-                    <IonInput type={"text"} placeholder="50.15" />
+                    <IonInput
+                      type={"text"}
+                      placeholder="50.15"
+                      {...register("total_value")}
+                    />
                   </div>
+                  <ErrorMessage
+                    errors={errors}
+                    name="total_value"
+                    as={<div style={{ color: "red" }} />}
+                  />
 
                   <button
                     type="submit"
