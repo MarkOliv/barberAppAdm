@@ -8,7 +8,10 @@ import {
   IonItem,
   IonLabel,
   IonPage,
+  IonSelect,
+  IonSelectOption,
   IonTitle,
+  useIonToast,
 } from "@ionic/react";
 
 import { Link } from "react-router-dom";
@@ -29,7 +32,11 @@ const Balance = () => {
   const [creditCashs, setCreditCashs] = React.useState<Number>();
   const [debitCashs, setDebitCashs] = React.useState<Number>();
 
+  const [barbers, setBarbers] = React.useState<Array<any>>([]);
+  const [selectedBarber, setSelectedBarber] = React.useState<any>();
+
   const { sessionUser } = useAuth();
+  const [showToast] = useIonToast();
 
   const options = {
     title: "Balanço do mês",
@@ -37,14 +44,49 @@ const Balance = () => {
 
   const getCashFlow = async () => {
     try {
-      let { data: cashFlow, error } = await supabase
-        .from("cashFlow")
-        .select("*");
+      if (selectedBarber !== "nenhum" && selectedBarber !== undefined) {
+        let { data: cashFlow, error } = await supabase
+          .from("cashFlow")
+          .select("*")
 
-      if (cashFlow) {
-        setAllCashFlow(cashFlow);
+          .eq("barber_id", selectedBarber);
+
+        if (cashFlow) {
+          setAllCashFlow(cashFlow);
+        }
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+        }
+      } else {
+        let { data: cashFlow, error } = await supabase
+          .from("cashFlow")
+          .select("*");
+
+        if (cashFlow) {
+          setAllCashFlow(cashFlow);
+        }
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: error.message,
+            duration: 3000,
+          });
+        }
       }
-    } catch (error) {}
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
   };
 
   const handleFilterDate = async () => {
@@ -76,16 +118,44 @@ const Balance = () => {
     } catch (error) {}
   };
 
+  const getBarbers = async () => {
+    try {
+      let { data: barbers, error } = await supabase.from("barbers").select("*");
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+      }
+
+      if (barbers) {
+        setBarbers(barbers);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
+  };
+
   React.useEffect(() => {
-    getCashFlow();
+    getBarbers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
     handleFilterDate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allCashFlow, consultDate]);
 
   React.useEffect(() => {
     handleCashs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [consultDateCashFlow]);
 
   return (
@@ -104,7 +174,7 @@ const Balance = () => {
               </Link>
 
               <div className="py-10 px-5">
-                <div className="flex flex-wrap justify-center items-center mt-5 mb-3 p-3 bg-white rounded-3xl shadow h-24">
+                <div className="flex flex-wrap justify-center items-center mt-5 mb-3 p-3 bg-white rounded-3xl shadow h-auto">
                   <p>Selecione a data</p>
                   <div className="flex justify-center items-center bg-gray-200 rounded-3xl shadow-md h-10 w-full">
                     <IonInput
@@ -117,6 +187,34 @@ const Balance = () => {
                     />
                     <IonIcon className="mr-5 text-gray-500" src={calendar} />
                   </div>
+
+                  <IonSelect
+                    className="w-full bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3"
+                    placeholder="Selecione o Barbeiro"
+                    onIonChange={({ detail }) => {
+                      setSelectedBarber(detail.value);
+                      // console.log(detail.value);
+                    }}
+                  >
+                    <IonSelectOption key={"nenhum"} value={"nenhum"}>
+                      Nenhum Barbeiro
+                    </IonSelectOption>
+                    {barbers &&
+                      barbers.map((barber, index) => (
+                        <IonSelectOption key={index} value={barber?.id}>
+                          {barber?.username}
+                        </IonSelectOption>
+                      ))}
+                  </IonSelect>
+
+                  <button
+                    onClick={() => {
+                      getCashFlow();
+                    }}
+                    className="p-4 w-full rounded-3xl text-white my-5 shadow-md bg-gradient-to-l from-green-800 to-green-700"
+                  >
+                    Buscar
+                  </button>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
@@ -153,7 +251,7 @@ const Balance = () => {
                     ]}
                     options={options}
                     width="100%"
-                    height="300px"
+                    height="250px"
                   />
                 </div>
               </div>
