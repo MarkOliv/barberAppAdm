@@ -1,6 +1,4 @@
 import {
-  IonBackButton,
-  IonButtons,
   IonContent,
   IonIcon,
   IonInput,
@@ -37,13 +35,14 @@ import { useAuth } from "../../contexts";
 const Calendar = () => {
   const [showToast] = useIonToast();
   const { sessionUser } = useAuth();
-  const router = useIonRouter();
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [hours, setHours] = React.useState<Array<string>>([]);
   const [services, setServices] = React.useState<Array<any>>([]);
   const [barbers, setBarbers] = React.useState<Array<any>>([]);
   const [selectedBarber, setSelectedBarber] = React.useState<any>();
+
+  const [lunchTime, setLunchTime] = React.useState<Array<any>>([]);
 
   // Handling states to show the consult
   const [consultDate, setConsultDate] = React.useState<any>();
@@ -56,7 +55,7 @@ const Calendar = () => {
       false,
       "insira um numero de telefone válido"
     ),
-    barber: Yup.string().required("O Barbeiro é obrigatório"),
+    barber: Yup.object().required("O Barbeiro é obrigatório"),
     service: Yup.array().required("Selecione pelo menos um serviço"),
     date: Yup.string().required("A data é obrigatória"),
     time: Yup.string().required("Informe qual horário"),
@@ -204,6 +203,15 @@ const Calendar = () => {
       let i = hours.findIndex((v) => v === currentTime);
       hours.splice(i, 1);
     });
+
+    //removing the lunchTime from hours
+    // lunch its from the first time to the last. so the last dont count, that's why i'm doing the pop().
+    lunchTime.pop();
+    // eslint-disable-next-line array-callback-return
+    lunchTime.map((time) => {
+      let i = hours.findIndex((v) => v === time);
+      hours.splice(i, 1);
+    });
     setHours(hours);
   };
 
@@ -295,36 +303,43 @@ const Calendar = () => {
       count = 1;
     }
 
-    // getting the minut and hour of time selected
+    // pegando os horarios que os serviços vao ocupar ===========
+
+    // separing the minut and hour of time selected
     let minutsTime: string = data.time.substring(data.time.length, 3);
     let hourTime: string = data.time.substring(0, 2);
 
     let y = 0;
     let h = Number(hourTime); //horas
-    let allTimeServices = [];
+    let allTimeServices = []; //conterá todas as horas que os serviços selecionados ocupam
 
-    for (let i = Number(minutsTime); count >= y; i = i + 15) {
-      y++; //so contador
+    // minutos são usados para iniciar a contagem, se a hora selecionada foi hh:15 preciso começar de 15 minutos
+    // o 'm' são os minutos usados para montar as horas, que varia de 15 em 15
+    for (let m = Number(minutsTime); count >= y; m = m + 15) {
+      y++; //é contador que controla o for
 
-      if (i >= 60) {
+      // se os minutos forem maiores ou iguais a 60 eu aumento uma hora e zero os minutos pois nesse momento teremos uma hora exata como 09:00, sendo necessário zerar os minutos para que recomece a contagem de 15 em 15
+      if (m >= 60) {
         h++;
-        i = 0;
+        m = 0;
+        // apenas lidando com a posição do zero em horas
         if (h >= 10) {
           allTimeServices.push(`${h}:00`);
         } else {
           allTimeServices.push(`0${h}:00`);
         }
       } else {
+        // apenas lidando com a posição dos zeros tanto em horas quanto em minutos por não se tratar de um horário exato
         if (h >= 10) {
-          if (i === 0) {
-            allTimeServices.push(`${h}:0${i}`);
+          if (m < 0) {
+            allTimeServices.push(`${h}:0${m}`);
           } else {
-            allTimeServices.push(`${h}:${i}`);
+            allTimeServices.push(`${h}:${m}`);
           }
-        } else if (i === 0) {
-          allTimeServices.push(`0${h}:0${i}`);
+        } else if (m < 10) {
+          allTimeServices.push(`0${h}:0${m}`);
         } else {
-          allTimeServices.push(`0${h}:${i}`);
+          allTimeServices.push(`0${h}:${m}`);
         }
       }
     }
@@ -351,7 +366,7 @@ const Calendar = () => {
         servicesNames,
         data.date,
         allTimeServices,
-        data.barber,
+        data.barber?.id,
         totalPriceServces
       );
     } else {
@@ -370,7 +385,7 @@ const Calendar = () => {
         .select("*")
 
         .eq("date", newDate)
-        .eq("barber_id", selectedBarber)
+        .eq("barber_id", selectedBarber?.id)
         .neq("status", "canceled")
         .neq("status", "done");
 
@@ -409,6 +424,11 @@ const Calendar = () => {
     getBarbers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    setLunchTime(selectedBarber?.lunch_time);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedBarber]);
 
   return (
     <IonPage>
@@ -567,7 +587,7 @@ const Calendar = () => {
               >
                 {barbers &&
                   barbers.map((barber, index) => (
-                    <IonSelectOption key={index} value={barber?.id}>
+                    <IonSelectOption key={index} value={barber}>
                       {barber?.username}
                     </IonSelectOption>
                   ))}
