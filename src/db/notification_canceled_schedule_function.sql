@@ -1,5 +1,6 @@
+-- Notication when we have a new schedule
 create
-or replace function handle_new_notification() returns trigger as $ $ declare client_id uuid;
+or replace function handle_canceled_schedule() returns trigger as $ $ declare client_id uuid;
 
 begin
 select
@@ -9,7 +10,7 @@ from
 where
     username = new.name into client_id;
 
-IF client_id IS NOT NULL THEN
+IF client_id IS NOT NULL THEN IF new.status == = "canceled" THEN
 INSERT INTO
     public.notifications(
         "from",
@@ -22,10 +23,14 @@ VALUES
         client_id,
         new.barber_id,
         new.date,
-        'schedule'
+        'Canceled'
     );
 
 RETURN NEW;
+
+ELSE RETURN NEW;
+
+END IF;
 
 ELSE RETURN NEW;
 
