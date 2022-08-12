@@ -210,7 +210,11 @@ const LunchTime = () => {
                         {editMode && (
                           <IonSelect
                             className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3 h-5"
-                            placeholder={"14:00"}
+                            placeholder={
+                              sessionUser?.user_metadata?.lunch_time[0]
+                                ? sessionUser?.user_metadata?.lunch_time[0]
+                                : "hh:mm"
+                            }
                             {...register("timeToGoOut")}
                           >
                             {allTimes.map((time, index) => (
@@ -248,7 +252,15 @@ const LunchTime = () => {
                         {editMode && (
                           <IonSelect
                             className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3 h-5"
-                            placeholder="14:00"
+                            placeholder={
+                              sessionUser?.user_metadata?.lunch_time[
+                                numberOfTheLastTime - 1
+                              ]
+                                ? sessionUser?.user_metadata?.lunch_time[
+                                    numberOfTheLastTime - 1
+                                  ]
+                                : "hh:mm"
+                            }
                             {...register("timeToGoIn")}
                           >
                             {allTimes.map((time, index) => (
