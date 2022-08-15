@@ -1,6 +1,4 @@
 import {
-  IonBackButton,
-  IonButtons,
   IonContent,
   IonIcon,
   IonInput,
@@ -12,7 +10,6 @@ import {
   IonSelectOption,
   IonText,
   IonTitle,
-  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 import {
@@ -37,17 +34,26 @@ import { useAuth } from "../../contexts";
 const Calendar = () => {
   const [showToast] = useIonToast();
   const { sessionUser } = useAuth();
-  const router = useIonRouter();
 
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [hours, setHours] = React.useState<Array<string>>([]);
-  const [services, setServices] = React.useState<Array<any>>([]);
-  const [barbers, setBarbers] = React.useState<Array<any>>([]);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+
+  const [allTimes, setAllTimes] = React.useState<Array<string>>([]);
+  const [allAvailebleTimes, setallAvailebleTimes] = React.useState<
+    Array<string>
+  >([]);
+
+  const [allServices, setAllServices] = React.useState<Array<any>>([]);
+
+  const [allBarbers, setAllBarbers] = React.useState<Array<any>>([]);
   const [selectedBarber, setSelectedBarber] = React.useState<any>();
+
+  const [lunchTimes, setLunchTimes] = React.useState<Array<any>>([]);
 
   // Handling states to show the consult
   const [consultDate, setConsultDate] = React.useState<any>();
-  const [schedulesToShow, setSchedulesToShow] = React.useState<Array<any>>([]);
+  const [schedulesOfConsult, setSchedulesOfConsult] = React.useState<
+    Array<any>
+  >([]);
 
   const barberSchema = Yup.object().shape({
     name: Yup.string().default(""),
@@ -56,7 +62,7 @@ const Calendar = () => {
       false,
       "insira um numero de telefone válido"
     ),
-    barber: Yup.string().required("O Barbeiro é obrigatório"),
+    barber: Yup.object().required("O Barbeiro é obrigatório"),
     service: Yup.array().required("Selecione pelo menos um serviço"),
     date: Yup.string().required("A data é obrigatória"),
     time: Yup.string().required("Informe qual horário"),
@@ -71,7 +77,7 @@ const Calendar = () => {
     resolver: yupResolver(barberSchema),
   });
 
-  const getSchedulesToShow = async (date: any) => {
+  const getSchedulesOfConsult = async (date: any) => {
     try {
       if (sessionUser?.user_metadata?.barber) {
         let { data, error } = await supabase
@@ -91,7 +97,7 @@ const Calendar = () => {
         }
 
         if (data) {
-          setSchedulesToShow(data);
+          setSchedulesOfConsult(data);
         }
       } else {
         let { data, error } = await supabase
@@ -111,7 +117,7 @@ const Calendar = () => {
         }
 
         if (data) {
-          setSchedulesToShow(data);
+          setSchedulesOfConsult(data);
         }
       }
     } catch (error) {
@@ -124,7 +130,7 @@ const Calendar = () => {
     }
   };
 
-  const getServices = async () => {
+  const getAllServices = async () => {
     try {
       let { data: services, error } = await supabase
         .from("services")
@@ -139,7 +145,7 @@ const Calendar = () => {
       }
 
       if (services) {
-        setServices(services);
+        setAllServices(services);
       }
     } catch (error) {
       await showToast({
@@ -151,9 +157,12 @@ const Calendar = () => {
     }
   };
 
-  const getBarbers = async () => {
+  const getAllBarbers = async () => {
     try {
-      let { data: barbers, error } = await supabase.from("barbers").select("*");
+      let { data: barbers, error } = await supabase
+        .from("barbers")
+        .select("*")
+        .eq("off_work", false);
 
       if (error) {
         await showToast({
@@ -164,7 +173,7 @@ const Calendar = () => {
       }
 
       if (barbers) {
-        setBarbers(barbers);
+        setAllBarbers(barbers);
       }
     } catch (error) {
       await showToast({
@@ -176,41 +185,171 @@ const Calendar = () => {
     }
   };
 
-  const gerateHours = (schedulesTimes: Array<any>) => {
-    let hours: Array<string> = [];
+  const handleGenerateAllTimes = () => {
+    let allTimes: Array<string> = [];
 
     for (let h = 8; h < 18; h++) {
       for (let m = 0; m <= 45; m = m + 15) {
         if (h < 10 && m === 0) {
           // console.log(`0${h}:0${m}`);
-          hours.push(`0${h}:0${m}`);
+          allTimes.push(`0${h}:0${m}`);
         } else if (h < 10) {
           // console.log(`0${h}:${m}`);
-          hours.push(`0${h}:${m}`);
+          allTimes.push(`0${h}:${m}`);
         } else if (h >= 10 && m === 0) {
           // console.log(`${h}:0${m}`);
-          hours.push(`${h}:0${m}`);
+          allTimes.push(`${h}:0${m}`);
         } else if (h >= 10) {
           // console.log(`${h}:${m}`);
-          hours.push(`${h}:${m}`);
+          allTimes.push(`${h}:${m}`);
         }
       }
     }
 
-    // removing already times scheduleds
-    // eslint-disable-next-line array-callback-return
-    schedulesTimes.map((time: string) => {
-      let currentTime = time.substring(0, 5); //valor original = 00:00:00 estou deixando como 00:00
-      let i = hours.findIndex((v) => v === currentTime);
-      hours.splice(i, 1);
-    });
-    setHours(hours);
+    setAllTimes(allTimes);
   };
 
-  const handleNewSchedule = async (
-    name: string,
-    phone: number,
-    services: Array<any>,
+  const getAllAvailebleTimes = (timesAlreadyScheduled: Array<any>) => {
+    let allAvailebleTimes: Array<string> = allTimes;
+
+    // removing already times scheduleds
+    // eslint-disable-next-line array-callback-return
+    timesAlreadyScheduled.map((time: string) => {
+      let currentTime = time.substring(0, 5); //valor original = 00:00:00 estou deixando como 00:00
+      let index = allAvailebleTimes.findIndex((v) => v === currentTime);
+      allAvailebleTimes.splice(index, 1);
+    });
+
+    //removing the lunchTimes from allAvailebleTimes
+
+    // lunch its from the first time to the last. so the last dont count, that's why i'm doing the pop().
+    lunchTimes.pop();
+
+    // eslint-disable-next-line array-callback-return
+    lunchTimes.map((time) => {
+      let i = allAvailebleTimes.findIndex((v) => v === time);
+      allAvailebleTimes.splice(i, 1);
+    });
+    setallAvailebleTimes(allAvailebleTimes);
+  };
+
+  const handleTimes = (data: any) => {
+    // getting total minuts of all selected services
+    let services = data?.service;
+
+    let servicesNames: Array<any> = [];
+    let totalPriceServices = 0;
+    let totalTimesServices = 0;
+
+    // eslint-disable-next-line array-callback-return
+    services.map((service: any) => {
+      totalTimesServices += service?.time;
+      servicesNames.push(service?.name);
+      totalPriceServices += service?.price;
+    });
+
+    //fazer com switch case
+    //este contador é usado para saber quantos horários (de 15 minutos) os serviços agendados vão utilizar
+    // como por exemplo, mais de 120 minutos (2 horas) utilizará o equivalente a 9 horarios que são 2 horas e 15 minutos, sendo esse no momento o tempo maximo
+    let count = 0;
+    if (totalTimesServices > 120) {
+      count = 9;
+    } else if (totalTimesServices > 105) {
+      count = 8;
+    } else if (totalTimesServices > 90) {
+      count = 7;
+    } else if (totalTimesServices > 75) {
+      count = 6;
+    } else if (totalTimesServices > 60) {
+      count = 5;
+    } else if (totalTimesServices > 45) {
+      count = 4;
+    } else if (totalTimesServices > 30) {
+      count = 3;
+    } else if (totalTimesServices > 15) {
+      count = 2;
+    } else if (totalTimesServices === 15) {
+      count = 1;
+    }
+
+    // pegando os horarios que os serviços vao ocupar
+
+    // separing the minut and hour of time selected
+    let minutsTimeSelected: string = data.time.substring(data.time.length, 3);
+    let hourTimeSelected: string = data.time.substring(0, 2);
+
+    let y = 0;
+    let h = Number(hourTimeSelected); //horas
+    let allBusyTimeservices = []; //conterá todos os horários que os serviços selecionados ocupam
+
+    // minutos são usados para iniciar a contagem, se a hora selecionada foi hh:15 preciso começar de 15 minutos
+    // o 'm' são os minutos usados para montar as horas, que varia de 15 em 15
+    for (let m = Number(minutsTimeSelected); count >= y; m += 15) {
+      y++; //é o contador que controla o for
+
+      // se os minutos forem maiores ou iguais a 60 eu aumento uma hora e zero os minutos pois nesse momento teremos uma hora exata como 09:00, sendo necessário zerar os minutos para que recomece a contagem de 15 em 15
+      if (m >= 60) {
+        h++;
+        m = 0;
+        // apenas lidando com a posição do zero em horas
+        if (h >= 10) {
+          allBusyTimeservices.push(`${h}:00`);
+        } else {
+          allBusyTimeservices.push(`0${h}:00`);
+        }
+      } else {
+        // apenas lidando com a posição dos zeros tanto em horas quanto em minutos por não se tratar de um horário exato
+        if (h >= 10) {
+          if (m < 0) {
+            allBusyTimeservices.push(`${h}:0${m}`);
+          } else {
+            allBusyTimeservices.push(`${h}:${m}`);
+          }
+        } else if (m < 10) {
+          allBusyTimeservices.push(`0${h}:0${m}`);
+        } else {
+          allBusyTimeservices.push(`0${h}:${m}`);
+        }
+      }
+    }
+
+    // comparando todos os horarios que os serviços selecionados ocupam(allBusyTimeservices) com todos os horarios disponiveis(allAvailebleTimes).
+
+    // se caso algum horário do allBusyTimeservices não bater com o allAvailebleTimes, Não é perimitido o agendamento, pois isso significa que um horário vai sobrepor outro
+    let countAvaibleTimes = 0;
+    for (let index = 0; index < allBusyTimeservices.length; index++) {
+      for (let y = 0; y < allAvailebleTimes.length; y++) {
+        if (allBusyTimeservices[index] === allAvailebleTimes[y]) {
+          countAvaibleTimes++;
+        }
+      }
+    }
+    // todos os horários(allBusyTimeservices) devem estar disponiveis nos horarios disponiveis (allAvailebleTimes)
+    if (allBusyTimeservices.length === countAvaibleTimes) {
+      handleCreateSchedule(
+        sessionUser?.user_metadata?.barber
+          ? data.name
+          : sessionUser?.user_metadata?.full_name,
+        data.phone,
+        servicesNames,
+        data.date,
+        allBusyTimeservices,
+        data.barber?.id,
+        totalPriceServices
+      );
+    } else {
+      showToast({
+        position: "top",
+        message: `Horário indisponível para o(os) serviço(os) escolhidos. tempo necessário é de ${totalTimesServices} minutos`,
+        duration: 5000,
+      });
+    }
+  };
+
+  const handleCreateSchedule = async (
+    client_name: string,
+    client_phone: number,
+    servicesSelected: Array<any>,
     date: string,
     times: Array<any>,
     barber_id: any,
@@ -221,9 +360,9 @@ const Calendar = () => {
         .from("schedules")
         .insert([
           {
-            name: name,
-            phone: phone,
-            services: services,
+            name: client_name,
+            phone: client_phone,
+            services: servicesSelected,
             date: date,
             times: times,
             barber_id: barber_id,
@@ -258,119 +397,15 @@ const Calendar = () => {
     }
   };
 
-  const handleTimes = (data: any) => {
-    // getting total minuts of all selected services
-    let services = data?.service;
-
-    let servicesNames: Array<any> = [];
-    let totalPriceServces = 0;
-    let totalTimeServices = 0;
-
-    // eslint-disable-next-line array-callback-return
-    services.map((service: any) => {
-      totalTimeServices += service?.time;
-      servicesNames.push(service?.name);
-      totalPriceServces += service?.price;
-    });
-
-    //fazer com switch case
-    let count = 0;
-    if (totalTimeServices > 120) {
-      count = 9;
-    } else if (totalTimeServices > 105) {
-      count = 8;
-    } else if (totalTimeServices > 90) {
-      count = 7;
-    } else if (totalTimeServices > 75) {
-      count = 6;
-    } else if (totalTimeServices > 60) {
-      count = 5;
-    } else if (totalTimeServices > 45) {
-      count = 4;
-    } else if (totalTimeServices > 30) {
-      count = 3;
-    } else if (totalTimeServices > 15) {
-      count = 2;
-    } else if (totalTimeServices === 15) {
-      count = 1;
-    }
-
-    // getting the minut and hour of time selected
-    let minutsTime: string = data.time.substring(data.time.length, 3);
-    let hourTime: string = data.time.substring(0, 2);
-
-    let y = 0;
-    let h = Number(hourTime); //horas
-    let allTimeServices = [];
-
-    for (let i = Number(minutsTime); count >= y; i = i + 15) {
-      y++; //so contador
-
-      if (i >= 60) {
-        h++;
-        i = 0;
-        if (h >= 10) {
-          allTimeServices.push(`${h}:00`);
-        } else {
-          allTimeServices.push(`0${h}:00`);
-        }
-      } else {
-        if (h >= 10) {
-          if (i === 0) {
-            allTimeServices.push(`${h}:0${i}`);
-          } else {
-            allTimeServices.push(`${h}:${i}`);
-          }
-        } else if (i === 0) {
-          allTimeServices.push(`0${h}:0${i}`);
-        } else {
-          allTimeServices.push(`0${h}:${i}`);
-        }
-      }
-    }
-
-    //comparar allTimeServices com hours. Pois no hours so tem os horarios disponiveis e se nao bater algum horario do allTimeServices eu nao deixo agendar, pq vai ocupar um horario que nao esta disponivel
-    console.log(allTimeServices);
-    console.log(hours);
-
-    let countAvaibleTimes = 0;
-    for (let i = 0; i < allTimeServices.length; i++) {
-      for (let y = 0; y < hours.length; y++) {
-        if (allTimeServices[i] === hours[y]) {
-          countAvaibleTimes++;
-        }
-      }
-    }
-
-    if (allTimeServices.length === countAvaibleTimes) {
-      handleNewSchedule(
-        sessionUser?.user_metadata?.barber
-          ? data.name
-          : sessionUser?.user_metadata?.full_name,
-        data.phone,
-        servicesNames,
-        data.date,
-        allTimeServices,
-        data.barber,
-        totalPriceServces
-      );
-    } else {
-      showToast({
-        position: "top",
-        message: `Horário indisponível para o(os) serviço(os) escolhidos. tempo necessário é de ${totalTimeServices} minutos`,
-        duration: 5000,
-      });
-    }
-  };
-
-  const onChangeDate = async (newDate: any) => {
+  // chamado por um onChange
+  const handleGetAlreadyScheduled = async (newDate: any) => {
     try {
       let { data, error } = await supabase
         .from("schedules")
         .select("*")
 
         .eq("date", newDate)
-        .eq("barber_id", selectedBarber)
+        .eq("barber_id", selectedBarber?.id)
         .neq("status", "canceled")
         .neq("status", "done");
 
@@ -383,16 +418,17 @@ const Calendar = () => {
         console.log(error);
       }
 
-      let schedulesTimes: Array<any> = [];
+      let timesAlreadyScheduled: Array<any> = [];
       if (data) {
+        // eslint-disable-next-line array-callback-return
         data.map((schedule) => {
           // eslint-disable-next-line array-callback-return
           schedule?.times.map((time: any) => {
-            schedulesTimes.push(time);
+            timesAlreadyScheduled.push(time);
           });
         });
 
-        gerateHours(schedulesTimes);
+        getAllAvailebleTimes(timesAlreadyScheduled);
       }
     } catch (error) {
       await showToast({
@@ -405,8 +441,18 @@ const Calendar = () => {
   };
 
   React.useEffect(() => {
-    getServices();
-    getBarbers();
+    getAllServices();
+    getAllBarbers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    setLunchTimes(selectedBarber?.lunch_time);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedBarber]);
+
+  React.useEffect(() => {
+    handleGenerateAllTimes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -425,7 +471,7 @@ const Calendar = () => {
           <div className="h-screen py-10 px-5 bg-gray-100">
             <div className={`grid grid-cols-[30%_1fr] gap-4 py-3`}>
               <div
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => setIsModalOpen(!isModalOpen)}
                 className="flex flex-col justify-center items-center h-32 shadow-md rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
               >
                 <IonIcon className="mb-5 w-8 h-8 text-white" src={alarm} />
@@ -444,7 +490,7 @@ const Calendar = () => {
                       type="date"
                       onIonChange={({ detail }) => {
                         setConsultDate(detail.value);
-                        getSchedulesToShow(detail.value);
+                        getSchedulesOfConsult(detail.value);
                       }}
                     />
                   </div>
@@ -463,7 +509,7 @@ const Calendar = () => {
                 <div className="h-[1px] w-4/5 bg-gray-500" />
               </div>
               <IonList className="w-full h-full p-5 rounded-3xl">
-                {schedulesToShow.map((agendamento, index) => (
+                {schedulesOfConsult.map((agendamento, index) => (
                   <div
                     onClick={() => {
                       document.location.replace(
@@ -499,7 +545,7 @@ const Calendar = () => {
             </div>
           </div>
           <IonModal
-            isOpen={isOpen}
+            isOpen={isModalOpen}
             initialBreakpoint={0.85}
             breakpoints={[0, 0.75, 0.85, 0.9, 1]}
           >
@@ -507,7 +553,7 @@ const Calendar = () => {
               <IonTitle className="text-white">Fazer Agendamento</IonTitle>
               <div className="p-2">
                 <button
-                  onClick={() => setIsOpen(!isOpen)}
+                  onClick={() => setIsModalOpen(!isModalOpen)}
                   className="ml-2 text-white"
                 >
                   FECHAR
@@ -565,9 +611,9 @@ const Calendar = () => {
                 }}
                 {...register("barber")}
               >
-                {barbers &&
-                  barbers.map((barber, index) => (
-                    <IonSelectOption key={index} value={barber?.id}>
+                {allBarbers &&
+                  allBarbers.map((barber, index) => (
+                    <IonSelectOption key={index} value={barber}>
                       {barber?.username}
                     </IonSelectOption>
                   ))}
@@ -586,8 +632,8 @@ const Calendar = () => {
                 placeholder="Selecione os serviços.."
                 {...register("service")}
               >
-                {services &&
-                  services.map((service, index) => (
+                {allServices &&
+                  allServices.map((service, index) => (
                     <IonSelectOption
                       key={index}
                       value={{
@@ -614,7 +660,7 @@ const Calendar = () => {
                 <IonInput
                   onIonChange={({ detail }) => {
                     let data = detail.value;
-                    onChangeDate(data);
+                    handleGetAlreadyScheduled(data);
                   }}
                   className="text-gray-500"
                   type="date"
@@ -631,9 +677,9 @@ const Calendar = () => {
                 placeholder="Selecione o horário..."
                 {...register("time")}
               >
-                {hours.map((hour, index) => (
-                  <IonSelectOption key={index} value={hour}>
-                    {hour}
+                {allAvailebleTimes.map((time, index) => (
+                  <IonSelectOption key={index} value={time}>
+                    {time}
                   </IonSelectOption>
                 ))}
               </IonSelect>

@@ -136,11 +136,13 @@ const Notifications = () => {
                       >
                         <IonIcon className="text-green-500" src={mailOpen} />
                         <IonLabel className="ml-5">
-                          <h2>
+                          <p>
                             {notification?.type === "schedule"
                               ? `Novo agendamento ${notification?.message}`
-                              : `Nova mensagem de ${notification?.message}`}
-                          </h2>
+                              : notification?.type === "canceled"
+                              ? `Agendamento ${notification?.message} cancelado`
+                              : `Nova mensagem ${notification?.message}`}
+                          </p>
                         </IonLabel>
                       </IonItem>
                     )}
@@ -162,11 +164,13 @@ const Notifications = () => {
                       >
                         <IonIcon className="text-orange-500" src={mailUnread} />
                         <IonLabel className="ml-5">
-                          <h2>
+                          <p>
                             {notification?.type === "schedule"
                               ? `Novo agendamento ${notification?.message}`
-                              : `Nova mensagem de ${notification?.message}`}
-                          </h2>
+                              : notification?.type === "canceled"
+                              ? `Agendamento ${notification?.message} cancelado`
+                              : `Nova mensagem ${notification?.message}`}
+                          </p>
                         </IonLabel>
                       </IonItem>
                     )}

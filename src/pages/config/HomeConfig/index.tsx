@@ -24,6 +24,7 @@ import {
   logOut,
   pricetags,
   create,
+  cafe,
 } from "ionicons/icons";
 import supabase from "../../../utils/supabase";
 
@@ -293,6 +294,21 @@ const Config = () => {
                       <IonLabel className="ml-5">
                         <h2>Categorias</h2>
                         <p>Cadastrar categorias de produtos e serviços</p>
+                      </IonLabel>
+                    </IonItem>
+
+                    <IonItem
+                      className="mt-5 mb-3 bg-white rounded-3xl shadow"
+                      lines="none"
+                      id="open-modal"
+                      onClick={() => {
+                        router.push("/app/config/daysoff");
+                      }}
+                    >
+                      <IonIcon src={cafe} />
+                      <IonLabel className="ml-5">
+                        <h2>Day Off</h2>
+                        <p>Horário de almoço e folgas</p>
                       </IonLabel>
                     </IonItem>
 

@@ -221,14 +221,16 @@ const Home = () => {
               </div>
             </div>
             <div className={`grid grid-cols-4  gap-4 py-3`}>
-              <Link
-                to="/app/calendar"
+              <div
+                onClick={() => {
+                  document.location.replace("/app/calendar");
+                }}
                 className="flex flex-col justify-center items-center h-32 col-span-2 shadow-lg rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
               >
                 <IonIcon className="mb-5 w-8 h-8 text-white" src={calendar} />
 
                 <IonText className="text-white">Calendário</IonText>
-              </Link>
+              </div>
               <div
                 onClick={() => router.push("/app/chat")}
                 className="flex flex-col justify-center items-center h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200"

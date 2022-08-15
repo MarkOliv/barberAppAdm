@@ -60,6 +60,8 @@ import Notifications from "./pages/Notifications";
 import Chat from "./pages/Chat";
 import Balance from "./pages/config/Reports/Balance";
 import Expenses from "./pages/config/Reports/Expenses";
+import DaysOff from "./pages/config/DaysOff";
+import LunchTime from "./pages/config/DaysOff/LunchTime";
 
 setupIonicReact();
 
@@ -86,6 +88,13 @@ const App: React.FC = () => {
               exact
               path="/app/config/reports/add-expenses"
               component={Expenses}
+            />
+
+            <Route exact path="/app/config/daysoff" component={DaysOff} />
+            <Route
+              exact
+              path="/app/config/daysoff/lunch-time"
+              component={LunchTime}
             />
 
             <Route exact path="/app/profile/:id" component={Profile} />
