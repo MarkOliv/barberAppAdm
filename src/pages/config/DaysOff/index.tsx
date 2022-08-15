@@ -9,6 +9,7 @@ import {
   IonPage,
   IonTitle,
   useIonRouter,
+  useIonToast,
 } from "@ionic/react";
 
 import { Link } from "react-router-dom";
@@ -20,11 +21,109 @@ import {
   documentLock,
   restaurant,
 } from "ionicons/icons";
+import supabase from "../../../utils/supabase";
+import { User } from "@supabase/supabase-js";
 
 const DaysOff = () => {
   const { sessionUser } = useAuth();
 
+  const [showToast] = useIonToast();
   const router = useIonRouter();
+
+  const [currentProfile, setcurrentProfile] = React.useState<Array<any>>([]);
+
+  const handleGetOffWork = async () => {
+    try {
+      let { data: offWork, error } = await supabase
+        .from("barbers")
+        .select("off_work")
+
+        .eq("id", sessionUser?.id);
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+      }
+
+      if (offWork) {
+        setcurrentProfile(offWork);
+        // console.log(offWork);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleChangeOffWorkDB = async () => {
+    try {
+      const { data: offWork, error } = await supabase
+        .from("barbers")
+        .update({ off_work: !currentProfile[0]?.off_work })
+        .eq("id", sessionUser?.id);
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+      }
+
+      if (offWork) {
+        await showToast({
+          position: "top",
+          message: "Alterado com sucesso",
+          duration: 3000,
+        });
+
+        setcurrentProfile(offWork);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleChangeOffWorkUserMeta = async () => {
+    try {
+      const { user, error } = await supabase.auth.update({
+        data: { off_work: !currentProfile[0]?.off_work },
+      });
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+      }
+
+      if (user) {
+        handleChangeOffWorkDB();
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    handleGetOffWork();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <IonPage>
@@ -60,9 +159,16 @@ const DaysOff = () => {
                   lines="none"
                   id="open-modal"
                   key={"Especialidades"}
+                  onClick={() => {
+                    handleChangeOffWorkUserMeta();
+                  }}
                 >
                   <IonIcon src={beer} />
-                  <IonLabel className="ml-5">Adicionar Folga</IonLabel>
+                  <IonLabel className="ml-5">
+                    {sessionUser?.user_metadata?.off_work
+                      ? "Sair da Folga"
+                      : "Entrar de folga"}
+                  </IonLabel>
                 </IonItem>
               </div>
             </div>

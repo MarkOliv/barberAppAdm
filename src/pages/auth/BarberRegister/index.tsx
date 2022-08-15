@@ -106,6 +106,7 @@ const BarberRegister = () => {
             username: data.fullName,
             specialties: data.specialties,
             barber: true,
+            off_work: false,
           },
         }
       );

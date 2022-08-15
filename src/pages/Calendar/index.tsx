@@ -159,7 +159,10 @@ const Calendar = () => {
 
   const getAllBarbers = async () => {
     try {
-      let { data: barbers, error } = await supabase.from("barbers").select("*");
+      let { data: barbers, error } = await supabase
+        .from("barbers")
+        .select("*")
+        .eq("off_work", false);
 
       if (error) {
         await showToast({
