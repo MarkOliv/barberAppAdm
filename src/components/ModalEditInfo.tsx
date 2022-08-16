@@ -6,6 +6,7 @@ import {
   IonLabel,
   IonTextarea,
   IonTitle,
+  useIonLoading,
   useIonToast,
 } from "@ionic/react";
 import { call, clipboard, home, mail, person } from "ionicons/icons";
@@ -27,6 +28,8 @@ export const ModalEditInfo = (props: Props) => {
   const { type, data } = props;
 
   const [showToast] = useIonToast();
+  const [showLoading, hideLoading] = useIonLoading();
+
   const [userType, setUserType] = React.useState<string>();
   const { sessionUser } = useAuth();
 
@@ -104,6 +107,7 @@ export const ModalEditInfo = (props: Props) => {
   });
 
   const handleSubmitEmail = async (data: any) => {
+    await showLoading();
     try {
       var newEmail = data.email;
 
@@ -188,10 +192,13 @@ export const ModalEditInfo = (props: Props) => {
         message: `Erro!!! ${error}`,
         duration: 2000,
       });
+    } finally {
+      await hideLoading();
     }
   };
 
   const handleSubmitUserName = async (data: any) => {
+    await showLoading();
     try {
       const { data: fullName, error: fullNameError } =
         await supabase.auth.update({
@@ -222,6 +229,7 @@ export const ModalEditInfo = (props: Props) => {
   };
 
   const updateUserNameInDB = async (name: string) => {
+    await showLoading();
     try {
       if (userType === "barber") {
         const { data, error } = await supabase
@@ -273,10 +281,13 @@ export const ModalEditInfo = (props: Props) => {
         message: `Erro!!! ${error}`,
         duration: 2000,
       });
+    } finally {
+      await hideLoading();
     }
   };
 
   const handleSubmitPhone = async (data: any) => {
+    await showLoading();
     try {
       const { data: phone, error: phoneError } = await supabase.auth.update({
         data: { phone: data?.phone },
@@ -359,10 +370,13 @@ export const ModalEditInfo = (props: Props) => {
         message: `Erro!!! ${error}`,
         duration: 2000,
       });
+    } finally {
+      await hideLoading();
     }
   };
 
   const handleSubmitAddress = async (data: any) => {
+    await showLoading();
     try {
       const { data: address, error: addressError } = await supabase.auth.update(
         {
@@ -427,10 +441,13 @@ export const ModalEditInfo = (props: Props) => {
         message: `Erro!!! ${error}`,
         duration: 2000,
       });
+    } finally {
+      await hideLoading();
     }
   };
 
   const handleSubmitBio = async (data: any) => {
+    await showLoading();
     try {
       const { data: bio, error: bioError } = await supabase.auth.update({
         data: { bio: data?.bio },
@@ -438,15 +455,12 @@ export const ModalEditInfo = (props: Props) => {
 
       if (bio) {
         updateBioInDB(data?.bio);
-        document.location.reload();
       }
 
       if (bioError) {
         await showToast({
           message: `Erro ao atualizar bio, erro de código: ${bioError?.status}`,
           duration: 3000,
-        }).then(() => {
-          document.location.reload();
         });
       }
     } catch (error) {
@@ -492,8 +506,6 @@ export const ModalEditInfo = (props: Props) => {
           await showToast({
             message: "bio alterada com sucesso",
             duration: 3000,
-          }).then(() => {
-            document.location.reload();
           });
         }
 
@@ -511,6 +523,9 @@ export const ModalEditInfo = (props: Props) => {
         message: `Erro!!! ${error}`,
         duration: 2000,
       });
+    } finally {
+      await hideLoading();
+      document.location.reload();
     }
   };
 

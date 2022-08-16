@@ -10,6 +10,7 @@ import {
   IonSlides,
   IonText,
   IonTitle,
+  useIonLoading,
   useIonRouter,
   useIonToast,
 } from "@ionic/react";
@@ -36,6 +37,8 @@ const Profile = () => {
   const [currentProfilePage, setCurrentProfilePage] = React.useState<any>([]);
   const [profileImage, setProfileImage] = React.useState<string>();
   const [specialties, setSpecialties] = React.useState<Array<any>>([]);
+
+  const [showLoading, hideLoading] = useIonLoading();
 
   const slideOpts = {
     initialSlide: 1,
@@ -72,7 +75,13 @@ const Profile = () => {
           setCurrentProfilePage(data);
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+    }
   };
 
   const getClientProfile = async () => {
@@ -99,6 +108,7 @@ const Profile = () => {
       }
     } catch (error) {}
   };
+
   const getProfile = async () => {
     try {
       if (id.id === sessionUser?.id) {
