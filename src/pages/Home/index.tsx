@@ -34,6 +34,8 @@ const Home = () => {
   const [profileImage, setProfileImage] = React.useState<string>("");
   const [currentProfile, setCurrentProfile] = React.useState<any>([]);
 
+  const [notification, setNotification] = React.useState<boolean>(false);
+
   const { sessionUser } = useAuth();
   const router = useIonRouter();
 
@@ -166,9 +168,44 @@ const Home = () => {
     }
   };
 
+  const getNotifications = async () => {
+    try {
+      let { data: notifications, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("for", sessionUser?.id)
+        .eq("status", "unread");
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+
+      if (notifications) {
+        if (notifications.length > 0) {
+          setNotification(!notification);
+        }
+      }
+    } catch (error) {
+      if (error) {
+        await showToast({
+          position: "top",
+          message: `${error}`,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+    }
+  };
+
   React.useEffect(() => {
     getSchedulesToShow();
     getProfile();
+    getNotifications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -183,6 +220,17 @@ const Home = () => {
     setcurrentName(nameArray[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // React.useEffect(() => {
+  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //   const mySubscription = supabase
+  //     .from("notifications")
+  //     .on("*", (payload) => {
+  //       getNotifications();
+  //     })
+  //     .subscribe();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   return (
     <IonPage>
@@ -200,7 +248,9 @@ const Home = () => {
               </div>
               <div className="flex items-center">
                 <IonIcon
-                  className="w-5 h-5 text-gray-500 mr-5"
+                  className={`w-5 h-5 mr-5 ${
+                    notification ? "text-orange-500" : "text-gray-500"
+                  }`}
                   src={notifications}
                   onClick={() => router.push("/app/notifications")}
                 />

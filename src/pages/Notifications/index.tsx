@@ -42,7 +42,6 @@ const Notifications = () => {
 
       if (notifications) {
         setAllNotifications(notifications);
-        // console.log(notifications);
       }
     } catch (error) {
       if (error) {
@@ -71,6 +70,46 @@ const Notifications = () => {
         });
         console.log(error);
       }
+
+      if (notifications) {
+        getNotifications();
+      }
+    } catch (error) {
+      if (error) {
+        await showToast({
+          position: "top",
+          message: `${error}`,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+    }
+  };
+
+  const handleCleanAll = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("notifications")
+        .delete()
+        .eq("for", sessionUser?.id);
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+
+      if (data) {
+        await showToast({
+          position: "top",
+          message: "Excluidas com sucesso",
+          duration: 3000,
+        });
+        getNotifications();
+      }
     } catch (error) {
       if (error) {
         await showToast({
@@ -89,26 +128,20 @@ const Notifications = () => {
   }, []);
 
   React.useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    console.log("lets go");
     const mySubscription = supabase
       .from("notifications")
-      .on("INSERT", (payload) => {
-        setAllNotifications((current) => [...current, payload.new]);
-        console.log("it has news");
+      .on("*", (payload) => {
+        console.log(payload);
+        if (payload?.eventType === "UPDATE") {
+          getNotifications();
+        } else if (payload?.eventType === "INSERT") {
+          setAllNotifications((current) => [...current, payload.new]);
+        } else {
+          return null;
+        }
       })
       .subscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  React.useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const mySubscription = supabase
-      .from("notifications")
-      .on("UPDATE", (payload) => {
-        getNotifications();
-      })
-      .subscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -126,6 +159,14 @@ const Notifications = () => {
                 <IonTitle className="font-bold">Notificações</IonTitle>
               </Link>
               <div className="py-10 px-5">
+                {allNotifications.length > 0 && (
+                  <p
+                    onClick={handleCleanAll}
+                    className="text-sm font-medium text-gray-600 text-right"
+                  >
+                    Limpar Todas
+                  </p>
+                )}
                 {allNotifications.map((notification, index) => (
                   <div key={index}>
                     {notification?.status === "read" && (
@@ -150,7 +191,10 @@ const Notifications = () => {
                 ))}
 
                 {/* UNREAD */}
-                <IonTitle className="text-gray-500">Não lidas</IonTitle>
+                {allNotifications.length > 0 && (
+                  <IonTitle className="text-gray-500">Não lidas</IonTitle>
+                )}
+
                 {allNotifications.map((notification, index) => (
                   <div key={index}>
                     {notification?.status === "unread" && (
