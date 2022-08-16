@@ -40,88 +40,6 @@ const Config = () => {
 
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const handleRemoveCurrentAvatar = async () => {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { data, error } = await supabase.storage
-        .from("avatar-images")
-        .remove([`public/${currentUser[0]?.avatar_url}`]);
-
-      if (error) {
-        await showToast({
-          position: "top",
-          message: `${error}`,
-          duration: 3000,
-        });
-        console.log(error);
-      }
-    } catch (error) {
-      await showToast({
-        position: "top",
-        message: `${error}`,
-        duration: 3000,
-      });
-      console.log(error);
-    } finally {
-      await handleTakeAPicture();
-    }
-  };
-
-  const handleTakeAPicture = async () => {
-    try {
-      const capturedPhoto = await Camera.getPhoto({
-        resultType: CameraResultType.Uri,
-        source: CameraSource.Camera,
-        quality: 100,
-      });
-
-      let path = capturedPhoto?.path || capturedPhoto?.webPath;
-      path = `${path}`;
-      await uploadNewAvatar(path);
-    } catch (error) {
-      await showToast({
-        position: "top",
-        message: `${error}`,
-        duration: 3000,
-      });
-      console.log(error);
-    }
-  };
-
-  const uploadNewAvatar = async (path: string) => {
-    try {
-      const response = await fetch(path);
-      const blob = await response.blob();
-
-      const filename = path.substring(path.lastIndexOf("/") + 1);
-
-      const { data, error } = await supabase.storage
-        .from("avatar-images")
-        .upload(`/public/${sessionUser?.id}-${filename}`, blob, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-      if (data) {
-        handleSaveAvatarFileName(`${sessionUser?.id}-${filename}`);
-      }
-      if (error) {
-        await showToast({
-          position: "top",
-          message: `${error}`,
-          duration: 3000,
-        });
-        console.log(error);
-      }
-    } catch (error) {
-      await showToast({
-        position: "top",
-        message: `${error}`,
-        duration: 3000,
-      });
-      console.log(error);
-    }
-  };
-
   const handleSaveAvatarFileName = async (filename: string) => {
     try {
       if (currentUser[0].barber) {
@@ -146,7 +64,7 @@ const Config = () => {
         if (error) {
           await showToast({
             position: "top",
-            message: `${error}`,
+            message: `${error} function handleSaveAvatarFileName`,
             duration: 3000,
           });
           console.log(error);
@@ -173,7 +91,7 @@ const Config = () => {
         if (error) {
           await showToast({
             position: "top",
-            message: `${error}`,
+            message: `${error} function handleSaveAvatarFileName`,
             duration: 3000,
           });
           console.log(error);
@@ -182,9 +100,94 @@ const Config = () => {
     } catch (error) {
       await showToast({
         position: "top",
-        message: `${error}`,
+        message: `${error} function handleSaveAvatarFileName`,
         duration: 3000,
       });
+      console.log(error);
+    }
+  };
+
+  const handleRemoveCurrentAvatar = async () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { data, error } = await supabase.storage
+        .from("avatar-images")
+        .remove([`public/${currentUser[0]?.avatar_url}`]);
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: `${error} function handleRemoveCurrentAvatar`,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error} function handleRemoveCurrentAvatar`,
+        duration: 3000,
+      });
+      console.log(error);
+    } finally {
+      await handleTakeAPicture();
+    }
+  };
+
+  const handleTakeAPicture = async () => {
+    try {
+      const capturedPhoto = await Camera.getPhoto({
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Camera,
+        quality: 100,
+      });
+
+      let path = capturedPhoto?.path || capturedPhoto?.webPath;
+      path = `${path}`;
+      await uploadNewAvatar(path);
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error} = função handleTakeAPicture`,
+        duration: 3000,
+      });
+      console.log(error);
+    }
+  };
+
+  const uploadNewAvatar = async (path: string) => {
+    try {
+      const response = await fetch(path);
+
+      const blob = await response.blob();
+
+      const filename = path.substring(path.lastIndexOf("/") + 1);
+
+      const { data, error } = await supabase.storage
+        .from("avatar-images")
+        .upload(`/public/${sessionUser?.id}-${filename}`, path, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+      if (data) {
+        handleSaveAvatarFileName(`${sessionUser?.id}-${filename}`);
+      }
+      if (error) {
+        await showToast({
+          position: "top",
+          message: `${error.message} function uploadNewAvatar 1 `,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+    } catch (error) {
+      // caiu aqui o erro
+      await showToast({
+        position: "top",
+        message: `${path} function uploadNewAvatar 2`,
+        duration: 10000,
+      });
+
       console.log(error);
     }
   };
