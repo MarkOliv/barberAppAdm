@@ -203,7 +203,7 @@ const Profile = () => {
     <IonPage>
       {sessionUser && (
         <IonContent fullscreen>
-          <div className="bg-gray-100 h-screen">
+          <div className="bg-gray-100 h-full">
             <div className="flex flex-wrap justify-center rounded-b-3xl shadow p-5 bg-gradient-to-l from-green-800 to-green-600">
               <div className="flex items-center w-full mb-5">
                 <Link to={"/app/home"}>

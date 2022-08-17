@@ -249,7 +249,7 @@ const Config = () => {
       <IonContent>
         {sessionUser && (
           <>
-            <div className="h-screen bg-gray-100">
+            <div className="bg-gray-100">
               <Link
                 to={`/app/home`}
                 className="flex items-center bg-white p-5 border-b h-24"
