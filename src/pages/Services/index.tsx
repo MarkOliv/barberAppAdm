@@ -15,6 +15,7 @@ import {
   IonSelectOption,
   IonText,
   IonTitle,
+  useIonLoading,
   useIonToast,
 } from "@ionic/react";
 
@@ -30,6 +31,7 @@ import { useAuth } from "../../contexts";
 
 const Services = () => {
   const [showToast] = useIonToast();
+  const [showLoading, hideLoading] = useIonLoading();
 
   const { sessionUser } = useAuth();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -58,6 +60,7 @@ const Services = () => {
   });
 
   const handleNewService = async (data: any) => {
+    await showLoading();
     try {
       const { data: newServiceData, error } = await supabase
         .from("services")
@@ -97,6 +100,7 @@ const Services = () => {
         duration: 3000,
       });
     } finally {
+      await hideLoading();
     }
   };
 

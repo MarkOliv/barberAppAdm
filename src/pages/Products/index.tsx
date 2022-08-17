@@ -13,6 +13,7 @@ import {
   IonSelectOption,
   IonText,
   IonTitle,
+  useIonLoading,
   useIonToast,
 } from "@ionic/react";
 
@@ -28,6 +29,8 @@ import { useAuth } from "../../contexts";
 
 const Products = () => {
   const [showToast] = useIonToast();
+  const [showLoading, hideLoading] = useIonLoading();
+
   const { sessionUser } = useAuth();
 
   const [isOpen, setIsOpen] = React.useState(false);
@@ -56,6 +59,7 @@ const Products = () => {
   });
 
   const handleNewProduct = async (data: any) => {
+    await showLoading();
     try {
       const { data: newServiceData, error } = await supabase
         .from("products")
@@ -95,6 +99,7 @@ const Products = () => {
         duration: 3000,
       });
     } finally {
+      await hideLoading();
     }
   };
 
