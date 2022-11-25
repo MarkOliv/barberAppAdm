@@ -25,7 +25,9 @@ import servicesIcon from "../../assets/barberServicesCut.png";
 
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts";
+
 import supabase from "../../utils/supabase";
+import OneSignal from "onesignal-cordova-plugin";
 
 const Home = () => {
   const [showToast] = useIonToast();
@@ -202,10 +204,23 @@ const Home = () => {
     }
   };
 
+  //this is the init function for receive notifications from the server about schedules
+  const OneSignalNotificationsInit = () => {
+    OneSignal.setAppId("be52199d-a047-430a-b3fd-e3ba2cb55d6d");
+    OneSignal.removeExternalUserId();
+
+    //here i'm setting the user id of aplicattion in supabase
+    OneSignal.setExternalUserId(`${sessionUser?.ìd}`);
+    OneSignal.setNotificationOpenedHandler(function (jsonData) {
+      console.log("notify " + JSON.stringify(jsonData));
+    });
+  };
+
   React.useEffect(() => {
     getSchedulesToShow();
     getProfile();
     getNotifications();
+    OneSignalNotificationsInit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -220,17 +235,6 @@ const Home = () => {
     setcurrentName(nameArray[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // React.useEffect(() => {
-  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  //   const mySubscription = supabase
-  //     .from("notifications")
-  //     .on("*", (payload) => {
-  //       getNotifications();
-  //     })
-  //     .subscribe();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
 
   return (
     <IonPage>
