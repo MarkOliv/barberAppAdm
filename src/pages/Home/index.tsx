@@ -23,11 +23,11 @@ import {
 
 import servicesIcon from "../../assets/barberServicesCut.png";
 
-import OneSignal from "onesignal-cordova-plugin";
-
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts";
+
 import supabase from "../../utils/supabase";
+import OneSignal from "onesignal-cordova-plugin";
 
 const Home = () => {
   const [showToast] = useIonToast();
