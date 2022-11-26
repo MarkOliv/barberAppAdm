@@ -23,6 +23,8 @@ import {
 
 import servicesIcon from "../../assets/barberServicesCut.png";
 
+import OneSignal from "onesignal-cordova-plugin";
+
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts";
 import supabase from "../../utils/supabase";
@@ -202,10 +204,21 @@ const Home = () => {
     }
   };
 
+  const OneSignalNotifyInit = () => {
+    OneSignal.setAppId("be52199d-a047-430a-b3fd-e3ba2cb55d6d");
+    OneSignal.removeExternalUserId();
+
+    OneSignal.setExternalUserId(`${sessionUser?.id}`);
+    OneSignal.setNotificationOpenedHandler(function (jsondata) {
+      console.log("new Notify ");
+    });
+  };
+
   React.useEffect(() => {
     getSchedulesToShow();
     getProfile();
     getNotifications();
+    OneSignalNotifyInit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -220,17 +233,6 @@ const Home = () => {
     setcurrentName(nameArray[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // React.useEffect(() => {
-  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  //   const mySubscription = supabase
-  //     .from("notifications")
-  //     .on("*", (payload) => {
-  //       getNotifications();
-  //     })
-  //     .subscribe();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
 
   return (
     <IonPage>
