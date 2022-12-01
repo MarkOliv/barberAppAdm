@@ -39,6 +39,8 @@ const Home = () => {
   const [notification, setNotification] = React.useState<boolean>(false);
 
   const { sessionUser } = useAuth();
+  console.log(sessionUser);
+
   const router = useIonRouter();
 
   const getSchedulesToShow = async () => {

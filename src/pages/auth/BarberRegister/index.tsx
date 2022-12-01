@@ -103,10 +103,20 @@ const BarberRegister = () => {
         {
           data: {
             email: data.email,
-            username: data.fullName,
+            full_name: data.fullName,
             specialties: data.specialties,
             barber: true,
             off_work: false,
+            lunch_time: [
+              "13:00",
+              "13:15",
+              "13:30",
+              "13:45",
+              "14:00",
+              "14:15",
+              "14:30",
+              "14:45",
+            ],
           },
         }
       );

@@ -70,7 +70,7 @@ const Register = () => {
         },
         {
           data: {
-            username: data.fullName,
+            full_name: data.fullName,
             avatar_url: null,
             address: data.address,
             bio: "bio padrão",

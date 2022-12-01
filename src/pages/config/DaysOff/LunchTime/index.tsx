@@ -24,6 +24,8 @@ import supabase from "../../../../utils/supabase";
 
 const LunchTime = () => {
   const { sessionUser } = useAuth();
+  console.log(sessionUser);
+
   const [showToast] = useIonToast();
 
   const [editMode, setEditMode] = React.useState<boolean>(false);
