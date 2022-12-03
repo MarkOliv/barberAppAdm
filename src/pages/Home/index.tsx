@@ -39,7 +39,7 @@ const Home = () => {
   const [notification, setNotification] = React.useState<boolean>(false);
 
   const { sessionUser } = useAuth();
-  console.log(sessionUser);
+  // console.log(sessionUser);
 
   const router = useIonRouter();
 
@@ -220,7 +220,7 @@ const Home = () => {
     getSchedulesToShow();
     getProfile();
     getNotifications();
-    OneSignalNotifyInit();
+    // OneSignalNotifyInit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

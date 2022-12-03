@@ -24,7 +24,6 @@ import supabase from "../../../../utils/supabase";
 
 const LunchTime = () => {
   const { sessionUser } = useAuth();
-  console.log(sessionUser);
 
   const [showToast] = useIonToast();
 
@@ -84,11 +83,11 @@ const LunchTime = () => {
       3
     );
     let hoursOfGoOut = timeToGoOutSelected.substring(0, 2);
-
     let timesOfLunch: Array<string> = [];
+
     for (
       let h = Number(hoursOfGoOut);
-      timesOfLunch.includes(timeToGoInSelected) === false;
+      timesOfLunch.includes(timeToGoInSelected) !== true;
       h = h + 1
     ) {
       for (let m = Number(minsOfGoOut); m <= 45; m = m + 15) {
@@ -104,6 +103,9 @@ const LunchTime = () => {
         } else if (h >= 10) {
           // console.log(`${h}:${m}`);
           timesOfLunch.push(`${h}:${m}`);
+        }
+        if (timesOfLunch.includes(timeToGoInSelected)) {
+          break;
         }
       }
     }
