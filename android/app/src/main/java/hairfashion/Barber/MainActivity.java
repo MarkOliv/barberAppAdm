@@ -1,4 +1,4 @@
-package io.ionic.starter;
+package hairfashion.Barber;
 
 import com.getcapacitor.BridgeActivity;
 
