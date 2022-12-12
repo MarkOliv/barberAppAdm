@@ -188,7 +188,7 @@ const Calendar = () => {
   const handleGenerateAllTimes = () => {
     let allTimes: Array<string> = [];
 
-    for (let h = 8; h < 18; h++) {
+    for (let h = 9; h < 20; h++) {
       for (let m = 0; m <= 45; m = m + 15) {
         if (h < 10 && m === 0) {
           // console.log(`0${h}:0${m}`);
