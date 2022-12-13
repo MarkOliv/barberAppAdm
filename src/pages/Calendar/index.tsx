@@ -203,6 +203,10 @@ const Calendar = () => {
           // console.log(`${h}:${m}`);
           allTimes.push(`${h}:${m}`);
         }
+
+        if (h === 19 && m === 45) {
+          allTimes.push(`20:00`);
+        }
       }
     }
 
@@ -678,9 +682,13 @@ const Calendar = () => {
                 {...register("time")}
               >
                 {allAvailebleTimes.map((time, index) => (
-                  <IonSelectOption key={index} value={time}>
-                    {time}
-                  </IonSelectOption>
+                  <span key={index}>
+                    {time !== "20:00" && (
+                      <IonSelectOption key={index} value={time}>
+                        {time}
+                      </IonSelectOption>
+                    )}
+                  </span>
                 ))}
               </IonSelect>
               <ErrorMessage
