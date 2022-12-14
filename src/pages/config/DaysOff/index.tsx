@@ -20,6 +20,7 @@ import {
   chevronBackOutline,
   documentLock,
   restaurant,
+  time,
 } from "ionicons/icons";
 import supabase from "../../../utils/supabase";
 import { User } from "@supabase/supabase-js";
@@ -152,6 +153,21 @@ const DaysOff = () => {
                   <IonIcon src={restaurant} />
                   <IonLabel className="ml-5">
                     <h2>Meu horário de almoço</h2>
+                  </IonLabel>
+                </IonItem>
+                <IonItem
+                  className="mt-5 mb-3 bg-white rounded-3xl shadow h-20 flex items-center"
+                  lines="none"
+                  id="open-modal"
+                  key={"Categorias"}
+                  onClick={() => {
+                    router.push("/app/config/daysoff/block-times");
+                  }}
+                >
+                  <IonIcon src={time} />
+
+                  <IonLabel className="ml-5">
+                    <h2>Bloqueio de horários</h2>
                   </IonLabel>
                 </IonItem>
                 <IonItem

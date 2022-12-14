@@ -49,6 +49,8 @@ const Calendar = () => {
 
   const [lunchTimes, setLunchTimes] = React.useState<Array<any>>([]);
 
+  const [blockedTimes, setBlockedTimes] = React.useState<Array<any>>([]);
+
   // Handling states to show the consult
   const [consultDate, setConsultDate] = React.useState<any>();
   const [schedulesOfConsult, setSchedulesOfConsult] = React.useState<
@@ -229,11 +231,17 @@ const Calendar = () => {
     // lunch its from the first time to the last. so the last dont count, that's why i'm doing the pop().
     lunchTimes.pop();
 
+    for (let i = 0; i < blockedTimes.length; i++) {
+      lunchTimes.push(blockedTimes[i]);
+    }
+    console.log(lunchTimes);
+
     // eslint-disable-next-line array-callback-return
     lunchTimes.map((time) => {
       let i = allAvailebleTimes.findIndex((v) => v === time);
       allAvailebleTimes.splice(i, 1);
     });
+
     setallAvailebleTimes(allAvailebleTimes);
   };
 
@@ -276,7 +284,6 @@ const Calendar = () => {
     // } else if (totalTimesServices === 15) {
     //   count = 1;
     // }
-
 
     if (totalTimesServices > 300) {
       count = 21;
@@ -498,6 +505,12 @@ const Calendar = () => {
 
   React.useEffect(() => {
     setLunchTimes(selectedBarber?.lunch_time);
+    if (
+      selectedBarber?.blocked_times !== null &&
+      selectedBarber?.blocked_times !== undefined
+    ) {
+      setBlockedTimes(selectedBarber?.blocked_times);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedBarber]);
 

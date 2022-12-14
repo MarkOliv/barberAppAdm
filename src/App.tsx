@@ -62,6 +62,7 @@ import Balance from "./pages/config/Reports/Balance";
 import Expenses from "./pages/config/Reports/Expenses";
 import DaysOff from "./pages/config/DaysOff";
 import LunchTime from "./pages/config/DaysOff/LunchTime";
+import BlockTimes from "./pages/config/DaysOff/BlockTimes";
 
 setupIonicReact();
 
@@ -95,6 +96,11 @@ const App: React.FC = () => {
               exact
               path="/app/config/daysoff/lunch-time"
               component={LunchTime}
+            />
+            <Route
+              exact
+              path="/app/config/daysoff/block-times"
+              component={BlockTimes}
             />
 
             <Route exact path="/app/profile/:id" component={Profile} />

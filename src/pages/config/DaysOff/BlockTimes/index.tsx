@@ -22,7 +22,13 @@ import * as Yup from "yup";
 import { ErrorMessage } from "@hookform/error-message";
 import supabase from "../../../../utils/supabase";
 
-const LunchTime = () => {
+type blocked_times = { blocked_times: Array<any> };
+
+let blockInit: blocked_times = {
+  blocked_times: [""],
+};
+
+const BlockTimes = () => {
   const { sessionUser } = useAuth();
 
   const [showToast] = useIonToast();
@@ -31,9 +37,10 @@ const LunchTime = () => {
   const [allTimes, setAllTimes] = React.useState<Array<any>>([]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [numberOfTheLastTime, setNumberOfTheLastTime] = React.useState<any>(
-    sessionUser?.user_metadata?.lunch_time.length
-  );
+  const [numberOfTheLastTime, setNumberOfTheLastTime] = React.useState<any>();
+
+  const [alreadyBlockedTimes, setAlreadyBlockedTimes] =
+    React.useState<blocked_times>(blockInit);
 
   const schema = Yup.object().shape({
     timeToGoOut: Yup.string().required("O horário de saída é obrigatório"),
@@ -73,7 +80,7 @@ const LunchTime = () => {
     setAllTimes(allTimes);
   };
 
-  const handleGetLunchTimes = (data: any) => {
+  const handleGetBlockTimess = (data: any) => {
     let timeToGoOutSelected = `${data?.timeToGoOut}`;
     let timeToGoInSelected = `${data?.timeToGoIn}`;
 
@@ -129,14 +136,14 @@ const LunchTime = () => {
       }
     }
 
-    handleSubmitLunchTimes(timesOfLunch);
+    handleSubmitBlockTimess(timesOfLunch);
   };
 
-  const handleSubmitLunchTimes = async (LunchTimes: Array<string>) => {
+  const handleSubmitBlockTimess = async (BlockTimess: Array<string>) => {
     try {
       const { data, error } = await supabase
         .from("barbers")
-        .update([{ lunch_time: LunchTimes }])
+        .update([{ blocked_times: BlockTimess }])
         .eq("id", sessionUser?.id);
 
       if (error) {
@@ -148,32 +155,6 @@ const LunchTime = () => {
       }
 
       if (data) {
-        handleUpdateLunchTimesInMetaData(LunchTimes);
-      }
-    } catch (error) {
-      await showToast({
-        position: "top",
-        message: `${error}`,
-        duration: 3000,
-      });
-    }
-  };
-
-  const handleUpdateLunchTimesInMetaData = async (data: any) => {
-    try {
-      const { user, error } = await supabase.auth.update({
-        data: { lunch_time: data },
-      });
-
-      if (error) {
-        await showToast({
-          position: "top",
-          message: error.message,
-          duration: 3000,
-        });
-      }
-
-      if (user) {
         await showToast({
           position: "top",
           message: "Alterado com sucesso",
@@ -191,9 +172,34 @@ const LunchTime = () => {
     }
   };
 
+  const handleGetAlreadyBlockedTimes = async () => {
+    try {
+      let { data: barbers, error } = await supabase
+        .from("barbers")
+        .select("blocked_times")
+        .eq("id", sessionUser?.id);
+
+      if (barbers) {
+        if (barbers !== null) {
+          if (barbers[0]?.blocked_times !== null) {
+            let block_times: blocked_times = {
+              blocked_times: barbers[0]?.blocked_times,
+            };
+            setAlreadyBlockedTimes(block_times);
+          }
+        }
+      }
+    } catch (error) {}
+  };
+
   React.useEffect(() => {
     handleGerateAllTimes();
+    handleGetAlreadyBlockedTimes();
   }, []);
+
+  React.useEffect(() => {
+    setNumberOfTheLastTime(alreadyBlockedTimes.blocked_times.length);
+  }, [alreadyBlockedTimes]);
 
   return (
     <IonPage>
@@ -207,14 +213,16 @@ const LunchTime = () => {
               >
                 <IonIcon className="w-6 h-6" src={chevronBackOutline} />
 
-                <IonTitle className="font-bold">Meu almoço</IonTitle>
+                <IonTitle className="font-bold">Bloquear horário</IonTitle>
               </Link>
               <form
-                onSubmit={handleSubmit(handleGetLunchTimes)}
+                onSubmit={handleSubmit(handleGetBlockTimess)}
                 className="py-10 px-5"
               >
                 <div className="bg-white rounded-3xl p-2 shadow-md">
-                  <p className="text-center">Horário Cadastrado</p>
+                  <p className="text-center">
+                    Selecione o horário para bloqueio
+                  </p>
                   <p className=" absolute top-[210px] left-[189px]">às</p>
                   <div className="grid grid-cols-2 gap-5">
                     <div className="my-3">
@@ -223,8 +231,8 @@ const LunchTime = () => {
                           <IonInput
                             type={"text"}
                             value={
-                              sessionUser?.user_metadata?.lunch_time[0]
-                                ? sessionUser?.user_metadata?.lunch_time[0]
+                              alreadyBlockedTimes.blocked_times[0]
+                                ? alreadyBlockedTimes.blocked_times[0]
                                 : "Não Definido"
                             }
                             readonly={true}
@@ -235,8 +243,8 @@ const LunchTime = () => {
                           <IonSelect
                             className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3 h-5"
                             placeholder={
-                              sessionUser?.user_metadata?.lunch_time[0]
-                                ? sessionUser?.user_metadata?.lunch_time[0]
+                              alreadyBlockedTimes.blocked_times[0]
+                                ? alreadyBlockedTimes.blocked_times[0]
                                 : "hh:mm"
                             }
                             {...register("timeToGoOut")}
@@ -261,10 +269,10 @@ const LunchTime = () => {
                           <IonInput
                             type={"text"}
                             value={
-                              sessionUser?.user_metadata?.lunch_time[
+                              alreadyBlockedTimes.blocked_times[
                                 numberOfTheLastTime - 1
                               ]
-                                ? sessionUser?.user_metadata?.lunch_time[
+                                ? alreadyBlockedTimes.blocked_times[
                                     numberOfTheLastTime - 1
                                   ]
                                 : "Não Definido"
@@ -277,10 +285,10 @@ const LunchTime = () => {
                           <IonSelect
                             className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3 h-5"
                             placeholder={
-                              sessionUser?.user_metadata?.lunch_time[
+                              alreadyBlockedTimes.blocked_times[
                                 numberOfTheLastTime - 1
                               ]
-                                ? sessionUser?.user_metadata?.lunch_time[
+                                ? alreadyBlockedTimes.blocked_times[
                                     numberOfTheLastTime - 1
                                   ]
                                 : "hh:mm"
@@ -314,15 +322,43 @@ const LunchTime = () => {
                       : "from-green-800 to-green-700"
                   }`}
                 >
-                  {editMode ? "Cancelar" : "Editar"}
+                  {editMode ? "CANCELAR" : "EDITAR"}
                 </div>
+
+                {!editMode && (
+                  <div
+                    onClick={async () => {
+                      const { data, error } = await supabase
+                        .from("barbers")
+                        .update({ blocked_times: null })
+                        .eq("id", sessionUser?.id);
+                      if (error) {
+                        await showToast({
+                          position: "top",
+                          message: error.message,
+                          duration: 3000,
+                        });
+                      } else if (data) {
+                        await showToast({
+                          position: "top",
+                          message: "Zerado com sucesso!",
+                          duration: 3000,
+                        });
+                        document.location.reload();
+                      }
+                    }}
+                    className={`flex justify-center p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l from-red-800 to-red-700`}
+                  >
+                    ZERAR BLOQUEIO
+                  </div>
+                )}
 
                 {editMode && (
                   <button
                     type="submit"
                     className="flex justify-center p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
                   >
-                    Salvar
+                    SALVAR
                   </button>
                 )}
               </form>
@@ -342,4 +378,4 @@ const LunchTime = () => {
   );
 };
 
-export default LunchTime;
+export default BlockTimes;
