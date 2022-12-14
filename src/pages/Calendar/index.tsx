@@ -265,26 +265,6 @@ const Calendar = () => {
     // como por exemplo, mais de 255 minutos (4 horas) utilizará o equivalente a 17 horarios
     let count = 0;
 
-    // if (totalTimesServices > 120) {
-    //   count = 9;
-    // } else if (totalTimesServices > 105) {
-    //   count = 8;
-    // } else if (totalTimesServices > 90) {
-    //   count = 7;
-    // } else if (totalTimesServices > 75) {
-    //   count = 6;
-    // } else if (totalTimesServices > 60) {
-    //   count = 5;
-    // } else if (totalTimesServices > 45) {
-    //   count = 4;
-    // } else if (totalTimesServices > 30) {
-    //   count = 3;
-    // } else if (totalTimesServices > 15) {
-    //   count = 2;
-    // } else if (totalTimesServices === 15) {
-    //   count = 1;
-    // }
-
     if (totalTimesServices > 300) {
       count = 21;
     } else if (totalTimesServices > 285) {
@@ -330,7 +310,6 @@ const Calendar = () => {
     }
 
     // pegando os horarios que os serviços vao ocupar
-
     // separing the minut and hour of time selected
     let minutsTimeSelected: string = data.time.substring(data.time.length, 3);
     let hourTimeSelected: string = data.time.substring(0, 2);
@@ -382,7 +361,11 @@ const Calendar = () => {
       }
     }
     // todos os horários(allBusyTimeservices) devem estar disponiveis nos horarios disponiveis (allAvailebleTimes)
-    if (allBusyTimeservices.length === countAvaibleTimes) {
+    console.log(allBusyTimeservices.length);
+    console.log(countAvaibleTimes);
+
+    // eslint-disable-next-line eqeqeq
+    if (allBusyTimeservices.length == countAvaibleTimes) {
       handleCreateSchedule(
         sessionUser?.user_metadata?.barber
           ? data.name
