@@ -4,10 +4,8 @@ import * as React from "react";
 import {
   IonContent,
   IonIcon,
-  IonInput,
   IonItem,
   IonLabel,
-  IonModal,
   IonPage,
   IonTitle,
   useIonRouter,
@@ -23,8 +21,8 @@ import {
   helpCircle,
   logOut,
   pricetags,
-  create,
   cafe,
+  trash,
 } from "ionicons/icons";
 import supabase from "../../../utils/supabase";
 
@@ -38,8 +36,6 @@ const Config = () => {
 
   const [currentUser, setcurrentUser] = React.useState<any>();
   const [avatarUrl, setAvatarUrl] = React.useState<any>();
-
-  const [isOpen, setIsOpen] = React.useState(false);
 
   const handleRemoveCurrentAvatar = async () => {
     try {
@@ -55,30 +51,9 @@ const Config = () => {
           duration: 3000,
         });
         console.log(error);
+      } else {
+        handleRemoveAvatarFileName();
       }
-    } catch (error) {
-      await showToast({
-        position: "top",
-        message: `${error}`,
-        duration: 3000,
-      });
-      console.log(error);
-    } finally {
-      await handleTakeAPicture();
-    }
-  };
-
-  const handleTakeAPicture = async () => {
-    try {
-      const capturedPhoto = await Camera.getPhoto({
-        resultType: CameraResultType.Uri,
-        source: CameraSource.Camera,
-        quality: 100,
-      });
-
-      let path = capturedPhoto?.path || capturedPhoto?.webPath;
-      path = `${path}`;
-      await uploadNewAvatar(path);
     } catch (error) {
       await showToast({
         position: "top",
@@ -89,29 +64,62 @@ const Config = () => {
     }
   };
 
-  const uploadNewAvatar = async (path: string) => {
+  const handleRemoveAvatarFileName = async () => {
     try {
-      const response = await fetch(path);
-      const blob = await response.blob();
+      if (currentUser[0].barber) {
+        const { data, error } = await supabase
+          .from("barbers")
+          .update([
+            {
+              avatar_url: "",
+            },
+          ])
+          .eq("id", sessionUser?.id);
 
-      const filename = path.substring(path.lastIndexOf("/") + 1);
+        if (data) {
+          await showToast({
+            position: "top",
+            message: `foto de perfil adicionada com sucesso`,
+            duration: 3000,
+          });
+          document.location.reload();
+        }
 
-      const { data, error } = await supabase.storage
-        .from("avatar-images")
-        .upload(`/public/${sessionUser?.id}-${filename}`, blob, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-      if (data) {
-        handleSaveAvatarFileName(`${sessionUser?.id}-${filename}`);
-      }
-      if (error) {
-        await showToast({
-          position: "top",
-          message: `${error}`,
-          duration: 3000,
-        });
-        console.log(error);
+        if (error) {
+          await showToast({
+            position: "top",
+            message: `${error}`,
+            duration: 3000,
+          });
+          console.log(error);
+        }
+      } else {
+        const { data, error } = await supabase
+          .from("clients")
+          .update([
+            {
+              avatar_url: "",
+            },
+          ])
+          .eq("id", sessionUser?.id);
+
+        if (data) {
+          await showToast({
+            position: "top",
+            message: `foto de perfil removida com sucesso`,
+            duration: 3000,
+          });
+          document.location.reload();
+        }
+
+        if (error) {
+          await showToast({
+            position: "top",
+            message: `${error}`,
+            duration: 3000,
+          });
+          console.log(error);
+        }
       }
     } catch (error) {
       await showToast({
@@ -119,6 +127,25 @@ const Config = () => {
         message: `${error}`,
         duration: 3000,
       });
+      console.log(error);
+    }
+  };
+
+  const handleUploadNewPhoto = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    let file;
+    if (e.target.files) {
+      file = e.target.files[0];
+    }
+
+    const { data, error } = await supabase.storage
+      .from("avatar-images")
+      .upload(`/public/${sessionUser?.id}`, file as File);
+    if (data) {
+      console.log(data);
+      handleSaveAvatarFileName(`${sessionUser?.id}`);
+    } else if (error) {
       console.log(error);
     }
   };
@@ -242,7 +269,18 @@ const Config = () => {
   }, []);
 
   React.useEffect(() => {
-    setAvatarUrl(currentUser ? currentUser[0].avatar_url : "");
+    if (currentUser !== undefined) {
+      fetch(currentUser[0].avatar_url).then((response) => {
+        if (
+          response.status === 200 &&
+          `${currentUser[0].avatar_url}`.length !== 0
+        ) {
+          setAvatarUrl(currentUser ? currentUser[0].avatar_url : null);
+        } else {
+          setAvatarUrl(null);
+        }
+      });
+    }
   }, [currentUser]);
 
   return (
@@ -264,16 +302,39 @@ const Config = () => {
                   lines="none"
                   className="flex items-center rounded-3xl my-2 shadow h-32 bg-white"
                 >
-                  <div onClick={handleRemoveCurrentAvatar} slot="start">
-                    <img
-                      alt="profilePicture"
-                      className="rounded-full w-20 h-20"
-                      src={
-                        avatarUrl
-                          ? `https://eikbnmphzjoeopujpnnt.supabase.co/storage/v1/object/public/avatar-images/public/${avatarUrl}`
-                          : ""
-                      }
-                    />
+                  <div slot="start">
+                    {avatarUrl !== null && (
+                      <>
+                        <IonIcon
+                          onClick={() => {
+                            handleRemoveCurrentAvatar();
+                          }}
+                          className="w-6 h-6 text-red-900 bg-red-500 rounded-full p-1 -mb-7"
+                          src={trash}
+                        />
+                        <img
+                          alt="profilePicture"
+                          className="z-10 rounded-full w-20 h-20"
+                          src={`https://eikbnmphzjoeopujpnnt.supabase.co/storage/v1/object/public/avatar-images/public/${avatarUrl}`}
+                        />
+                      </>
+                    )}
+                    {avatarUrl === null && (
+                      <div className="flex justify-center items-center w-20 h-20 bg-gradient-to-l from-green-800 to-green-600 rounded-full p-2">
+                        <label htmlFor={`profilePicture`}>
+                          <span className="text-center w-10 h-20 text-white font-semibold">
+                            {`Escolher Foto`}
+                          </span>
+                          <input
+                            type={"file"}
+                            className="hidden"
+                            id={`profilePicture`}
+                            accept="image/png, image/jpeg, image/jpeg"
+                            onChange={handleUploadNewPhoto}
+                          />
+                        </label>
+                      </div>
+                    )}
                   </div>
                   <IonLabel>
                     <h2>{currentUser ? currentUser[0]?.username : "error"}</h2>
