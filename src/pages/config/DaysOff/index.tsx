@@ -145,7 +145,7 @@ const DaysOff = () => {
                   className="mt-5 mb-3 bg-white rounded-3xl shadow h-20 flex items-center"
                   lines="none"
                   id="open-modal"
-                  key={"Categorias"}
+                  key={"LunchTime"}
                   onClick={() => {
                     router.push("/app/config/daysoff/lunch-time");
                   }}
@@ -159,7 +159,7 @@ const DaysOff = () => {
                   className="mt-5 mb-3 bg-white rounded-3xl shadow h-20 flex items-center"
                   lines="none"
                   id="open-modal"
-                  key={"Categorias"}
+                  key={"BlockTimes"}
                   onClick={() => {
                     router.push("/app/config/daysoff/block-times");
                   }}
