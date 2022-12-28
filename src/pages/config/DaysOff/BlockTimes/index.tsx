@@ -3,18 +3,22 @@ import * as React from "react";
 
 import {
   IonContent,
+  IonDatetime,
   IonIcon,
   IonInput,
+  IonLabel,
+  IonList,
   IonPage,
   IonSelect,
   IonSelectOption,
+  IonText,
   IonTitle,
   useIonToast,
 } from "@ionic/react";
 
 import { Link } from "react-router-dom";
 
-import { chevronBackOutline } from "ionicons/icons";
+import { chevronBackOutline, trashBin } from "ionicons/icons";
 import { useAuth } from "../../../../contexts";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -34,7 +38,9 @@ const BlockTimes = () => {
   const [showToast] = useIonToast();
 
   const [editMode, setEditMode] = React.useState<boolean>(false);
+  const [datesNewBlock, setDatesNewBlock] = React.useState<Array<string>>([]);
   const [allTimes, setAllTimes] = React.useState<Array<any>>([]);
+  const [blockedTimes, setBlockedTimes] = React.useState<Array<any>>([]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [numberOfTheLastTime, setNumberOfTheLastTime] = React.useState<any>();
@@ -43,6 +49,7 @@ const BlockTimes = () => {
     React.useState<blocked_times>(blockInit);
 
   const schema = Yup.object().shape({
+    nameOfBlock: Yup.string().required("Nome do bloqueio é obrigatório"),
     timeToGoOut: Yup.string().required("O horário de saída é obrigatório"),
     timeToGoIn: Yup.string().required("O horário de entrada é obrigatório"),
   });
@@ -139,6 +146,19 @@ const BlockTimes = () => {
     handleSubmitBlockTimess(timesOfLunch);
   };
 
+  const handleGerateDates = () => {
+    try {
+      const date = new Date(2022, 11, 1);
+      const dates = [];
+
+      while (date.getMonth() === 12) {
+        dates.push(new Date(date));
+        date.setDate(date.getDate() + 1);
+      }
+      console.log(dates);
+    } catch (error) {}
+  };
+
   const handleSubmitBlockTimess = async (BlockTimess: Array<string>) => {
     try {
       const { data, error } = await supabase
@@ -172,29 +192,34 @@ const BlockTimes = () => {
     }
   };
 
-  const handleGetAlreadyBlockedTimes = async () => {
+  const handleGetBlockedTimes = async () => {
     try {
-      let { data: barbers, error } = await supabase
-        .from("barbers")
-        .select("blocked_times")
-        .eq("id", sessionUser?.id);
+      let { data, error } = await supabase.from("block_times").select("*");
 
-      if (barbers) {
-        if (barbers !== null) {
-          if (barbers[0]?.blocked_times !== null) {
-            let block_times: blocked_times = {
-              blocked_times: barbers[0]?.blocked_times,
-            };
-            setAlreadyBlockedTimes(block_times);
-          }
-        }
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
       }
-    } catch (error) {}
+
+      if (data) {
+        await setBlockedTimes(data);
+      }
+    } catch (error) {
+      await showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+    }
   };
 
   React.useEffect(() => {
     handleGerateAllTimes();
-    handleGetAlreadyBlockedTimes();
+    handleGetBlockedTimes();
+    handleGerateDates();
   }, []);
 
   React.useEffect(() => {
@@ -215,101 +240,201 @@ const BlockTimes = () => {
 
                 <IonTitle className="font-bold">Bloquear horário</IonTitle>
               </Link>
+
               <form
                 onSubmit={handleSubmit(handleGetBlockTimess)}
                 className="py-10 px-5"
               >
                 <div className="bg-white rounded-3xl p-2 shadow-md">
-                  <p className="text-center">
-                    Selecione o horário para bloqueio
-                  </p>
-                  <p className=" absolute top-[210px] left-[189px]">às</p>
-                  <div className="grid grid-cols-2 gap-5">
-                    <div className="my-3">
-                      <div className="flex justify-center items-center bg-gray-200 rounded-xl p-3 mt-3">
-                        {editMode === false && (
+                  {editMode && (
+                    <>
+                      <div id="nome" className="my-5">
+                        <IonLabel className="text-gray-600" position="stacked">
+                          Nome
+                        </IonLabel>
+                        <div className="flex items-center bg-gray-200 rounded-3xl p-3 mt-1">
                           <IonInput
-                            type={"text"}
-                            value={
-                              alreadyBlockedTimes.blocked_times[0]
-                                ? alreadyBlockedTimes.blocked_times[0]
-                                : "Não Definido"
-                            }
-                            readonly={true}
-                            className="placeholder: text-gray-900 text-center"
+                            type="text"
+                            className="placeholder: text-gray-600"
+                            placeholder="Nome do Bloqueio"
+                            {...register("nameOfBlock")}
                           />
-                        )}
-                        {editMode && (
-                          <IonSelect
-                            className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3 h-5"
-                            placeholder={
-                              alreadyBlockedTimes.blocked_times[0]
-                                ? alreadyBlockedTimes.blocked_times[0]
-                                : "hh:mm"
-                            }
-                            {...register("timeToGoOut")}
-                          >
-                            {allTimes.map((time, index) => (
-                              <IonSelectOption key={index} value={time}>
-                                {time}
-                              </IonSelectOption>
-                            ))}
-                          </IonSelect>
-                        )}
+                        </div>
                       </div>
-                      <ErrorMessage
-                        errors={errors}
-                        name="timeToGoOut"
-                        as={<div style={{ color: "red" }} />}
-                      />
-                    </div>
-                    <div className="my-3">
-                      <div className="flex justify-center items-center bg-gray-200 rounded-xl p-3 mt-3">
-                        {editMode === false && (
-                          <IonInput
-                            type={"text"}
-                            value={
-                              alreadyBlockedTimes.blocked_times[
-                                numberOfTheLastTime - 1
-                              ]
-                                ? alreadyBlockedTimes.blocked_times[
+
+                      <p className="text-center">
+                        Selecione o horário para bloqueio
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-5">
+                        <div id="Start_Time">
+                          <div className="flex justify-center items-center bg-gray-200 rounded-3xl p-3 mt-3">
+                            <IonSelect
+                              className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3 h-5"
+                              placeholder={
+                                alreadyBlockedTimes.blocked_times[0]
+                                  ? alreadyBlockedTimes.blocked_times[0]
+                                  : "hh:mm"
+                              }
+                              {...register("timeToGoOut")}
+                            >
+                              {allTimes.map((time, index) => (
+                                <IonSelectOption key={index} value={time}>
+                                  {time}
+                                </IonSelectOption>
+                              ))}
+                            </IonSelect>
+                          </div>
+
+                          <ErrorMessage
+                            errors={errors}
+                            name="timeToGoOut"
+                            as={<div style={{ color: "red" }} />}
+                          />
+                        </div>
+                        <div id="End_Time">
+                          {editMode && (
+                            <div className="flex justify-center items-center bg-gray-200 rounded-3xl p-3 mt-3">
+                              <IonSelect
+                                className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3 h-5"
+                                placeholder={
+                                  alreadyBlockedTimes.blocked_times[
                                     numberOfTheLastTime - 1
                                   ]
-                                : "Não Definido"
-                            }
-                            readonly={true}
-                            className="placeholder: text-gray-900 text-center"
+                                    ? alreadyBlockedTimes.blocked_times[
+                                        numberOfTheLastTime - 1
+                                      ]
+                                    : "hh:mm"
+                                }
+                                {...register("timeToGoIn")}
+                              >
+                                {allTimes.map((time, index) => (
+                                  <IonSelectOption key={index} value={time}>
+                                    {time}
+                                  </IonSelectOption>
+                                ))}
+                              </IonSelect>
+                            </div>
+                          )}
+                          <ErrorMessage
+                            errors={errors}
+                            name="timeToGoIn"
+                            as={<div style={{ color: "red" }} />}
                           />
-                        )}
-                        {editMode && (
-                          <IonSelect
-                            className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3 h-5"
-                            placeholder={
-                              alreadyBlockedTimes.blocked_times[
-                                numberOfTheLastTime - 1
-                              ]
-                                ? alreadyBlockedTimes.blocked_times[
-                                    numberOfTheLastTime - 1
-                                  ]
-                                : "hh:mm"
-                            }
-                            {...register("timeToGoIn")}
-                          >
-                            {allTimes.map((time, index) => (
-                              <IonSelectOption key={index} value={time}>
-                                {time}
-                              </IonSelectOption>
-                            ))}
-                          </IonSelect>
-                        )}
+                        </div>
+                        <div className="flex justify-center items-center bg-gray-200 rounded-3xl shadow-md h-10 w-full my-3 col-span-2">
+                          <IonInput
+                            onIonChange={({ detail }) => {
+                              let data = detail.value;
+                              // console.log(data);
+                              setDatesNewBlock((current) => [
+                                ...current,
+                                `${data}`,
+                              ]);
+                            }}
+                            className="text-gray-500"
+                            type="date"
+                            {...register("date")}
+                          />
+                        </div>
                       </div>
-                      <ErrorMessage
-                        errors={errors}
-                        name="timeToGoIn"
-                        as={<div style={{ color: "red" }} />}
-                      />
+                    </>
+                  )}
+                  {/* LISTA DOS BLOQUEIOS */}
+                  {!editMode && (
+                    <div
+                      id="lista-bloqueios"
+                      className="w-full col-span-2 h-auto shadow rounded-3xl py-3 bg-white"
+                    >
+                      <div className="flex justify-start mx-5">
+                        <IonText className="ml-2 text-gray-500">
+                          Bloqueios Cadastrados
+                        </IonText>
+                      </div>
+                      <div className="flex justify-center">
+                        <div className="h-[1px] w-4/5 bg-gray-500" />
+                      </div>
+                      <IonList className="w-full h-full p-5 rounded-3xl bg-transparent">
+                        {blockedTimes.map((date, index) => (
+                          <div
+                            key={index}
+                            className="grid grid-cols-3 w-full py-2"
+                          >
+                            <IonLabel className="text-gray-500 col-span-2">
+                              {date?.name}
+                            </IonLabel>
+                            <div className="flex justify-end items-center">
+                              <IonIcon
+                                className="text-red-500 w-4 h-4"
+                                src={trashBin}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </IonList>
                     </div>
-                  </div>
+                  )}
+
+                  {/* LISTA DAS DATAS PARA NOVO BLOQUEIO */}
+                  {editMode && (
+                    <div
+                      id="lista-bloqueios"
+                      className="w-full col-span-2 h-auto shadow rounded-3xl py-3 bg-white mt-5"
+                    >
+                      <div className="flex justify-start mx-5">
+                        <IonText className="ml-2 text-gray-500">
+                          Datas do Bloqueio
+                        </IonText>
+                      </div>
+                      <div className="flex justify-center">
+                        <div className="h-[1px] w-4/5 bg-gray-500" />
+                      </div>
+                      <IonList className="w-full h-full p-5 rounded-3xl bg-transparent">
+                        {datesNewBlock.map((date, index) => (
+                          <div
+                            key={index}
+                            className="grid grid-cols-3 w-full py-2"
+                          >
+                            <IonLabel className="text-gray-500 col-span-2">
+                              {date}
+                            </IonLabel>
+                            <div className="flex justify-end items-center">
+                              <IonIcon
+                                onClick={() => {
+                                  var removedDate = datesNewBlock;
+                                  var index4Delete = removedDate.indexOf(date);
+                                  removedDate.splice(index4Delete, 1);
+                                  let datesRandom: Array<string> = [];
+
+                                  const maxNumbers = removedDate.length;
+                                  let list = [];
+                                  for (let i = 0; i < maxNumbers; i++) {
+                                    list[i] = i;
+                                  }
+                                  let randomNumber;
+                                  let tmp;
+                                  for (let i = list.length; i; ) {
+                                    randomNumber = (Math.random() * i--) | 0;
+                                    tmp = list[randomNumber];
+                                    // troca o número aleatório pelo atual
+                                    list[randomNumber] = list[i];
+                                    // troca o atual pelo aleatório
+                                    list[i] = tmp;
+                                  }
+                                  for (let i = 0; i < list.length; i++) {
+                                    datesRandom.push(removedDate[list[i]]);
+                                  }
+                                  setDatesNewBlock(datesRandom);
+                                }}
+                                className="text-red-500 w-4 h-4"
+                                src={trashBin}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </IonList>
+                    </div>
+                  )}
                 </div>
 
                 <div
@@ -322,36 +447,8 @@ const BlockTimes = () => {
                       : "from-green-800 to-green-700"
                   }`}
                 >
-                  {editMode ? "CANCELAR" : "EDITAR"}
+                  {editMode ? "CANCELAR" : "NOVO BLOQUEIO"}
                 </div>
-
-                {!editMode && (
-                  <div
-                    onClick={async () => {
-                      const { data, error } = await supabase
-                        .from("barbers")
-                        .update({ blocked_times: null })
-                        .eq("id", sessionUser?.id);
-                      if (error) {
-                        await showToast({
-                          position: "top",
-                          message: error.message,
-                          duration: 3000,
-                        });
-                      } else if (data) {
-                        await showToast({
-                          position: "top",
-                          message: "Zerado com sucesso!",
-                          duration: 3000,
-                        });
-                        document.location.reload();
-                      }
-                    }}
-                    className={`flex justify-center p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l from-red-800 to-red-700`}
-                  >
-                    ZERAR BLOQUEIO
-                  </div>
-                )}
 
                 {editMode && (
                   <button
