@@ -30,6 +30,7 @@ import "yup-phone";
 import * as Yup from "yup";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../../contexts";
+import blocked_times from "../../utils/types";
 
 const Calendar = () => {
   const [showToast] = useIonToast();
@@ -38,7 +39,7 @@ const Calendar = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const [allTimes, setAllTimes] = React.useState<Array<string>>([]);
-  const [allAvailebleTimes, setallAvailebleTimes] = React.useState<
+  const [AllAvailebleTimes, setallAvailebleTimesF] = React.useState<
     Array<string>
   >([]);
 
@@ -49,7 +50,9 @@ const Calendar = () => {
 
   const [lunchTimes, setLunchTimes] = React.useState<Array<any>>([]);
 
-  const [blockedTimes, setBlockedTimes] = React.useState<Array<any>>([]);
+  const [blockedTimes, setBlockedTimes] = React.useState<Array<blocked_times>>(
+    []
+  );
 
   // Handling states to show the consult
   const [consultDate, setConsultDate] = React.useState<any>();
@@ -215,34 +218,42 @@ const Calendar = () => {
     setAllTimes(allTimes);
   };
 
-  const getAllAvailebleTimes = (timesAlreadyScheduled: Array<any>) => {
-    let allAvailebleTimes: Array<string> = allTimes;
+  const getAllAvailebleTimesF = (
+    timesAlreadyScheduled: Array<any>,
+    chosenDate: string
+  ) => {
+    let allAvailebleTimesF: Array<string> = allTimes;
 
-    // removing already times scheduleds
+    //inserir os horarios dos bloqueios aqui
+    for (let i = 0; i < blockedTimes.length; i++) {
+      for (let j = 0; j < blockedTimes[i]?.dates_blocked_times.length; j++) {
+        if (blockedTimes[i].dates_blocked_times[j] === chosenDate) {
+          for (let y = 0; y < blockedTimes[i]?.blocked_times.length; y++) {
+            timesAlreadyScheduled.push(blockedTimes[i]?.blocked_times[y]);
+          }
+          break;
+        }
+      }
+    }
+
+    // lunchTimes.pop(); // lunch its from the first time to the last. so the last dont count, that's why i'm doing the pop().
+
+    // eslint-disable-next-line array-callback-return
+    console.log(lunchTimes);
+    lunchTimes.map((time) => {
+      console.log(time);
+      timesAlreadyScheduled.push(time);
+    });
+
+    // removing already times scheduleds | lunch times and blocked times
     // eslint-disable-next-line array-callback-return
     timesAlreadyScheduled.map((time: string) => {
       let currentTime = time.substring(0, 5); //valor original = 00:00:00 estou deixando como 00:00
-      let index = allAvailebleTimes.findIndex((v) => v === currentTime);
-      allAvailebleTimes.splice(index, 1);
+      let index = allAvailebleTimesF.findIndex((v) => v === currentTime);
+      allAvailebleTimesF.splice(index, 1);
     });
 
-    //removing the lunchTimes from allAvailebleTimes
-
-    // lunch its from the first time to the last. so the last dont count, that's why i'm doing the pop().
-    lunchTimes.pop();
-
-    for (let i = 0; i < blockedTimes.length; i++) {
-      lunchTimes.push(blockedTimes[i]);
-    }
-    console.log(lunchTimes);
-
-    // eslint-disable-next-line array-callback-return
-    lunchTimes.map((time) => {
-      let i = allAvailebleTimes.findIndex((v) => v === time);
-      allAvailebleTimes.splice(i, 1);
-    });
-
-    setallAvailebleTimes(allAvailebleTimes);
+    setallAvailebleTimesF(allAvailebleTimesF);
   };
 
   const handleTimes = (data: any) => {
@@ -349,18 +360,18 @@ const Calendar = () => {
       }
     }
 
-    // comparando todos os horarios que os serviços selecionados ocupam(allBusyTimeservices) com todos os horarios disponiveis(allAvailebleTimes).
+    // comparando todos os horarios que os serviços selecionados ocupam(allBusyTimeservices) com todos os horarios disponiveis(allAvailebleTimesF).
 
-    // se caso algum horário do allBusyTimeservices não bater com o allAvailebleTimes, Não é perimitido o agendamento, pois isso significa que um horário vai sobrepor outro
+    // se caso algum horário do allBusyTimeservices não bater com o allAvailebleTimesF, Não é perimitido o agendamento, pois isso significa que um horário vai sobrepor outro
     let countAvaibleTimes = 0;
     for (let index = 0; index < allBusyTimeservices.length; index++) {
-      for (let y = 0; y < allAvailebleTimes.length; y++) {
-        if (allBusyTimeservices[index] === allAvailebleTimes[y]) {
+      for (let y = 0; y < AllAvailebleTimes.length; y++) {
+        if (allBusyTimeservices[index] === AllAvailebleTimes[y]) {
           countAvaibleTimes++;
         }
       }
     }
-    // todos os horários(allBusyTimeservices) devem estar disponiveis nos horarios disponiveis (allAvailebleTimes)
+    // todos os horários(allBusyTimeservices) devem estar disponiveis nos horarios disponiveis (allAvailebleTimesF)
     console.log(allBusyTimeservices.length);
     console.log(countAvaibleTimes);
 
@@ -437,9 +448,32 @@ const Calendar = () => {
     }
   };
 
+  const handleGetAllBlocks = async () => {
+    try {
+      let { data: block_times, error } = await supabase
+        .from("block_times")
+        .select("*");
+
+      if (block_times) {
+        block_times.map((block) => {
+          let blockT: blocked_times = {
+            id: block?.id,
+            nome: block?.nome,
+            created_at: block?.created_at,
+            blocked_times: block?.blocked_times,
+            dates_blocked_times: block?.dates_blocked_times,
+          };
+          setBlockedTimes((current) => [...current, blockT]);
+        });
+      }
+    } catch (error) {}
+  };
+
   // chamado por um onChange
   const handleGetAlreadyScheduled = async (newDate: any) => {
     try {
+      handleGenerateAllTimes();
+      setallAvailebleTimesF([]);
       let { data, error } = await supabase
         .from("schedules")
         .select("*")
@@ -458,8 +492,9 @@ const Calendar = () => {
         console.log(error);
       }
 
-      let timesAlreadyScheduled: Array<any> = [];
       if (data) {
+        let timesAlreadyScheduled: Array<any>;
+        timesAlreadyScheduled = [];
         // eslint-disable-next-line array-callback-return
         data.map((schedule) => {
           // eslint-disable-next-line array-callback-return
@@ -467,8 +502,7 @@ const Calendar = () => {
             timesAlreadyScheduled.push(time);
           });
         });
-
-        getAllAvailebleTimes(timesAlreadyScheduled);
+        getAllAvailebleTimesF(timesAlreadyScheduled, newDate);
       }
     } catch (error) {
       await showToast({
@@ -483,17 +517,12 @@ const Calendar = () => {
   React.useEffect(() => {
     getAllServices();
     getAllBarbers();
+    handleGetAllBlocks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
     setLunchTimes(selectedBarber?.lunch_time);
-    if (
-      selectedBarber?.blocked_times !== null &&
-      selectedBarber?.blocked_times !== undefined
-    ) {
-      setBlockedTimes(selectedBarber?.blocked_times);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedBarber]);
 
@@ -723,7 +752,7 @@ const Calendar = () => {
                 placeholder="Selecione o horário..."
                 {...register("time")}
               >
-                {allAvailebleTimes.map((time, index) => (
+                {AllAvailebleTimes.map((time, index) => (
                   <span key={index}>
                     {time !== "20:00" && (
                       <IonSelectOption key={index} value={time}>
