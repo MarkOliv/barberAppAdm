@@ -3,7 +3,6 @@ import * as React from "react";
 
 import {
   IonContent,
-  IonDatetime,
   IonIcon,
   IonInput,
   IonLabel,
@@ -87,7 +86,7 @@ const BlockTimes = () => {
     setAllTimes(allTimes);
   };
 
-  const handleGetBlockTimess = (data: any) => {
+  const handleGerateBlockTimes = (data: any) => {
     let timeToGoOutSelected = `${data?.timeToGoOut}`;
     let timeToGoInSelected = `${data?.timeToGoIn}`;
 
@@ -141,54 +140,7 @@ const BlockTimes = () => {
           }
         }
       }
-    }
-
-    handleSubmitBlockTimess(timesOfLunch);
-  };
-
-  const handleGerateDates = () => {
-    try {
-      const date = new Date(2022, 11, 1);
-      const dates = [];
-
-      while (date.getMonth() === 12) {
-        dates.push(new Date(date));
-        date.setDate(date.getDate() + 1);
-      }
-      console.log(dates);
-    } catch (error) {}
-  };
-
-  const handleSubmitBlockTimess = async (BlockTimess: Array<string>) => {
-    try {
-      const { data, error } = await supabase
-        .from("barbers")
-        .update([{ blocked_times: BlockTimess }])
-        .eq("id", sessionUser?.id);
-
-      if (error) {
-        await showToast({
-          position: "top",
-          message: error.message,
-          duration: 3000,
-        });
-      }
-
-      if (data) {
-        await showToast({
-          position: "top",
-          message: "Alterado com sucesso",
-          duration: 3000,
-        }).then(() => {
-          document.location.reload();
-        });
-      }
-    } catch (error) {
-      await showToast({
-        position: "top",
-        message: `${error}`,
-        duration: 3000,
-      });
+      handleSubmitNewBlockTimes(data?.nameOfBlock, timesOfLunch, datesNewBlock);
     }
   };
 
@@ -216,10 +168,27 @@ const BlockTimes = () => {
     }
   };
 
+  const handleSubmitNewBlockTimes = async (
+    name: string,
+    times: Array<string>,
+    dates: Array<string>
+  ) => {
+    try {
+      const { data, error } = await supabase
+        .from("block_times")
+        .insert([
+          { nome: name, blocked_times: times, dates_blocked_times: dates },
+        ]);
+
+      if (data) {
+        document.location.reload();
+      }
+    } catch (error) {}
+  };
+
   React.useEffect(() => {
     handleGerateAllTimes();
     handleGetBlockedTimes();
-    handleGerateDates();
   }, []);
 
   React.useEffect(() => {
@@ -242,7 +211,7 @@ const BlockTimes = () => {
               </Link>
 
               <form
-                onSubmit={handleSubmit(handleGetBlockTimess)}
+                onSubmit={handleSubmit(handleGerateBlockTimes)}
                 className="py-10 px-5"
               >
                 <div className="bg-white rounded-3xl p-2 shadow-md">
@@ -334,7 +303,6 @@ const BlockTimes = () => {
                             }}
                             className="text-gray-500"
                             type="date"
-                            {...register("date")}
                           />
                         </div>
                       </div>
@@ -355,16 +323,26 @@ const BlockTimes = () => {
                         <div className="h-[1px] w-4/5 bg-gray-500" />
                       </div>
                       <IonList className="w-full h-full p-5 rounded-3xl bg-transparent">
-                        {blockedTimes.map((date, index) => (
+                        {blockedTimes.map((blockTime, index) => (
                           <div
                             key={index}
                             className="grid grid-cols-3 w-full py-2"
                           >
                             <IonLabel className="text-gray-500 col-span-2">
-                              {date?.name}
+                              {blockTime?.nome}
                             </IonLabel>
                             <div className="flex justify-end items-center">
                               <IonIcon
+                                onClick={async () => {
+                                  const { data, error } = await supabase
+                                    .from("block_times")
+                                    .delete()
+                                    .eq("id", blockTime?.id);
+
+                                  if (data) {
+                                    document.location.reload();
+                                  }
+                                }}
                                 className="text-red-500 w-4 h-4"
                                 src={trashBin}
                               />
