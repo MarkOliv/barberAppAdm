@@ -25,12 +25,6 @@ import * as Yup from "yup";
 import { ErrorMessage } from "@hookform/error-message";
 import supabase from "../../../../utils/supabase";
 
-type blocked_times = { blocked_times: Array<any> };
-
-let blockInit: blocked_times = {
-  blocked_times: [""],
-};
-
 const BlockTimes = () => {
   const { sessionUser } = useAuth();
 
@@ -40,12 +34,6 @@ const BlockTimes = () => {
   const [datesNewBlock, setDatesNewBlock] = React.useState<Array<string>>([]);
   const [allTimes, setAllTimes] = React.useState<Array<any>>([]);
   const [blockedTimes, setBlockedTimes] = React.useState<Array<any>>([]);
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [numberOfTheLastTime, setNumberOfTheLastTime] = React.useState<any>();
-
-  const [alreadyBlockedTimes, setAlreadyBlockedTimes] =
-    React.useState<blocked_times>(blockInit);
 
   const schema = Yup.object().shape({
     nameOfBlock: Yup.string().required("Nome do bloqueio é obrigatório"),
@@ -181,19 +169,28 @@ const BlockTimes = () => {
         ]);
 
       if (data) {
-        document.location.reload();
+        showToast({
+          position: "top",
+          message: `Criado com sucesso`,
+          duration: 2000,
+        });
+        setTimeout(() => {
+          document.location.reload();
+        }, 2500);
       }
-    } catch (error) {}
+    } catch (error) {
+      showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 5000,
+      });
+    }
   };
 
   React.useEffect(() => {
     handleGerateAllTimes();
     handleGetBlockedTimes();
   }, []);
-
-  React.useEffect(() => {
-    setNumberOfTheLastTime(alreadyBlockedTimes.blocked_times.length);
-  }, [alreadyBlockedTimes]);
 
   return (
     <IonPage>
@@ -240,11 +237,7 @@ const BlockTimes = () => {
                           <div className="flex justify-center items-center bg-gray-200 rounded-3xl p-3 mt-3">
                             <IonSelect
                               className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3 h-5"
-                              placeholder={
-                                alreadyBlockedTimes.blocked_times[0]
-                                  ? alreadyBlockedTimes.blocked_times[0]
-                                  : "hh:mm"
-                              }
+                              placeholder={"hh:mm"}
                               {...register("timeToGoOut")}
                             >
                               {allTimes.map((time, index) => (
@@ -266,15 +259,7 @@ const BlockTimes = () => {
                             <div className="flex justify-center items-center bg-gray-200 rounded-3xl p-3 mt-3">
                               <IonSelect
                                 className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3 h-5"
-                                placeholder={
-                                  alreadyBlockedTimes.blocked_times[
-                                    numberOfTheLastTime - 1
-                                  ]
-                                    ? alreadyBlockedTimes.blocked_times[
-                                        numberOfTheLastTime - 1
-                                      ]
-                                    : "hh:mm"
-                                }
+                                placeholder={"hh:mm"}
                                 {...register("timeToGoIn")}
                               >
                                 {allTimes.map((time, index) => (

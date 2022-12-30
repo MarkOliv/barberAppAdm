@@ -220,7 +220,7 @@ const Home = () => {
     getSchedulesToShow();
     getProfile();
     getNotifications();
-    // OneSignalNotifyInit();
+    OneSignalNotifyInit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
