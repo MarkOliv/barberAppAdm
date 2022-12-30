@@ -52,7 +52,7 @@ const LunchTime = () => {
   const handleGerateAllTimes = () => {
     let allTimes: Array<string> = [];
 
-    for (let h = 8; h < 18; h++) {
+    for (let h = 9; h < 20; h++) {
       for (let m = 0; m <= 45; m = m + 15) {
         if (h < 10 && m === 0) {
           // console.log(`0${h}:0${m}`);
@@ -78,37 +78,57 @@ const LunchTime = () => {
     let timeToGoInSelected = `${data?.timeToGoIn}`;
 
     // separing the minut and hour of time selected
-    let minsOfGoOut = timeToGoOutSelected.substring(
-      data?.timeToGoOut.length,
-      3
-    );
+    let minsOfGoIn = timeToGoOutSelected.substring(data?.timeToGoOut.length, 3);
     let hoursOfGoOut = timeToGoOutSelected.substring(0, 2);
     let timesOfLunch: Array<string> = [];
 
+    console.log(hoursOfGoOut);
     for (
       let h = Number(hoursOfGoOut);
       timesOfLunch.includes(timeToGoInSelected) !== true;
       h = h + 1
     ) {
-      for (let m = Number(minsOfGoOut); m <= 45; m = m + 15) {
-        if (h < 10 && m === 0) {
-          // console.log(`0${h}:0${m}`);
-          timesOfLunch.push(`0${h}:0${m}`);
-        } else if (h < 10) {
-          // console.log(`0${h}:${m}`);
-          timesOfLunch.push(`0${h}:${m}`);
-        } else if (h >= 10 && m === 0) {
-          // console.log(`${h}:0${m}`);
-          timesOfLunch.push(`${h}:0${m}`);
-        } else if (h >= 10) {
-          // console.log(`${h}:${m}`);
-          timesOfLunch.push(`${h}:${m}`);
+      if (h > Number(hoursOfGoOut)) {
+        for (let m = 0; m <= 45; m = m + 15) {
+          if (h < 10 && m === 0) {
+            // console.log(`0${h}:0${m}`);
+            timesOfLunch.push(`0${h}:0${m}`);
+          } else if (h < 10) {
+            // console.log(`0${h}:${m}`);
+            timesOfLunch.push(`0${h}:${m}`);
+          } else if (h >= 10 && m === 0) {
+            // console.log(`${h}:0${m}`);
+            timesOfLunch.push(`${h}:0${m}`);
+          } else if (h >= 10) {
+            // console.log(`${h}:${m}`);
+            timesOfLunch.push(`${h}:${m}`);
+          }
+          if (timesOfLunch.includes(timeToGoInSelected)) {
+            break;
+          }
         }
-        if (timesOfLunch.includes(timeToGoInSelected)) {
-          break;
+      } else {
+        for (let m = Number(minsOfGoIn); m <= 45; m = m + 15) {
+          if (h < 10 && m === 0) {
+            // console.log(`0${h}:0${m}`);
+            timesOfLunch.push(`0${h}:0${m}`);
+          } else if (h < 10) {
+            // console.log(`0${h}:${m}`);
+            timesOfLunch.push(`0${h}:${m}`);
+          } else if (h >= 10 && m === 0) {
+            // console.log(`${h}:0${m}`);
+            timesOfLunch.push(`${h}:0${m}`);
+          } else if (h >= 10) {
+            // console.log(`${h}:${m}`);
+            timesOfLunch.push(`${h}:${m}`);
+          }
+          if (timesOfLunch.includes(timeToGoInSelected)) {
+            break;
+          }
         }
       }
     }
+
     handleSubmitLunchTimes(timesOfLunch);
   };
 

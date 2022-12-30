@@ -26,6 +26,9 @@ import {
 } from "ionicons/icons";
 import supabase from "../../../utils/supabase";
 
+import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
+import OneSignal from "onesignal-cordova-plugin";
+
 const Config = () => {
   const { sessionUser } = useAuth();
   const router = useIonRouter();
@@ -424,6 +427,7 @@ const Config = () => {
                   key={"Sair"}
                   onClick={async () => {
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    OneSignal.removeExternalUserId();
                     let { error } = await supabase.auth.signOut();
                   }}
                 >
