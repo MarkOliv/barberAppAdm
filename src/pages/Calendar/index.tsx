@@ -316,7 +316,7 @@ const Calendar = () => {
       count = 3;
     } else if (totalTimesServices > 15) {
       count = 2;
-    } else if (totalTimesServices === 15) {
+    } else if (totalTimesServices == 15) {
       count = 1;
     }
 
@@ -363,7 +363,7 @@ const Calendar = () => {
     // comparando todos os horarios que os serviços selecionados ocupam(allBusyTimeservices) com todos os horarios disponiveis(allAvailebleTimesF).
 
     // se caso algum horário do allBusyTimeservices não bater com o allAvailebleTimesF, Não é perimitido o agendamento, pois isso significa que um horário vai sobrepor outro
-    let countAvaibleTimes = 0;
+    let countAvaibleTimes = 1;
     for (let index = 0; index < allBusyTimeservices.length; index++) {
       for (let y = 0; y < AllAvailebleTimes.length; y++) {
         if (allBusyTimeservices[index] === AllAvailebleTimes[y]) {
@@ -372,8 +372,8 @@ const Calendar = () => {
       }
     }
     // todos os horários(allBusyTimeservices) devem estar disponiveis nos horarios disponiveis (allAvailebleTimesF)
-    console.log(allBusyTimeservices.length);
-    console.log(countAvaibleTimes);
+    console.log(allBusyTimeservices);
+    console.log(AllAvailebleTimes);
 
     // eslint-disable-next-line eqeqeq
     if (allBusyTimeservices.length == countAvaibleTimes) {
