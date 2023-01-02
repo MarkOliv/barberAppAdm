@@ -231,6 +231,26 @@ export const EditService = () => {
               >
                 SALVAR
               </button>
+              <div
+                onClick={async () => {
+                  const { data, error } = await supabase
+                    .from("services")
+                    .delete()
+                    .eq("id", currentService?.id);
+
+                  if (data) {
+                    await showToast({
+                      position: "top",
+                      message: "Deletado com sucesso",
+                      duration: 2000,
+                    });
+                    document.location.replace("/app/services");
+                  }
+                }}
+                className="flex justify-center items-center cursor-pointer p-4 w-full rounded-xl text-white my-3 bg-gradient-to-l from-red-800 to-red-700"
+              >
+                DELETAR
+              </div>
             </form>
           </>
         )}

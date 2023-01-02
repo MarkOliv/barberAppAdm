@@ -5,8 +5,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 
 import {
-  IonBackButton,
-  IonButtons,
   IonContent,
   IonIcon,
   IonInput,
@@ -229,10 +227,30 @@ export const EditProduct = () => {
               </div>
               <button
                 type="submit"
-                className="p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
+                className="p-4 w-full rounded-xl text-white mt-5 bg-gradient-to-l from-green-800 to-green-700"
               >
                 SALVAR
               </button>
+              <div
+                onClick={async () => {
+                  const { data, error } = await supabase
+                    .from("products")
+                    .delete()
+                    .eq("id", currentProduct?.id);
+
+                  if (data) {
+                    await showToast({
+                      position: "top",
+                      message: "Deletado com sucesso",
+                      duration: 2000,
+                    });
+                    document.location.replace("/app/products");
+                  }
+                }}
+                className="flex justify-center items-center cursor-pointer p-4 w-full rounded-xl text-white my-3 bg-gradient-to-l from-red-800 to-red-700"
+              >
+                DELETAR
+              </div>
             </form>
           </>
         )}
