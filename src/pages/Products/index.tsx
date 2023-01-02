@@ -39,10 +39,7 @@ const Products = () => {
       .min(3, "nome do produto deve ter no minimo 3 caracteres")
       .required("O nome é obrigatório"),
     category: Yup.string().required("A categoria é obrigatória"),
-    code: Yup.string().min(
-      3,
-      "O código do produto deveter no minimo 3 caracteres"
-    ),
+    code: Yup.string(),
     price: Yup.number().required("Informe quanto custa o serviço"),
   });
 

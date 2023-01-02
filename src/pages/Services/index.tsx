@@ -3,8 +3,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 
 import {
-  IonBackButton,
-  IonButtons,
   IonContent,
   IonIcon,
   IonInput,
@@ -326,6 +324,7 @@ const Services = () => {
                         <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
                           <IonLabel className="text-gray-400">R$</IonLabel>
                           <IonInput
+                            step="0.01"
                             type={"number"}
                             className="placeholder: text-gray-600"
                             placeholder="15,50"
