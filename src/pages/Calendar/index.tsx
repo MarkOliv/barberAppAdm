@@ -61,12 +61,13 @@ const Calendar = () => {
   >([]);
 
   const barberSchema = Yup.object().shape({
-    name: Yup.string().default(""),
-    phone: Yup.string()?.phone(
-      "BR",
-      false,
-      "insira um numero de telefone válido"
-    ),
+    name: Yup.string(),
+    phone: Yup.string(),
+    // .phone(
+    //   "BR",
+    //   false,
+    //   "insira um numero de telefone válido"
+    // ),
     barber: Yup.object().required("O Barbeiro é obrigatório"),
     service: Yup.array().required("Selecione pelo menos um serviço"),
     date: Yup.string().required("A data é obrigatória"),
@@ -375,13 +376,17 @@ const Calendar = () => {
     console.log(allBusyTimeservices);
     console.log(AllAvailebleTimes);
 
+    console.log();
+
     // eslint-disable-next-line eqeqeq
     if (allBusyTimeservices.length == countAvaibleTimes) {
       handleCreateSchedule(
         sessionUser?.user_metadata?.barber
-          ? data.name
+          ? data.name === ""
+            ? "sem nome"
+            : data.name
           : sessionUser?.user_metadata?.full_name,
-        data.phone,
+        data.phone === "" ? null : data.phone,
         servicesNames,
         data.date,
         allBusyTimeservices,
