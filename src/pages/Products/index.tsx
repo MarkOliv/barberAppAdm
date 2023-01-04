@@ -296,6 +296,7 @@ const Products = () => {
                         <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
                           <IonLabel className="text-gray-400">R$</IonLabel>
                           <IonInput
+                            step="0.01"
                             type={"number"}
                             className="placeholder: text-gray-600"
                             placeholder="15,50"
