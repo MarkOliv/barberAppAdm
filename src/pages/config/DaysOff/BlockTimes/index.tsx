@@ -83,7 +83,11 @@ const BlockTimes = () => {
     let hoursOfGoOut = timeToGoOutSelected.substring(0, 2);
     let timesOfLunch: Array<string> = [];
 
-    console.log(hoursOfGoOut);
+    console.log("time to go in =" + timeToGoInSelected);
+    console.log("time to go out =" + timeToGoOutSelected);
+    console.log("hoursOfGo out = " + hoursOfGoOut);
+    console.log("mins of go in = " + minsOfGoIn);
+
     for (
       let h = Number(hoursOfGoOut);
       timesOfLunch.includes(timeToGoInSelected) !== true;
@@ -128,6 +132,7 @@ const BlockTimes = () => {
           }
         }
       }
+      console.log(timesOfLunch);
       handleSubmitNewBlockTimes(data?.nameOfBlock, timesOfLunch, datesNewBlock);
     }
   };

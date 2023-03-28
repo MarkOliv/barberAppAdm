@@ -38,9 +38,9 @@ const BlockTimes = () => {
   const [currentBlock, setcurrentBlock] = React.useState<any>([]);
 
   const schema = Yup.object().shape({
-    nameOfBlock: Yup.string().required("Nome do bloqueio é obrigatório"),
-    timeToGoOut: Yup.string().required("O horário de saída é obrigatório"),
-    timeToGoIn: Yup.string().required("O horário de entrada é obrigatório"),
+    nameOfBlock: Yup.string(),
+    timeToGoOut: Yup.string(),
+    timeToGoIn: Yup.string(),
   });
 
   const {
@@ -77,21 +77,52 @@ const BlockTimes = () => {
   };
 
   const handleGerateBlockTimes = (data: any) => {
-    let timeToGoOutSelected = `${data?.timeToGoOut}`;
-    let timeToGoInSelected = `${data?.timeToGoIn}`;
+    //se nao for alterado é undefined
+    let timeToGoOutSelected;
+    let timeToGoInSelected;
+
+    if (data?.timeToGoOut === undefined && data?.timeToGoIn === undefined) {
+      timeToGoOutSelected =
+        currentBlock[0]?.blocked_times[
+          currentBlock[0]?.blocked_times.length - 1
+        ];
+      timeToGoInSelected = currentBlock[0]?.blocked_times[0];
+      console.log(1);
+    } else if (
+      data?.timeToGoOut === undefined &&
+      data?.timeToGoIn !== undefined
+    ) {
+      timeToGoOutSelected =
+        currentBlock[0]?.blocked_times[
+          currentBlock[0]?.blocked_times.length - 1
+        ];
+      timeToGoInSelected = `${data?.timeToGoIn}`;
+      console.log(2);
+    } else if (
+      data?.timeToGoOut !== undefined &&
+      data?.timeToGoIn === undefined
+    ) {
+      timeToGoOutSelected = `${data?.timeToGoOut}`;
+      timeToGoInSelected = currentBlock[0]?.blocked_times[0];
+      console.log(3);
+    } else {
+      timeToGoOutSelected = `${data?.timeToGoOut}`;
+      timeToGoInSelected = `${data?.timeToGoIn}`;
+
+      console.log(4);
+    }
 
     // separing the minut and hour of time selected
-    let minsOfGoIn = timeToGoOutSelected.substring(data?.timeToGoOut.length, 3);
-    let hoursOfGoOut = timeToGoOutSelected.substring(0, 2);
+    let minsOfGoIn = timeToGoInSelected.substring(timeToGoInSelected.length, 3);
+    let hoursOfGoIn = timeToGoInSelected.substring(0, 2);
     let timesOfLunch: Array<string> = [];
 
-    console.log(hoursOfGoOut);
     for (
-      let h = Number(hoursOfGoOut);
-      timesOfLunch.includes(timeToGoInSelected) !== true;
+      let h = Number(hoursOfGoIn);
+      timesOfLunch.includes(timeToGoOutSelected) !== true;
       h = h + 1
     ) {
-      if (h > Number(hoursOfGoOut)) {
+      if (h > Number(hoursOfGoIn)) {
         for (let m = 0; m <= 45; m = m + 15) {
           if (h < 10 && m === 0) {
             // console.log(`0${h}:0${m}`);
@@ -106,7 +137,7 @@ const BlockTimes = () => {
             // console.log(`${h}:${m}`);
             timesOfLunch.push(`${h}:${m}`);
           }
-          if (timesOfLunch.includes(timeToGoInSelected)) {
+          if (timesOfLunch.includes(timeToGoOutSelected)) {
             break;
           }
         }
@@ -125,12 +156,27 @@ const BlockTimes = () => {
             // console.log(`${h}:${m}`);
             timesOfLunch.push(`${h}:${m}`);
           }
-          if (timesOfLunch.includes(timeToGoInSelected)) {
+          if (timesOfLunch.includes(timeToGoOutSelected)) {
             break;
           }
         }
       }
-      handleSubmitNewBlockTimes(data?.nameOfBlock, timesOfLunch, datesNewBlock);
+
+      let nameOfBlock;
+      let datesOfBlock;
+      if (data?.nameOfBlock === undefined) {
+        nameOfBlock = currentBlock[0]?.nome;
+      } else {
+        nameOfBlock = data?.nameOfBlock;
+      }
+
+      if (datesNewBlock.length === 0) {
+        datesOfBlock = currentBlock[0]?.dates_blocked_times;
+      } else {
+        datesOfBlock = datesNewBlock;
+      }
+
+      handleSubmitNewBlockTimes(nameOfBlock, timesOfLunch, datesOfBlock);
     }
   };
 
@@ -143,6 +189,8 @@ const BlockTimes = () => {
 
       if (block_times) {
         setcurrentBlock(block_times);
+
+        setDatesNewBlock(block_times[0]?.dates_blocked_times);
       }
     } catch (error) {}
   };
@@ -179,14 +227,19 @@ const BlockTimes = () => {
     try {
       const { data, error } = await supabase
         .from("block_times")
-        .insert([
-          { nome: name, blocked_times: times, dates_blocked_times: dates },
-        ]);
+        .update([
+          {
+            nome: name,
+            blocked_times: times,
+            dates_blocked_times: dates,
+          },
+        ])
+        .eq("id", id?.blockId);
 
       if (data) {
         showToast({
           position: "top",
-          message: `Criado com sucesso`,
+          message: `Alterado com sucesso`,
           duration: 2000,
         });
         setTimeout(() => {
@@ -239,7 +292,7 @@ const BlockTimes = () => {
                       </IonLabel>
                       <div className="flex items-center bg-gray-200 rounded-3xl p-3 mt-1 text-black font-bold">
                         <IonInput
-                          disabled={true}
+                          disabled={editMode ? false : true}
                           type="text"
                           className="placeholder:font-bold"
                           placeholder={`${currentBlock[0]?.nome}`}
@@ -248,18 +301,23 @@ const BlockTimes = () => {
                       </div>
                     </div>
 
-                    <p className="text-center">
-                      Selecione o horário para bloqueio
-                    </p>
+                    {editMode && (
+                      <p className="text-center">
+                        Selecione o Horário para Bloqueio
+                      </p>
+                    )}
+                    {editMode === false && (
+                      <p className="text-center">Horário do Bloqueio</p>
+                    )}
 
                     <div className="grid grid-cols-2 gap-5">
                       <div id="Start_Time">
                         <div className="flex justify-center items-center bg-gray-200 rounded-3xl p-3 mt-3 text-black font-bold text-black font-bold">
                           <IonSelect
-                            disabled={true}
+                            disabled={editMode ? false : true}
                             className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3 h-5"
                             placeholder={`${currentBlock[0]?.blocked_times[0]}`}
-                            {...register("timeToGoOut")}
+                            {...register("timeToGoIn")}
                           >
                             {allTimes.map((time, index) => (
                               <IonSelectOption key={index} value={time}>
@@ -278,14 +336,14 @@ const BlockTimes = () => {
                       <div id="End_Time">
                         <div className="flex justify-center items-center bg-gray-200 rounded-3xl p-3 mt-3">
                           <IonSelect
-                            disabled={true}
+                            disabled={editMode ? false : true}
                             className="bg-gray-200 rounded-3xl placeholder: text-gray-700 my-3 h-5 text-black font-bold"
                             placeholder={`${
                               currentBlock[0]?.blocked_times[
                                 currentBlock[0]?.blocked_times.length - 1
                               ]
                             }`}
-                            {...register("timeToGoIn")}
+                            {...register("timeToGoOut")}
                           >
                             {allTimes.map((time, index) => (
                               <IonSelectOption key={index} value={time}>
@@ -335,74 +393,73 @@ const BlockTimes = () => {
                       <div className="h-[1px] w-4/5 bg-gray-500" />
                     </div>
                     <IonList className="w-full h-full p-5 rounded-3xl bg-transparent">
-                      {currentBlock[0]?.dates_blocked_times.map(
-                        (date: any, index: any) => (
-                          <div
-                            key={index}
-                            className="grid grid-cols-3 w-full py-2"
-                          >
-                            <IonLabel className="text-gray-500 col-span-2">
-                              {date}
-                            </IonLabel>
-                            {editMode && (
-                              <div className="flex justify-end items-center">
-                                <IonIcon
-                                  onClick={() => {
-                                    var removedDate = datesNewBlock;
-                                    var index4Delete =
-                                      removedDate.indexOf(date);
-                                    removedDate.splice(index4Delete, 1);
-                                    let datesRandom: Array<string> = [];
+                      {datesNewBlock.map((date: any, index: any) => (
+                        <div
+                          key={index}
+                          className="grid grid-cols-3 w-full py-2"
+                        >
+                          <IonLabel className="text-gray-500 col-span-2">
+                            {date}
+                          </IonLabel>
+                          {editMode && (
+                            <div className="flex justify-end items-center">
+                              <IonIcon
+                                onClick={() => {
+                                  var removedDate = datesNewBlock;
+                                  var index4Delete = removedDate.indexOf(date);
+                                  removedDate.splice(index4Delete, 1);
+                                  let datesRandom: Array<string> = [];
 
-                                    const maxNumbers = removedDate.length;
-                                    let list = [];
-                                    for (let i = 0; i < maxNumbers; i++) {
-                                      list[i] = i;
-                                    }
-                                    let randomNumber;
-                                    let tmp;
-                                    for (let i = list.length; i; ) {
-                                      randomNumber = (Math.random() * i--) | 0;
-                                      tmp = list[randomNumber];
-                                      // troca o número aleatório pelo atual
-                                      list[randomNumber] = list[i];
-                                      // troca o atual pelo aleatório
-                                      list[i] = tmp;
-                                    }
-                                    for (let i = 0; i < list.length; i++) {
-                                      datesRandom.push(removedDate[list[i]]);
-                                    }
-                                    setDatesNewBlock(datesRandom);
-                                  }}
-                                  className="text-red-500 w-4 h-4"
-                                  src={trashBin}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        )
-                      )}
+                                  const maxNumbers = removedDate.length;
+                                  let list = [];
+                                  for (let i = 0; i < maxNumbers; i++) {
+                                    list[i] = i;
+                                  }
+                                  let randomNumber;
+                                  let tmp;
+                                  for (let i = list.length; i; ) {
+                                    randomNumber = (Math.random() * i--) | 0;
+                                    tmp = list[randomNumber];
+                                    // troca o número aleatório pelo atual
+                                    list[randomNumber] = list[i];
+                                    // troca o atual pelo aleatório
+                                    list[i] = tmp;
+                                  }
+                                  for (let i = 0; i < list.length; i++) {
+                                    datesRandom.push(removedDate[list[i]]);
+                                  }
+                                  setDatesNewBlock(datesRandom);
+                                }}
+                                className="text-red-500 w-4 h-4"
+                                src={trashBin}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </IonList>
                   </div>
                 </div>
-                {editMode && (
-                  <>
-                    <div
-                      onClick={() => {
-                        setEditMode(!editMode);
-                      }}
-                      className={`flex justify-center p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l from-red-800 to-red-700`}
-                    >
-                      CANCELAR
-                    </div>
+                <div
+                  onClick={() => {
+                    setEditMode(!editMode);
+                  }}
+                  className={`flex justify-center p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l ${
+                    editMode
+                      ? "from-red-800 to-red-700"
+                      : "from-green-800 to-green-700"
+                  }`}
+                >
+                  {editMode ? "CANCELAR" : "EDITAR"}
+                </div>
 
-                    <button
-                      type="submit"
-                      className="flex justify-center p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
-                    >
-                      SALVAR
-                    </button>
-                  </>
+                {editMode && (
+                  <button
+                    type="submit"
+                    className="flex justify-center p-4 w-full rounded-xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
+                  >
+                    SALVAR
+                  </button>
                 )}
               </form>
             </div>
