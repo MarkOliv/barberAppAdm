@@ -91,7 +91,8 @@ const Calendar = () => {
           .select("*")
 
           .eq("date", date)
-          .eq("barber_id", sessionUser?.id);
+          .eq("barber_id", sessionUser?.id)
+          .neq("status", "canceled");
 
         if (error) {
           await showToast({

@@ -6,7 +6,7 @@ android {
         applicationId "hairfashion.Barber"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdk 33
-        versionCode 7
+        versionCode 8
         versionName "scheduleOrder"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {

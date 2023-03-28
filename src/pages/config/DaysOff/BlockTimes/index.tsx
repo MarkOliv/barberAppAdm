@@ -313,7 +313,14 @@ const BlockTimes = () => {
                             key={index}
                             className="grid grid-cols-3 w-full py-2"
                           >
-                            <IonLabel className="text-gray-500 col-span-2">
+                            <IonLabel
+                              onClick={() => {
+                                document.location.replace(
+                                  `/app/config/daysoff/block-times/edit/${blockTime?.id}`
+                                );
+                              }}
+                              className="text-gray-500 col-span-2"
+                            >
                               {blockTime?.nome}
                             </IonLabel>
                             <div className="flex justify-end items-center">
