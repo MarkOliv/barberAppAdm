@@ -14,16 +14,8 @@ import {
 
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts";
-import {
-  beer,
-  chatbox,
-  chevronBackOutline,
-  documentLock,
-  restaurant,
-  time,
-} from "ionicons/icons";
+import { beer, chevronBackOutline, restaurant, time } from "ionicons/icons";
 import supabase from "../../../utils/supabase";
-import { User } from "@supabase/supabase-js";
 
 const DaysOff = () => {
   const { sessionUser } = useAuth();
@@ -182,8 +174,8 @@ const DaysOff = () => {
                   <IonIcon src={beer} />
                   <IonLabel className="ml-5">
                     {sessionUser?.user_metadata?.off_work
-                      ? "Sair da Folga"
-                      : "Entrar de folga"}
+                      ? "Sair de Folga"
+                      : "Entrar de Folga"}
                   </IonLabel>
                 </IonItem>
               </div>

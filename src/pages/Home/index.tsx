@@ -32,6 +32,9 @@ import OneSignal from "onesignal-cordova-plugin";
 const Home = () => {
   const [showToast] = useIonToast();
   const [schedulesToShow, setSchedulesToShow] = React.useState<Array<any>>([]);
+  const [schedulesToShowOrdered, setSchedulesToShowOrdered] = React.useState<
+    Array<any>
+  >([]);
   const [currentName, setcurrentName] = React.useState(null);
   const [profileImage, setProfileImage] = React.useState<string>("");
   const [currentProfile, setCurrentProfile] = React.useState<any>([]);
@@ -54,7 +57,8 @@ const Home = () => {
           .select("*")
 
           .eq("date", currentDate)
-          .eq("barber_id", sessionUser?.id);
+          .eq("barber_id", sessionUser?.id)
+          .neq("status", "canceled");
 
         if (error) {
           await showToast({
@@ -97,6 +101,31 @@ const Home = () => {
       });
       console.log(error);
     }
+  };
+
+  const orderSchedulesByTime = () => {
+    try {
+      let orderArray = [];
+      // console.log(schedulesToShow[0]?.times[0].slice(0, 2));
+
+      for (let i = 0; i < 21; i++) {
+        for (let s = 0; s < schedulesToShow.length; s++) {
+          // console.log(
+          //   `scheduletime: ${schedulesToShow[s]?.times[0].slice(
+          //     0,
+          //     2
+          //   )} === other: ${i}`
+          // );
+
+          if (i == schedulesToShow[s]?.times[0].slice(0, 2)) {
+            orderArray.push(schedulesToShow[s]);
+          }
+        }
+      }
+
+      console.log(orderArray);
+      setSchedulesToShowOrdered(orderArray);
+    } catch (error) {}
   };
 
   const getProfile = async () => {
@@ -220,14 +249,20 @@ const Home = () => {
     getSchedulesToShow();
     getProfile();
     getNotifications();
-    OneSignalNotifyInit();
+    // OneSignalNotifyInit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
     getAvatarUrl();
+    orderSchedulesByTime();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentProfile]);
+
+  React.useEffect(() => {
+    orderSchedulesByTime();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [schedulesToShow]);
 
   React.useEffect(() => {
     const nameStr = sessionUser?.user_metadata?.full_name;
@@ -246,7 +281,12 @@ const Home = () => {
                 <IonText className="text-sm text-gray-500 mb-1 font-light">
                   Bem vindo{"(a)"}
                 </IonText>
-                <IonText className="text-black-200 text-2xl font-bold uppercase">
+                <IonText
+                  onClick={() => {
+                    document.location.reload();
+                  }}
+                  className="text-black-200 text-2xl font-bold uppercase"
+                >
                   {currentName}
                 </IonText>
               </div>
@@ -336,7 +376,7 @@ const Home = () => {
                 <div className="h-[1px] w-4/5 bg-gray-500" />
               </div>
               <IonList className="w-full h-full p-5 rounded-3xl bg-transparent">
-                {schedulesToShow.map((agendamento, index) => (
+                {schedulesToShowOrdered.map((agendamento, index) => (
                   <div
                     onClick={() => {
                       document.location.replace(
@@ -344,7 +384,7 @@ const Home = () => {
                       );
                     }}
                     key={index}
-                    className="grid grid-cols-3 w-full py-2"
+                    className="grid grid-cols-4 w-full py-2"
                   >
                     <div className="flex justify-start items-center">
                       <IonIcon
@@ -363,7 +403,14 @@ const Home = () => {
                     </IonLabel>
                     <div className="flex justify-end items-center">
                       <IonLabel className="mr-3 text-gray-500">
-                        {agendamento.times[0]}
+                        {agendamento.times[0].substring(0, 5)}
+                      </IonLabel>
+                    </div>
+                    <div className="flex justify-end items-center">
+                      <IonLabel className="mr-3 text-gray-500">
+                        {agendamento.times[
+                          agendamento.times.length - 1
+                        ].substring(0, 5)}
                       </IonLabel>
                     </div>
                   </div>

@@ -40,7 +40,7 @@ export const EditSchedule = () => {
   //scheduleId
   const id: any = useParams();
 
-  const [clientProfile, setClientProfile] = React.useState<Array<any>>();
+  const [clientProfile, setClientProfile] = React.useState<Array<any> | null>();
 
   const [products, setProducts] = React.useState<Array<any>>([]);
   const [schedules, setSchedules] = React.useState<Array<any>>([]);
@@ -83,8 +83,11 @@ export const EditSchedule = () => {
         console.log(error);
       }
 
+      //só seto no state se existir o cliente.
       if (data) {
-        setClientProfile(data);
+        if (data.length !== 0) {
+          setClientProfile(data);
+        }
       }
     } catch (error) {}
   };
@@ -307,7 +310,7 @@ export const EditSchedule = () => {
             <div className="ion-padding">
               <div
                 onClick={() => {
-                  clientProfile
+                  clientProfile?.length === 0
                     ? router.push(`/app/profile/${clientProfile[0]?.id}`)
                     : console.log("client not registred");
                 }}

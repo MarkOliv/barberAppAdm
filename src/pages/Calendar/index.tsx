@@ -91,7 +91,8 @@ const Calendar = () => {
           .select("*")
 
           .eq("date", date)
-          .eq("barber_id", sessionUser?.id);
+          .eq("barber_id", sessionUser?.id)
+          .neq("status", "canceled");
 
         if (error) {
           await showToast({
@@ -242,7 +243,7 @@ const Calendar = () => {
     // eslint-disable-next-line array-callback-return
     console.log(lunchTimes);
     lunchTimes.map((time) => {
-      console.log(time);
+      // console.log(time);
       timesAlreadyScheduled.push(time);
     });
 
@@ -376,10 +377,10 @@ const Calendar = () => {
     console.log(allBusyTimeservices);
     console.log(AllAvailebleTimes);
 
-    console.log();
+    console.log(countAvaibleTimes);
 
     // eslint-disable-next-line eqeqeq
-    if (allBusyTimeservices.length == countAvaibleTimes) {
+    if (allBusyTimeservices.length <= countAvaibleTimes) {
       handleCreateSchedule(
         sessionUser?.user_metadata?.barber
           ? data.name === ""
@@ -396,7 +397,7 @@ const Calendar = () => {
     } else {
       showToast({
         position: "top",
-        message: `Horário indisponível para o(os) serviço(os) escolhidos. tempo necessário é de ${totalTimesServices} minutos`,
+        message: `Horário indisponível para o(os) 'serviço(os) escolhidos. tempo necessário é de ${totalTimesServices} minutos`,
         duration: 5000,
       });
     }
