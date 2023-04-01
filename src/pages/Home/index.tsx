@@ -249,7 +249,7 @@ const Home = () => {
     getSchedulesToShow();
     getProfile();
     getNotifications();
-    OneSignalNotifyInit();
+    // OneSignalNotifyInit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -384,7 +384,7 @@ const Home = () => {
                       );
                     }}
                     key={index}
-                    className="grid grid-cols-3 w-full py-2"
+                    className="grid grid-cols-4 w-full py-2"
                   >
                     <div className="flex justify-start items-center">
                       <IonIcon
@@ -403,7 +403,14 @@ const Home = () => {
                     </IonLabel>
                     <div className="flex justify-end items-center">
                       <IonLabel className="mr-3 text-gray-500">
-                        {agendamento.times[0]}
+                        {agendamento.times[0].substring(0, 5)}
+                      </IonLabel>
+                    </div>
+                    <div className="flex justify-end items-center">
+                      <IonLabel className="mr-3 text-gray-500">
+                        {agendamento.times[
+                          agendamento.times.length - 1
+                        ].substring(0, 5)}
                       </IonLabel>
                     </div>
                   </div>
