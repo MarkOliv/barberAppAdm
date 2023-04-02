@@ -64,6 +64,9 @@ import DaysOff from "./pages/config/DaysOff";
 import LunchTime from "./pages/config/DaysOff/LunchTime";
 import BlockTimes from "./pages/config/DaysOff/BlockTimes";
 import EditBlockedTimes from "./pages/config/DaysOff/BlockTimes/EditBlockedTimes";
+import BalanceDay from "./pages/config/Reports/BalanceDay";
+import NumberClientsMonth from "./pages/config/Reports/numberClientsMonth";
+import NumberClientsDay from "./pages/config/Reports/numberClientsDay";
 
 setupIonicReact();
 
@@ -84,6 +87,21 @@ const App: React.FC = () => {
               exact
               path="/app/config/reports/balance"
               component={Balance}
+            />
+            <Route
+              exact
+              path="/app/config/reports/balanceday"
+              component={BalanceDay}
+            />
+            <Route
+              exact
+              path="/app/config/reports/number-clients-month"
+              component={NumberClientsMonth}
+            />
+            <Route
+              exact
+              path="/app/config/reports/number-clients-day"
+              component={NumberClientsDay}
             />
 
             <Route

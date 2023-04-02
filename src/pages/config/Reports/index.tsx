@@ -18,7 +18,11 @@ import {
   chatbox,
   chevronBackOutline,
   documentLock,
+  people,
+  peopleCircle,
+  peopleCircleOutline,
   wallet,
+  walletOutline,
 } from "ionicons/icons";
 
 const Reports = () => {
@@ -50,6 +54,45 @@ const Reports = () => {
                   <IonIcon src={wallet} />
                   <IonLabel className="ml-5">
                     <h2>Balanço Financeiro</h2>
+                  </IonLabel>
+                </IonItem>
+
+                <IonItem
+                  className="mt-5 mb-3 bg-white rounded-3xl shadow h-20 flex items-center"
+                  lines="none"
+                  onClick={() => {
+                    router.push("/app/config/reports/balanceday");
+                  }}
+                >
+                  <IonIcon src={walletOutline} />
+                  <IonLabel className="ml-5">
+                    <h2>Ganhos do Dia</h2>
+                  </IonLabel>
+                </IonItem>
+
+                <IonItem
+                  className="mt-5 mb-3 bg-white rounded-3xl shadow h-20 flex items-center"
+                  lines="none"
+                  onClick={() => {
+                    router.push("/app/config/reports/number-clients-month");
+                  }}
+                >
+                  <IonIcon src={people} />
+                  <IonLabel className="ml-5">
+                    <h2>Clientes do mês</h2>
+                  </IonLabel>
+                </IonItem>
+
+                <IonItem
+                  className="mt-5 mb-3 bg-white rounded-3xl shadow h-20 flex items-center"
+                  lines="none"
+                  onClick={() => {
+                    router.push("/app/config/reports/number-clients-day");
+                  }}
+                >
+                  <IonIcon src={peopleCircleOutline} />
+                  <IonLabel className="ml-5">
+                    <h2>Clientes do Dia</h2>
                   </IonLabel>
                 </IonItem>
 
