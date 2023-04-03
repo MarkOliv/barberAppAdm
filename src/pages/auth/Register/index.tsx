@@ -115,7 +115,7 @@ const Register = () => {
         {
           id: user_id,
           email: userEmail,
-          full_name: full_name,
+          username: full_name,
           address: address,
           barber: false,
           client: true,

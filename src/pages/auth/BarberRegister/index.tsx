@@ -106,6 +106,17 @@ const BarberRegister = () => {
             full_name: data.fullName,
             specialties: data.specialties,
             barber: true,
+            off_work: false,
+            lunch_time: [
+              "13:00",
+              "13:15",
+              "13:30",
+              "13:45",
+              "14:00",
+              "14:15",
+              "14:30",
+              "14:45",
+            ],
           },
         }
       );
@@ -154,7 +165,7 @@ const BarberRegister = () => {
       const { data, error } = await supabase.from("barbers").insert([
         {
           id: user_id,
-          full_name: full_name,
+          username: full_name,
           specialties: specialties,
           email: email,
         },

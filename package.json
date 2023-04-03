@@ -1,5 +1,5 @@
 {
-  "name": "barberApp",
+  "name": "Hairfashion Barber",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
@@ -28,9 +28,11 @@
     "@types/react-router": "^5.1.11",
     "@types/react-router-dom": "^5.1.7",
     "ionicons": "^5.4.0",
+    "onesignal-cordova-plugin": "^3.2.0",
     "prisma": "^4.1.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-google-charts": "^4.0.0",
     "react-hook-form": "^7.33.1",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",

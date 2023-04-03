@@ -39,10 +39,7 @@ const Products = () => {
       .min(3, "nome do produto deve ter no minimo 3 caracteres")
       .required("O nome é obrigatório"),
     category: Yup.string().required("A categoria é obrigatória"),
-    code: Yup.string().min(
-      3,
-      "O código do produto deveter no minimo 3 caracteres"
-    ),
+    code: Yup.string(),
     price: Yup.number().required("Informe quanto custa o serviço"),
   });
 
@@ -147,7 +144,7 @@ const Products = () => {
                 {sessionUser?.user_metadata?.barber && (
                   <div
                     onClick={() => setIsOpen(!isOpen)}
-                    className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-xl bg-gradient-to-l from-green-800 to-green-600"
+                    className="flex flex-col justify-center items-center h-32 col-span-2 shadow-md rounded-xl bg-gradient-to-l from-green-800 to-green-600"
                   >
                     {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={bag} /> */}
                     <img className="w-14 h-14" src={hairProds} alt="" />
@@ -299,6 +296,7 @@ const Products = () => {
                         <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
                           <IonLabel className="text-gray-400">R$</IonLabel>
                           <IonInput
+                            step="0.01"
                             type={"number"}
                             className="placeholder: text-gray-600"
                             placeholder="15,50"

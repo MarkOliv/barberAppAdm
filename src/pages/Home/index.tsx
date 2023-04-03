@@ -16,6 +16,7 @@ import {
   calendar,
   chatbubbles,
   checkmarkCircle,
+  notifications,
   people,
   time,
 } from "ionicons/icons";
@@ -24,16 +25,25 @@ import servicesIcon from "../../assets/barberServicesCut.png";
 
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts";
+
 import supabase from "../../utils/supabase";
+import OneSignal from "onesignal-cordova-plugin";
 
 const Home = () => {
   const [showToast] = useIonToast();
   const [schedulesToShow, setSchedulesToShow] = React.useState<Array<any>>([]);
+  const [schedulesToShowOrdered, setSchedulesToShowOrdered] = React.useState<
+    Array<any>
+  >([]);
   const [currentName, setcurrentName] = React.useState(null);
   const [profileImage, setProfileImage] = React.useState<string>("");
   const [currentProfile, setCurrentProfile] = React.useState<any>([]);
 
+  const [notification, setNotification] = React.useState<boolean>(false);
+
   const { sessionUser } = useAuth();
+  // console.log(sessionUser);
+
   const router = useIonRouter();
 
   const getSchedulesToShow = async () => {
@@ -47,7 +57,8 @@ const Home = () => {
           .select("*")
 
           .eq("date", currentDate)
-          .eq("barber_id", sessionUser?.id);
+          .eq("barber_id", sessionUser?.id)
+          .neq("status", "canceled");
 
         if (error) {
           await showToast({
@@ -92,6 +103,31 @@ const Home = () => {
     }
   };
 
+  const orderSchedulesByTime = () => {
+    try {
+      let orderArray = [];
+      // console.log(schedulesToShow[0]?.times[0].slice(0, 2));
+
+      for (let i = 0; i < 21; i++) {
+        for (let s = 0; s < schedulesToShow.length; s++) {
+          // console.log(
+          //   `scheduletime: ${schedulesToShow[s]?.times[0].slice(
+          //     0,
+          //     2
+          //   )} === other: ${i}`
+          // );
+
+          if (i == schedulesToShow[s]?.times[0].slice(0, 2)) {
+            orderArray.push(schedulesToShow[s]);
+          }
+        }
+      }
+
+      console.log(orderArray);
+      setSchedulesToShowOrdered(orderArray);
+    } catch (error) {}
+  };
+
   const getProfile = async () => {
     try {
       if (sessionUser?.user_metadata?.barber) {
@@ -112,7 +148,7 @@ const Home = () => {
 
         if (data) {
           setCurrentProfile(data);
-          console.log(data);
+          // console.log(data);
         }
       } else {
         let { data, error } = await supabase
@@ -132,7 +168,7 @@ const Home = () => {
 
         if (data) {
           setCurrentProfile(data);
-          console.log(data);
+          // console.log(data);
         }
       }
     } catch (error) {
@@ -165,16 +201,68 @@ const Home = () => {
     }
   };
 
+  const getNotifications = async () => {
+    try {
+      let { data: notifications, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("for", sessionUser?.id)
+        .eq("status", "unread");
+
+      if (error) {
+        await showToast({
+          position: "top",
+          message: error.message,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+
+      if (notifications) {
+        if (notifications.length > 0) {
+          setNotification(!notification);
+        }
+      }
+    } catch (error) {
+      if (error) {
+        await showToast({
+          position: "top",
+          message: `${error}`,
+          duration: 3000,
+        });
+        console.log(error);
+      }
+    }
+  };
+
+  const OneSignalNotifyInit = () => {
+    OneSignal.setAppId("be52199d-a047-430a-b3fd-e3ba2cb55d6d");
+    OneSignal.removeExternalUserId();
+
+    OneSignal.setExternalUserId(`${sessionUser?.id}`);
+    OneSignal.setNotificationOpenedHandler(function (jsondata) {
+      console.log("new Notify ");
+    });
+  };
+
   React.useEffect(() => {
     getSchedulesToShow();
     getProfile();
+    getNotifications();
+    OneSignalNotifyInit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
     getAvatarUrl();
+    orderSchedulesByTime();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentProfile]);
+
+  React.useEffect(() => {
+    orderSchedulesByTime();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [schedulesToShow]);
 
   React.useEffect(() => {
     const nameStr = sessionUser?.user_metadata?.full_name;
@@ -193,22 +281,33 @@ const Home = () => {
                 <IonText className="text-sm text-gray-500 mb-1 font-light">
                   Bem vindo{"(a)"}
                 </IonText>
-                <IonText className="text-black-200 text-2xl font-bold uppercase">
+                <IonText
+                  onClick={() => {
+                    document.location.reload();
+                  }}
+                  className="text-black-200 text-2xl font-bold uppercase"
+                >
                   {currentName}
                 </IonText>
               </div>
               <div className="flex items-center">
+                <IonIcon
+                  className={`w-5 h-5 mr-5 ${
+                    notification ? "text-orange-500" : "text-gray-500"
+                  }`}
+                  src={notifications}
+                  onClick={() => router.push("/app/notifications")}
+                />
                 <IonAvatar
                   onClick={() => {
                     document.location.replace(
                       `/app/profile/${sessionUser?.id}`
                     );
-                    // router.push(`/app/profile/${sessionUser?.id}`);
                   }}
-                  className="flex items-center w-[70px] h-[70px]"
+                  className="flex items-center w-[70px] h-[70px] shadow-lg"
                 >
                   <img
-                    className="w-[70px] h-[70px]"
+                    className="w-[70px] h-[70px] "
                     src={profileImage}
                     alt="profile"
                   />
@@ -216,15 +315,20 @@ const Home = () => {
               </div>
             </div>
             <div className={`grid grid-cols-4  gap-4 py-3`}>
-              <Link
-                to="/app/calendar"
-                className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
+              <div
+                onClick={() => {
+                  document.location.replace("/app/calendar");
+                }}
+                className="flex flex-col justify-center items-center h-32 col-span-2 shadow-lg rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
               >
                 <IonIcon className="mb-5 w-8 h-8 text-white" src={calendar} />
 
                 <IonText className="text-white">Calendário</IonText>
-              </Link>
-              <div className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-r from-white to-white-200">
+              </div>
+              <div
+                onClick={() => router.push("/app/chat")}
+                className="flex flex-col justify-center items-center h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200"
+              >
                 <IonIcon
                   className="mb-5 w-8 h-8 text-gray-500"
                   src={chatbubbles}
@@ -235,7 +339,7 @@ const Home = () => {
 
               <Link
                 to={"/app/barbers"}
-                className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-r from-white to-white-200"
+                className="flex flex-col justify-center items-center h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200"
               >
                 <IonIcon className="mb-5 w-8 h-8 text-gray-500" src={people} />
 
@@ -245,7 +349,7 @@ const Home = () => {
             <div className="grid grid-cols-3 gap-4 py-3">
               <Link
                 to="/app/products"
-                className="flex flex-col justify-center items-center h-32 shadow rounded-3xl bg-gradient-to-r from-white to-white-200"
+                className="flex flex-col justify-center items-center h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200"
               >
                 <IonIcon className="mb-5 w-8 h-8 text-gray-500" src={bag} />
 
@@ -253,7 +357,7 @@ const Home = () => {
               </Link>
               <Link
                 to="/app/services/"
-                className="flex flex-col justify-center items-center h-32 col-span-2 shadow rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
+                className="flex flex-col justify-center items-center h-32 col-span-2 shadow-lg rounded-3xl bg-gradient-to-l from-green-800 to-green-600"
               >
                 {/* <IonIcon className="mb-5 w-8 h-8 text-white" src={cut} /> */}
                 <img className="w-10 h-10" src={servicesIcon} alt="" />
@@ -261,7 +365,7 @@ const Home = () => {
               </Link>
             </div>
 
-            <div className="w-full h-auto shadow rounded-3xl py-5 bg-red">
+            <div className="w-full h-auto shadow-lg rounded-3xl py-5 bg-red">
               <div className="flex justify-start mx-5">
                 <IonIcon className="mb-5 w-6 h-6 text-gray-500" src={time} />
                 <IonText className="ml-2 text-gray-500">
@@ -272,7 +376,7 @@ const Home = () => {
                 <div className="h-[1px] w-4/5 bg-gray-500" />
               </div>
               <IonList className="w-full h-full p-5 rounded-3xl bg-transparent">
-                {schedulesToShow.map((agendamento, index) => (
+                {schedulesToShowOrdered.map((agendamento, index) => (
                   <div
                     onClick={() => {
                       document.location.replace(
@@ -280,7 +384,7 @@ const Home = () => {
                       );
                     }}
                     key={index}
-                    className="grid grid-cols-3 w-full py-2"
+                    className="grid grid-cols-4 w-full py-2"
                   >
                     <div className="flex justify-start items-center">
                       <IonIcon
@@ -299,7 +403,14 @@ const Home = () => {
                     </IonLabel>
                     <div className="flex justify-end items-center">
                       <IonLabel className="mr-3 text-gray-500">
-                        {agendamento.times[0]}
+                        {agendamento.times[0].substring(0, 5)}
+                      </IonLabel>
+                    </div>
+                    <div className="flex justify-end items-center">
+                      <IonLabel className="mr-3 text-gray-500">
+                        {agendamento.times[
+                          agendamento.times.length - 1
+                        ].substring(0, 5)}
                       </IonLabel>
                     </div>
                   </div>

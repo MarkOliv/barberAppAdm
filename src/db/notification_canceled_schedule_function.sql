@@ -1,0 +1,41 @@
+-- Notication when we have a new schedule
+create
+or replace function handle_canceled_schedule() returns trigger as $ $ declare client_id uuid;
+
+begin
+select
+    id
+from
+    clients
+where
+    username = new.name into client_id;
+
+IF client_id IS NOT NULL THEN IF new.status == = "canceled" THEN
+INSERT INTO
+    public.notifications(
+        "from",
+        "for",
+        "message",
+        "type"
+    )
+VALUES
+    (
+        client_id,
+        new.barber_id,
+        new.date,
+        'Canceled'
+    );
+
+RETURN NEW;
+
+ELSE RETURN NEW;
+
+END IF;
+
+ELSE RETURN NEW;
+
+END IF;
+
+END;
+
+$ $ language plpgsql;

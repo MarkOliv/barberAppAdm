@@ -12,7 +12,6 @@ import {
   IonPage,
   IonText,
   useIonLoading,
-  useIonRouter,
   useIonToast,
 } from "@ionic/react";
 import { close, eye, eyeOff } from "ionicons/icons";
@@ -24,7 +23,7 @@ import { useAuth } from "../../../contexts";
 const Login = () => {
   const [showLoading, hideLoading] = useIonLoading();
   const [showToast] = useIonToast();
-  const router = useIonRouter();
+
   const { sessionUser } = useAuth();
 
   const [showPassword, setshowPassword] = React.useState<boolean>(false);

@@ -1,6 +1,6 @@
 {
-	"appId": "io.ionic.starter",
-	"appName": "barberApp",
+	"appId": "hairfashion.Barber",
+	"appName": "Hairfashion Barber",
 	"webDir": "build",
 	"bundledWebRuntime": false
 }
