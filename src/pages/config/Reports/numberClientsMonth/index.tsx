@@ -29,7 +29,6 @@ const NumberClientsMonth = () => {
   >([]);
 
   const [numberOfClients, setNumberOfClients] = React.useState<Number>();
-  const [debitCashs, setDebitCashs] = React.useState<Number>();
 
   const [barbers, setBarbers] = React.useState<Array<any>>([]);
   const [selectedBarber, setSelectedBarber] = React.useState<any>();
@@ -37,11 +36,7 @@ const NumberClientsMonth = () => {
   const { sessionUser } = useAuth();
   const [showToast] = useIonToast();
 
-  const options = {
-    title: "Balanço do mês",
-  };
-
-  const getCashFlow = async () => {
+  const handleGetAllCashFlow = async () => {
     try {
       if (selectedBarber !== "nenhum" && selectedBarber !== undefined) {
         let { data: cashFlow, error } = await supabase
@@ -100,24 +95,28 @@ const NumberClientsMonth = () => {
     } catch (error) {}
   };
 
-  const handleCashs = () => {
+  //im counting clients by cashflows credit type
+  const handleCountClients = () => {
     try {
-      let debitTotalValue = 0;
-      let creditTotalValue = 0;
+      let creditTotalCount = 0;
 
       consultDateCashFlow.map((cashFlow) => {
-        if (cashFlow?.type === "debit") {
-          debitTotalValue += Number(cashFlow?.total_value);
-        } else {
-          creditTotalValue += 1;
+        if (cashFlow?.type === "credit") {
+          creditTotalCount += 1;
         }
       });
-      setNumberOfClients(Number(creditTotalValue.toFixed(2)));
-      setDebitCashs(Number(debitTotalValue.toFixed(2)));
-    } catch (error) {}
+      setNumberOfClients(Number(creditTotalCount.toFixed(2)));
+    } catch (error) {
+      console.log(error);
+      showToast({
+        position: "top",
+        message: `${error}`,
+        duration: 3000,
+      });
+    }
   };
 
-  const getBarbers = async () => {
+  const handleGetBarbers = async () => {
     try {
       let { data: barbers, error } = await supabase.from("barbers").select("*");
 
@@ -143,7 +142,7 @@ const NumberClientsMonth = () => {
   };
 
   React.useEffect(() => {
-    getBarbers();
+    handleGetBarbers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -153,7 +152,7 @@ const NumberClientsMonth = () => {
   }, [allCashFlow, consultDate]);
 
   React.useEffect(() => {
-    handleCashs();
+    handleCountClients();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [consultDateCashFlow]);
 
@@ -210,7 +209,7 @@ const NumberClientsMonth = () => {
 
                   <button
                     onClick={() => {
-                      getCashFlow();
+                      handleGetAllCashFlow();
                     }}
                     className="p-4 w-full rounded-3xl text-white my-5 shadow-md bg-gradient-to-l from-green-800 to-green-700"
                   >
