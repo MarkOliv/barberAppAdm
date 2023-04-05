@@ -294,24 +294,24 @@ const Profile = () => {
                   <IonIcon src={create} />
                 )}
               </IonItem>
-              {currentProfilePage[0]?.client && (
-                <IonItem
-                  className="mt-2 mb-2 rounded-3xl"
-                  lines="none"
-                  id="open-modal2"
-                  key={"email"}
-                  onClick={editEmail}
-                >
-                  <IonIcon src={mail} />
-                  <IonLabel className="ml-5">
-                    <h2>Email</h2>
-                    <p>{currentProfilePage[0]?.email}</p>
-                  </IonLabel>
-                  {sessionUser?.id === currentProfilePage[0]?.id && (
-                    <IonIcon src={create} />
-                  )}
-                </IonItem>
-              )}
+
+              <IonItem
+                className="mt-2 mb-2 rounded-3xl"
+                lines="none"
+                id="open-modal2"
+                key={"email"}
+                onClick={editEmail}
+              >
+                <IonIcon src={mail} />
+                <IonLabel className="ml-5">
+                  <h2>Email</h2>
+                  <p>{currentProfilePage[0]?.email}</p>
+                </IonLabel>
+                {sessionUser?.id === currentProfilePage[0]?.id && (
+                  <IonIcon src={create} />
+                )}
+              </IonItem>
+
               <IonItem
                 className="mt-2 mb-2 rounded-3xl"
                 lines="none"
@@ -332,24 +332,31 @@ const Profile = () => {
                   <IonIcon src={create} />
                 )}
               </IonItem>
-              {currentProfilePage[0]?.client && (
-                <IonItem
-                  className="mt-2 mb-2 rounded-3xl"
-                  lines="none"
-                  id="open-modal4"
-                  key={"Address"}
-                  onClick={editAddress}
-                >
-                  <IonIcon src={home} />
-                  <IonLabel className="ml-5">
-                    <h2>Endereço</h2>
-                    <p>{currentProfilePage[0]?.address}</p>
-                  </IonLabel>
-                  {sessionUser?.id === currentProfilePage[0]?.id && (
-                    <IonIcon src={create} />
-                  )}
-                </IonItem>
-              )}
+              <IonItem
+                className="mt-2 mb-2 rounded-3xl"
+                lines="none"
+                id="open-modal4"
+                key={"Address"}
+                onClick={() => {
+                  if (currentProfilePage[0]?.address) {
+                    editAddress();
+                  } else {
+                    showToast({
+                      message: `Barbeiros não podem alterar o endereço`,
+                      duration: 2000,
+                    });
+                  }
+                }}
+              >
+                <IonIcon src={home} />
+                <IonLabel className="ml-5">
+                  <h2>Endereço</h2>
+                  <p>{currentProfilePage[0]?.address}</p>
+                </IonLabel>
+                {sessionUser?.id === currentProfilePage[0]?.id && (
+                  <IonIcon src={create} />
+                )}
+              </IonItem>
             </div>
             {isUserCurrentProfilePage && (
               <>
