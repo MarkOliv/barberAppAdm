@@ -30,6 +30,8 @@ import { useForm } from "react-hook-form";
 import ScheduleImage from "../../assets/Schedule-Time.png";
 import { useAuth } from "../../contexts";
 import { Link } from "react-router-dom";
+import { log } from "console";
+import { ErrorMessage } from "@hookform/error-message";
 
 export const EditSchedule = () => {
   const [showToast] = useIonToast();
@@ -54,7 +56,7 @@ export const EditSchedule = () => {
   const [totalValue, setTotalValue] = React.useState<number>(0);
 
   const schema = Yup.object().shape({
-    products: Yup.array().default([]),
+    products: Yup.array().default([]).nullable(),
   });
 
   const {
@@ -192,6 +194,8 @@ export const EditSchedule = () => {
   };
 
   const handleCashFlowIn = async (data: any) => {
+    console.log("here");
+
     await showLoading();
     try {
       const { data: cashFlowData, error } = await supabase
@@ -338,6 +342,7 @@ export const EditSchedule = () => {
                     />
                   </div>
                 </div>
+
                 <div id="price" className="my-3">
                   <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
                     <IonInput
@@ -422,7 +427,7 @@ export const EditSchedule = () => {
               initialBreakpoint={0.85}
               breakpoints={[0, 0.75, 0.85, 0.9, 1]}
             >
-              <div className="flex justify-around p-3 bg-gradient-to-l from-green-800 to-green-600">
+              <div className="flex justify-around p-3 bg-gradient-to-l from-green-800 to-green-600 ">
                 <IonTitle className="text-white">
                   Marcar como finalizado
                 </IonTitle>
@@ -436,10 +441,7 @@ export const EditSchedule = () => {
                 </div>
               </div>
 
-              <form
-                onSubmit={handleSubmit(handleCashFlowIn)}
-                className="ion-padding"
-              >
+              <div className="ion-padding">
                 <div
                   id="SERVICES"
                   className="w-full h-auto shadow rounded-3xl py-5 bg-red"
@@ -464,34 +466,25 @@ export const EditSchedule = () => {
                     ))}
                   </IonList>
                 </div>
-
-                <IonSelect
-                  id="PRODUCTS"
-                  onIonChange={({ detail }) => {
-                    let data: Array<any> = detail.value;
-                    let total = 0;
-                    for (let i = 0; i < data.length; i++) {
-                      for (let y = 0; y < products.length; y++) {
-                        if (data[i] === products[y]?.name) {
-                          total += products[y].price;
-                        }
-                      }
-                    }
-                    total += schedules[0]?.price;
-                    setTotalValue(total);
-                  }}
-                  multiple={true}
-                  className="bg-gray-200 rounded-3xl placeholder: text-gray-800 my-3 h-14"
-                  placeholder="Comprou/consumiu produtos"
-                  {...register("products")}
-                >
-                  {products.map((product, index) => (
-                    <IonSelectOption key={index} value={product?.name}>
-                      {product?.name}
-                    </IonSelectOption>
-                  ))}
-                </IonSelect>
-
+                <div className="grid grid-cols-3 gap-2">
+                  <div id="DESCONTO" className="my-3 col-span-2">
+                    <IonLabel className="text-gray-500 ">DESCONTO</IonLabel>
+                    <div className="flex items-center bg-gray-200 rounded-xl p-3 mt-3">
+                      <IonInput
+                        onIonChange={(e) => {
+                          console.log(e.target.value);
+                          setTotalValue(
+                            schedules[0]?.price - Number(e.target.value)
+                          );
+                        }}
+                        type={"number"}
+                        step="0.01"
+                        placeholder="Valor do desconto"
+                        className="placeholder: text-gray-900"
+                      />
+                    </div>
+                  </div>
+                </div>
                 <div className="grid grid-cols-3 gap-2">
                   <div id="NAME" className="my-3 col-span-2">
                     <IonLabel className="text-gray-500 ">Nome</IonLabel>
@@ -515,15 +508,60 @@ export const EditSchedule = () => {
                         className="placeholder: text-gray-900"
                         value={
                           totalValue > 0
-                            ? "R$" + totalValue
-                            : "R$" + schedules[0]?.price
+                            ? "R$" + totalValue.toFixed(2)
+                            : "R$" + schedules[0]?.price.toFixed(2)
                         }
                       />
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <form
+                onSubmit={handleSubmit(handleCashFlowIn)}
+                className="ion-padding"
+              >
+                <IonSelect
+                  id="PRODUCTS"
+                  onIonChange={({ detail }) => {
+                    let data: Array<any> = detail.value;
+                    let total = 0;
+                    for (let i = 0; i < data.length; i++) {
+                      for (let y = 0; y < products.length; y++) {
+                        if (data[i] === products[y]?.name) {
+                          total += products[y].price;
+                        }
+                      }
+                    }
+                    if (totalValue > 0) {
+                      total += totalValue;
+                    } else {
+                      total += schedules[0]?.price;
+                    }
+                    setTotalValue(total);
+                  }}
+                  multiple={true}
+                  className="bg-gray-200 rounded-3xl placeholder: text-gray-800 my-3 h-14"
+                  placeholder="Comprou/consumiu produtos"
+                  {...register("products")}
+                >
+                  {products.map((product, index) => (
+                    <IonSelectOption key={index} value={product?.name}>
+                      {product?.name}
+                    </IonSelectOption>
+                  ))}
+                </IonSelect>
+                <ErrorMessage
+                  errors={errors}
+                  name="products"
+                  as={<div style={{ color: "red" }} />}
+                />
+
                 <button
                   type="submit"
+                  onClick={() => {
+                    console.log("asd");
+                  }}
                   className="p-4 w-full rounded-3xl text-white my-5 bg-gradient-to-l from-green-800 to-green-700"
                 >
                   CONFIRMAR
