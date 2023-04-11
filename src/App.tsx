@@ -57,7 +57,7 @@ import RegisterSpecialties from "./pages/config/Specialties/RegisterSpecialties"
 import Specialties from "./pages/config/Specialties";
 import EditMyEspecialties from "./pages/config/Specialties/EditMyEspecialties";
 import Notifications from "./pages/Notifications";
-import Chat from "./pages/Chat";
+import Chat from "./pages/Barbearia";
 import Balance from "./pages/config/Reports/Balance";
 import Expenses from "./pages/config/Reports/Expenses";
 import DaysOff from "./pages/config/DaysOff";

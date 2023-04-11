@@ -16,6 +16,7 @@ import {
   calendar,
   chatbubbles,
   checkmarkCircle,
+  home,
   notifications,
   people,
   time,
@@ -249,7 +250,7 @@ const Home = () => {
     getSchedulesToShow();
     getProfile();
     getNotifications();
-    OneSignalNotifyInit();
+    // OneSignalNotifyInit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -329,12 +330,9 @@ const Home = () => {
                 onClick={() => router.push("/app/chat")}
                 className="flex flex-col justify-center items-center h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200"
               >
-                <IonIcon
-                  className="mb-5 w-8 h-8 text-gray-500"
-                  src={chatbubbles}
-                />
+                <IonIcon className="mb-5 w-8 h-8 text-gray-500" src={home} />
 
-                <IonText className="text-gray-400 ">Chats</IonText>
+                <IonText className="text-gray-400 ">Barbearia</IonText>
               </div>
 
               <Link
@@ -343,7 +341,7 @@ const Home = () => {
               >
                 <IonIcon className="mb-5 w-8 h-8 text-gray-500" src={people} />
 
-                <IonText className="text-gray-400 ">barbeiros</IonText>
+                <IonText className="text-gray-400 ">Barbeiros</IonText>
               </Link>
             </div>
             <div className="grid grid-cols-3 gap-4 py-3">
