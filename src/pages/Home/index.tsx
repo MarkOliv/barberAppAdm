@@ -249,7 +249,7 @@ const Home = () => {
     getSchedulesToShow();
     getProfile();
     getNotifications();
-    OneSignalNotifyInit();
+    //OneSignalNotifyInit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -325,7 +325,7 @@ const Home = () => {
 
                 <IonText className="text-white">Calendário</IonText>
               </div>
-              <div
+              {/* <div
                 onClick={() => router.push("/app/chat")}
                 className="flex flex-col justify-center items-center h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200"
               >
@@ -335,11 +335,11 @@ const Home = () => {
                 />
 
                 <IonText className="text-gray-400 ">Chats</IonText>
-              </div>
+              </div> */}
 
               <Link
                 to={"/app/barbers"}
-                className="flex flex-col justify-center items-center h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200"
+                className="flex flex-col justify-center items-center col-span-2 h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200"
               >
                 <IonIcon className="mb-5 w-8 h-8 text-gray-500" src={people} />
 
