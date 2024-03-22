@@ -562,7 +562,9 @@ const Calendar = () => {
 
               <>
                 <div className="flex flex-col justify-center items-center h-32 bg-white shadow-md rounded-3xl p-3">
-                  <IonText className="text-gray-500">Consultar Data</IonText>
+                  <IonText className="text-gray-500 mb-2">
+                    Consultar Agendamentos
+                  </IonText>
                   <div className="flex justify-center items-center bg-gray-200 rounded-3xl shadow-md h-10 w-full">
                     <IonIcon className="ml-3 text-gray-500" src={calendar} />
                     <IonInput
@@ -583,7 +585,7 @@ const Calendar = () => {
               <div className="flex justify-start mx-5">
                 <IonIcon className="mb-5 w-6 h-6 text-gray-500" src={time} />
                 <IonText className="ml-2 text-gray-500">
-                  {consultDate ? consultDate : "dd/mm/aaaa"}
+                  {consultDate ? consultDate : "ano/mês/dia"}
                 </IonText>
               </div>
               <div className="flex justify-center">
