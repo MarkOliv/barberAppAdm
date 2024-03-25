@@ -138,7 +138,7 @@ const Products = () => {
               >
                 <IonIcon className="w-6 h-6" src={chevronBackOutline} />
 
-                <IonTitle className="font-bold">Produtos</IonTitle>
+                <IonTitle className="font-bold">Produto</IonTitle>
               </Link>
               <div className="py-10 px-5">
                 {sessionUser?.user_metadata?.barber && (

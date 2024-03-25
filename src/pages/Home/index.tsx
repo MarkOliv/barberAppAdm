@@ -14,7 +14,6 @@ import {
 import {
   bag,
   calendar,
-  chatbubbles,
   checkmarkCircle,
   notifications,
   people,
@@ -107,6 +106,7 @@ const Home = () => {
     try {
       let orderArray = [];
       // console.log(schedulesToShow[0]?.times[0].slice(0, 2));
+      console.log(sessionUser?.user_metadata?.client);
 
       for (let i = 0; i < 21; i++) {
         for (let s = 0; s < schedulesToShow.length; s++) {
@@ -249,7 +249,7 @@ const Home = () => {
     getSchedulesToShow();
     getProfile();
     getNotifications();
-    //OneSignalNotifyInit();
+    // OneSignalNotifyInit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -323,19 +323,20 @@ const Home = () => {
               >
                 <IonIcon className="mb-5 w-8 h-8 text-white" src={calendar} />
 
-                <IonText className="text-white">Calendário</IonText>
-              </div>
-              {/* <div
-                onClick={() => router.push("/app/chat")}
-                className="flex flex-col justify-center items-center h-32 shadow-lg rounded-3xl bg-gradient-to-r from-white to-white-200"
-              >
-                <IonIcon
-                  className="mb-5 w-8 h-8 text-gray-500"
-                  src={chatbubbles}
-                />
+                {sessionUser?.user_metadata?.client ? (
+                  <IonText className="text-white">Agendar</IonText>
+                ) : (
+                  <IonText className="text-white">Calendário</IonText>
+                )}
 
-                <IonText className="text-gray-400 ">Chats</IonText>
-              </div> */}
+                {/* {sessionUser?.user_metadata?.client && (
+                  <IonText className="text-white">Agendar</IonText>
+                )} : {sessionUser?.user_metadata?.barber && (
+                  <IonText className="text-white">teste</IonText>
+                )} */}
+
+                {/* <IonText className="text-white">Calendário</IonText> */}
+              </div>
 
               <Link
                 to={"/app/barbers"}
