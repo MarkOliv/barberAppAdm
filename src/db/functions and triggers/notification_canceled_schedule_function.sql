@@ -1,6 +1,6 @@
 -- Notication when we have a new schedule
 create
-or replace function handle_new_schedule() returns trigger as $ $ declare client_id uuid;
+or replace function handle_canceled_schedule() returns trigger as $ $ declare client_id uuid;
 
 begin
 select
@@ -23,7 +23,7 @@ VALUES
         client_id,
         new.barber_id,
         new.date,
-        'schedule'
+        'canceled'
     );
 
 RETURN NEW;
